@@ -27,7 +27,8 @@ MSTimer::~MSTimer() {
     }
 }
 
-void MSTimer::start() {
+void
+MSTimer::start() {
     assert(isRun == false && task != nullptr);
     isRun = true;
     timerThread = thread([&]() {
@@ -49,25 +50,30 @@ void MSTimer::start() {
     });
 }
 
-void MSTimer::pause() {
+void
+MSTimer::pause() {
     isPause = true;
 }
 
-void MSTimer::_continue() {
+void
+MSTimer::_continue() {
     isPause = false;
 }
 
-void MSTimer::stop() {
+void
+MSTimer::stop() {
     isRun = false;
     condition.notify_one();
 }
 
-MSTimer& MSTimer::updateTask(TaskType task) {
+MSTimer &
+MSTimer::updateTask(TaskType task) {
     this->task = task;
     return *this;
 }
 
-MSTimer& MSTimer::updateTimeInterval(microseconds timeInterval) {
+MSTimer &
+MSTimer::updateTimeInterval(microseconds timeInterval) {
     this->timeInterval = timeInterval;
     return *this;
 }

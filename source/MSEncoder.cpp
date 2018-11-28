@@ -10,8 +10,28 @@
 
 using namespace MS;
 
+using namespace std;
+
 MSData * const
-MSEncoder::encode(const MSData& decodeData) {
-    MSData *data = new MSData(decodeData);
+MSEncoder::encodeVideo(const MSData &pixelData) {
+    MSData *data = new MSData(pixelData);
     return data;
+}
+
+MSData * const
+MSEncoder::encodeAudio(const MSData &sampleData) {
+    MSData *data = new MSData(sampleData);
+    return data;
+}
+
+MSEncoder::MSEncoder() {
+    
+}
+
+MSEncoder::~MSEncoder() {
+    // 释放编码器
+    for (auto element : *encoderMap) {
+        delete element.second;
+    }
+    delete encoderMap;
 }

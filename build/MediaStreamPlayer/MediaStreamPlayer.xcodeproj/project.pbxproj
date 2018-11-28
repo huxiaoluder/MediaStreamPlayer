@@ -13,6 +13,12 @@
 		4F61CC58219BF1D400B4B76E /* MSEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC56219BF1D400B4B76E /* MSEncoder.cpp */; };
 		4F61CC5B219BF1E700B4B76E /* MSDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC59219BF1E700B4B76E /* MSDecoder.cpp */; };
 		4F654E7721A649E800F74803 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC47219BF07F00B4B76E /* main.cpp */; };
+		4F8C6EBC21AE825B00E3443C /* MSCodecContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C6EBA21AE825B00E3443C /* MSCodecContext.cpp */; };
+		4F8C6EC721AE8B2000E3443C /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EBE21AE8B2000E3443C /* libavutil.a */; };
+		4F8C6ECA21AE8B2000E3443C /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC121AE8B2000E3443C /* libavformat.a */; };
+		4F8C6ECC21AE8B2000E3443C /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC321AE8B2000E3443C /* libavcodec.a */; };
+		4F8C6ECD21AE8B2000E3443C /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC421AE8B2000E3443C /* libswresample.a */; };
+		4F8C6ECE21AE8B2000E3443C /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC521AE8B2000E3443C /* libswscale.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,6 +51,17 @@
 		4F61CC5E219C140100B4B76E /* MSCodecProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSCodecProtocol.h; sourceTree = "<group>"; };
 		4F61CC60219C16DB00B4B76E /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		4F654E7421A643D600F74803 /* test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test.cpp; sourceTree = "<group>"; };
+		4F8C6EBA21AE825B00E3443C /* MSCodecContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSCodecContext.cpp; sourceTree = "<group>"; };
+		4F8C6EBB21AE825B00E3443C /* MSCodecContext.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSCodecContext.hpp; sourceTree = "<group>"; };
+		4F8C6EBD21AE8B2000E3443C /* libavresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavresample.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavresample.a; sourceTree = "<group>"; };
+		4F8C6EBE21AE8B2000E3443C /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavutil.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavutil.a; sourceTree = "<group>"; };
+		4F8C6EBF21AE8B2000E3443C /* libavfilter.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavfilter.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavfilter.a; sourceTree = "<group>"; };
+		4F8C6EC021AE8B2000E3443C /* libpostproc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpostproc.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libpostproc.a; sourceTree = "<group>"; };
+		4F8C6EC121AE8B2000E3443C /* libavformat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavformat.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavformat.a; sourceTree = "<group>"; };
+		4F8C6EC221AE8B2000E3443C /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavdevice.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavdevice.a; sourceTree = "<group>"; };
+		4F8C6EC321AE8B2000E3443C /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavcodec.a; sourceTree = "<group>"; };
+		4F8C6EC421AE8B2000E3443C /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswresample.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libswresample.a; sourceTree = "<group>"; };
+		4F8C6EC521AE8B2000E3443C /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswscale.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libswscale.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +69,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F8C6EC721AE8B2000E3443C /* libavutil.a in Frameworks */,
+				4F8C6ECA21AE8B2000E3443C /* libavformat.a in Frameworks */,
+				4F8C6ECC21AE8B2000E3443C /* libavcodec.a in Frameworks */,
+				4F8C6ECD21AE8B2000E3443C /* libswresample.a in Frameworks */,
+				4F8C6ECE21AE8B2000E3443C /* libswscale.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +118,8 @@
 				4F01917621A65812003E1408 /* MSTimer.cpp */,
 				4F61CC54219BF1C500B4B76E /* MSPlayer.hpp */,
 				4F61CC53219BF1C500B4B76E /* MSPlayer.cpp */,
+				4F8C6EBB21AE825B00E3443C /* MSCodecContext.hpp */,
+				4F8C6EBA21AE825B00E3443C /* MSCodecContext.cpp */,
 				4F61CC5A219BF1E700B4B76E /* MSDecoder.hpp */,
 				4F61CC59219BF1E700B4B76E /* MSDecoder.cpp */,
 				4F61CC57219BF1D400B4B76E /* MSEncoder.hpp */,
@@ -108,6 +132,15 @@
 		4F61CC5F219C16DB00B4B76E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F8C6EC321AE8B2000E3443C /* libavcodec.a */,
+				4F8C6EC221AE8B2000E3443C /* libavdevice.a */,
+				4F8C6EBF21AE8B2000E3443C /* libavfilter.a */,
+				4F8C6EC121AE8B2000E3443C /* libavformat.a */,
+				4F8C6EBD21AE8B2000E3443C /* libavresample.a */,
+				4F8C6EBE21AE8B2000E3443C /* libavutil.a */,
+				4F8C6EC021AE8B2000E3443C /* libpostproc.a */,
+				4F8C6EC421AE8B2000E3443C /* libswresample.a */,
+				4F8C6EC521AE8B2000E3443C /* libswscale.a */,
 				4F5F6F9F219D47B300FF46D8 /* libdispatch.tbd */,
 				4F61CC60219C16DB00B4B76E /* libc++.tbd */,
 			);
@@ -176,6 +209,7 @@
 				4F61CC55219BF1C500B4B76E /* MSPlayer.cpp in Sources */,
 				4F654E7721A649E800F74803 /* main.cpp in Sources */,
 				4F61CC58219BF1D400B4B76E /* MSEncoder.cpp in Sources */,
+				4F8C6EBC21AE825B00E3443C /* MSCodecContext.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,10 +334,19 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = C65X67CW5H;
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../../source\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../source\"",
+					"$(mac_ffmpeg_header)",
+					"$(mac_x264_header)",
+					"$(mac_x265_header)",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/system/introspection",
+					"$(mac_ffmpeg_lib)",
+					"$(mac_x264_lib)",
+					"$(mac_x265_lib)",
+					/usr/local/Cellar/ffmpeg/4.0.2_1/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -316,10 +359,19 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = C65X67CW5H;
-				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../../source\"";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../source\"",
+					"$(mac_ffmpeg_header)",
+					"$(mac_x264_header)",
+					"$(mac_x265_header)",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib/system/introspection",
+					"$(mac_ffmpeg_lib)",
+					"$(mac_x264_lib)",
+					"$(mac_x265_lib)",
+					/usr/local/Cellar/ffmpeg/4.0.2_1/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

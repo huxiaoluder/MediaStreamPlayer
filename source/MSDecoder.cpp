@@ -11,7 +11,25 @@
 using namespace MS;
 
 MSData * const
-MSDecoder::decode(const MSData& encodeData) {
-    MSData *data = new MSData(encodeData);
+MSDecoder::decodeVideo(const MSData &videoData) {
+    MSData *data = new MSData(videoData);
     return data;
+}
+
+MSData * const
+MSDecoder::decodeAudio(const MSData &audioData) {
+    MSData *data = new MSData(audioData);
+    return data;
+}
+
+MSDecoder::MSDecoder() {
+    
+}
+
+MSDecoder::~MSDecoder() {
+    // 释放解码器
+    for (auto element : *decoderMap) {
+        delete element.second;
+    }
+    delete decoderMap;
 }

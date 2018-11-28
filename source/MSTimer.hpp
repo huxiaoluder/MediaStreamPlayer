@@ -53,9 +53,9 @@ namespace MS {
         
         void stop();
         
-        MSTimer& updateTask(TaskType task);
+        MSTimer & updateTask(TaskType task);
         
-        MSTimer& updateTimeInterval(microseconds timeInterval);
+        MSTimer & updateTimeInterval(microseconds timeInterval);
     };
     
 }

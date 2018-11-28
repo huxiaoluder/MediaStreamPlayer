@@ -31,9 +31,13 @@ namespace MS {
         
         mutex conditionMutex;
         
-        mutex frameMutex;
+        mutex videoMutex;
         
-        mutex sourceMutex;
+        mutex pixelMutex;
+        
+        mutex audioMutex;
+        
+        mutex sampleMutex;
         
         MSDecoderProtocol * const decoder;
         
@@ -41,9 +45,13 @@ namespace MS {
         
         MSTimer * const timer = new MSTimer(microseconds(0),intervale(25),nullptr);
         
-        queue<MSData *> * const sourceDataQueue = new queue<MSData *>();
+        queue<MSData *> * const videoQueue = new queue<MSData *>();
         
-        queue<MSData *> * const frameDataQueue = new queue<MSData *>();
+        queue<MSData *> * const pixelQueue = new queue<MSData *>();
+        
+        queue<MSData *> * const audioQueue = new queue<MSData *>();
+        
+        queue<MSData *> * const sampleQueue = new queue<MSData *>();
         
         bool decodeState = true;
         
@@ -64,8 +72,6 @@ namespace MS {
         
         ~MSPlayer();
         
-        void pushSourceData(MSData *sourceData);
-        
         void startPlay(const ThrowData throwDecodeData);
         
         void pausePlay();
@@ -81,6 +87,10 @@ namespace MS {
         void continueReEncode();
         
         void stopReEncode();
+        
+        void pushVideoData(MSData *videoData);
+        
+        void pushAudioData(MSData *audioData);
     };
     
 }

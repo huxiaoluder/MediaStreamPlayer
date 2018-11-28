@@ -28,47 +28,47 @@ MSPlayer::MSPlayer(MSDecoderProtocol * const decoder,
     defaultInit();
 }
 
-void MSPlayer::defaultInit() {
+void
+MSPlayer::defaultInit() {
     decodeThread = thread([&](){
         MSData *sourceData = nullptr;
         MSData *frameData = nullptr;
         while (decodeState) {
-            while (sourceDataQueue->empty() || frameDataQueue->size() > 20) {
+            while (videoQueue->empty() || pixelQueue->size() > 20) {
                 unique_lock<mutex> lock(conditionMutex);
                 condition.wait(lock);
                 if (!decodeState) break;
             }
             if (!decodeState) break;
-            printf("解码\n");
-            sourceData = sourceDataQueue->front();
-            while (!sourceMutex.try_lock());
-            sourceDataQueue->pop();
-            sourceMutex.unlock();
-            frameData = decoder->decode(*sourceData);
+            sourceData = videoQueue->front();
+            while (!videoMutex.try_lock());
+            videoQueue->pop();
+            videoMutex.unlock();
+            frameData = decoder->decodeVideo(*sourceData);
             if (frameData) {
-                while (!frameMutex.try_lock());
-                frameDataQueue->push(frameData);
-                frameMutex.unlock();
+                while (!pixelMutex.try_lock());
+                pixelQueue->push(frameData);
+                pixelMutex.unlock();
             }
             delete sourceData;
         }
     });
     
     timer->updateTask([&](){
-        if (!frameDataQueue->empty()) {
+        if (!pixelQueue->empty()) {
             MSData *frameData = nullptr;
             MSData *encodeData = nullptr;
-            frameData = frameDataQueue->front();
-            while (!frameMutex.try_lock());
-            frameDataQueue->pop();
-            frameMutex.unlock();
-            if (frameDataQueue->size() < 5) {
+            frameData = pixelQueue->front();
+            while (!pixelMutex.try_lock());
+            pixelQueue->pop();
+            pixelMutex.unlock();
+            if (pixelQueue->size() < 5) {
                 condition.notify_one();
             }
             timer->updateTimeInterval(frameData->timeInterval);
             throwDecodeData(*frameData);
             if (encodeState) {
-                encodeData = encoder->encode(*frameData);
+                encodeData = encoder->encodeVideo(*frameData);
                 if (encodeData) {
                     throwEncodeData(*encodeData);
                     delete encodeData;
@@ -91,68 +91,85 @@ MSPlayer::~MSPlayer() {
     }
     delete decoder;
     delete encoder;
-    delete sourceDataQueue;
-    delete frameDataQueue;
+    delete videoQueue;
+    delete pixelQueue;
     delete timer;
 }
 
-void MSPlayer::clearAllData() {
+void
+MSPlayer::clearAllData() {
     MSData *data = nullptr;
-    while (!sourceDataQueue->empty()) {
-        data = sourceDataQueue->front();
-        sourceDataQueue->pop();
+    while (!videoQueue->empty()) {
+        data = videoQueue->front();
+        videoQueue->pop();
         delete data;
     }
-    while (!frameDataQueue->empty()) {
-        data = frameDataQueue->front();
-        frameDataQueue->pop();
+    while (!pixelQueue->empty()) {
+        data = pixelQueue->front();
+        pixelQueue->pop();
         delete data;
     }
 }
 
-void MSPlayer::pushSourceData(MSData *sourceData) {
-    while (!sourceMutex.try_lock());
-    sourceDataQueue->push(sourceData);
-    sourceMutex.unlock();
-}
-
-void MSPlayer::startPlay(const ThrowData throwDecodeData) {
+void
+MSPlayer::startPlay(const ThrowData throwDecodeData) {
     stopPlay();
     assert(throwDecodeData);
     this->throwDecodeData = throwDecodeData;
     timer->start();
 }
 
-void MSPlayer::pausePlay() {
+void
+MSPlayer::pausePlay() {
     timer->pause();
 }
 
-void MSPlayer::continuePlay() {
+void
+MSPlayer::continuePlay() {
     assert(throwDecodeData);
     timer->_continue();
 }
 
-void MSPlayer::stopPlay() {
+void
+MSPlayer::stopPlay() {
     timer->stop();
     encodeState = false;
     clearAllData();
 }
 
-void MSPlayer::startReEncode(const ThrowData throwEncodeData) {
+void
+MSPlayer::startReEncode(const ThrowData throwEncodeData) {
     assert(throwEncodeData);
     this->throwEncodeData = throwEncodeData;
     encodeState = true;
 }
 
-void MSPlayer::pauseReEncode() {
+void
+MSPlayer::pauseReEncode() {
     encodeState = false;
 }
 
-void MSPlayer::continueReEncode() {
+void
+MSPlayer::continueReEncode() {
     assert(throwEncodeData);
     encodeState = true;
 }
 
-void MSPlayer::stopReEncode() {
+void
+MSPlayer::stopReEncode() {
     encodeState = false;
+}
+
+void
+MSPlayer::pushVideoData(MSData *videoData) {
+    while (!videoMutex.try_lock());
+    videoQueue->push(videoData);
+    videoMutex.unlock();
+}
+
+void
+MSPlayer::pushAudioData(MSData *audioData) {
+    while (!audioMutex.try_lock());
+    audioQueue->push(audioData);
+    audioMutex.unlock();
 }

@@ -15,7 +15,7 @@ MSData::MSData(uint8_t * const bytes, size_t const len, std::chrono::microsecond
     memcpy(this->bytes, bytes, len);
 }
 
-MSData::MSData(const MSData& data)
+MSData::MSData(const MSData &data)
 :bytes(new uint8_t[data.len]()), len(data.len), timeInterval(data.timeInterval) {
     memcpy(bytes, data.bytes, len);
 }

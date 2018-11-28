@@ -14,13 +14,15 @@ namespace MS {
     class MSDecoderProtocol {
     public:
         virtual ~MSDecoderProtocol() {};
-        virtual MSData * const decode(const MSData& encodeData) = 0;
+        virtual MSData * const decodeVideo(const MSData &videoData) = 0;
+        virtual MSData * const decodeAudio(const MSData &audioData) = 0;
     };
     
     class MSEncoderProtocol {
     public:
         virtual ~MSEncoderProtocol() {};
-        virtual MSData * const encode(const MSData& decodeData) = 0;
+        virtual MSData * const encodeVideo(const MSData &pixelData) = 0;
+        virtual MSData * const encodeAudio(const MSData &sampleData) = 0;
     };
     
 }

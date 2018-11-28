@@ -9,16 +9,21 @@
 #ifndef MSDecoder_hpp
 #define MSDecoder_hpp
 
-#include <string>
-
+#include <map>
 #include "MSType.hpp"
 #include "MSCodecProtocol.h"
+#include "MSCodecContext.hpp"
 
 namespace MS {
     
     class MSDecoder : public MSDecoderProtocol {
+        std::map<MSCodecID, MSCodecContext *> *decoderMap = new std::map<MSCodecID, MSCodecContext *>();
+        
     public:
-        virtual MSData * const decode(const MSData& encodeData);
+        MSData * const decodeVideo(const MSData &videoData);
+        MSData * const decodeAudio(const MSData &audioData);
+        MSDecoder();
+        ~MSDecoder();
     };
     
 }

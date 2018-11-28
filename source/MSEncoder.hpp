@@ -9,16 +9,21 @@
 #ifndef MSEncoder_hpp
 #define MSEncoder_hpp
 
-#include <string>
-
+#include <map>
 #include "MSType.hpp"
 #include "MSCodecProtocol.h"
+#include "MSCodecContext.hpp"
 
 namespace MS {
     
     class MSEncoder : public MSEncoderProtocol {
+        std::map<MSCodecID,MSCodecContext *> *encoderMap = new std::map<MSCodecID, MSCodecContext *>();
+        
     public:
-        virtual MSData * const encode(const MSData& decodeData);
+        MSData * const encodeVideo(const MSData &pixelData);
+        MSData * const encodeAudio(const MSData &sampleData);
+        MSEncoder();
+        ~MSEncoder();
     };
     
 }

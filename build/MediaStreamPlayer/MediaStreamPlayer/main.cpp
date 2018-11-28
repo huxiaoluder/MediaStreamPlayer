@@ -26,33 +26,23 @@ using namespace MS;
 
 MSPlayer *player;
 
+int i = 0;
 
 void test(){
     player = new MSPlayer();
     sleep(5);
     
-    player->startPlay([](MSData& data){
-        microseconds time = data.timeInterval;
-        cout << "播放: " << time.count() << endl;
+    player->startPlay([](MSData &data){
+        cout << "播放: " << data.timeInterval.count() << "-----" << i++ << endl;
     });
     
-    for (int i = 0; i < 30; i++) {
-        MSData *data = new MSData(nullptr,0,intervale(1));
-        player->pushSourceData(data);
+    for (int i = 0; i < 20; i++) {
+        MSData *data = new MSData((uint8_t *)0x001,0,intervale(1));
+        player->pushVideoData(data);
     }
     
-    sleep(10);
-    player->pausePlay();
-    printf("pause");
-    sleep(10);
+    sleep(20);
     
-    for (int i = 0; i < 30; i++) {
-        MSData *data = new MSData(nullptr,0,intervale(1));
-        player->pushSourceData(data);
-    }
-    player->continuePlay();
-    sleep(10);
-    player->stopPlay();
     delete player;
 }
 
