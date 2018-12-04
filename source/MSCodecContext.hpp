@@ -9,7 +9,7 @@
 #ifndef MSCodecContext_hpp
 #define MSCodecContext_hpp
 
-#include "MSType.hpp"
+#include "MSMediaData"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
 extern "C" {
@@ -29,15 +29,15 @@ namespace MS {
     };
     
     struct MSCodecContext {
-        MSCodecType const codecType;
+        const MSCodecType codecType;
         
-        MSCodecID const codecID;
+        const MSCodecID codecID;
         
         AVCodecContext * const codec_ctx;
         
         AVFormatContext * const fmt_ctx;
         
-        MSCodecContext(MSCodecType codecType, MSCodecID codecID);
+        MSCodecContext(const MSCodecType codecType, const MSCodecID codecID);
         
         ~MSCodecContext();
     

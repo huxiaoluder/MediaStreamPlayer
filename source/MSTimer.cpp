@@ -12,7 +12,9 @@ using namespace MS;
 
 using namespace this_thread;
 
-MSTimer::MSTimer(microseconds delayTime, microseconds timeInterval, TaskType task)
+MSTimer::MSTimer(const microseconds delayTime,
+                 const microseconds timeInterval,
+                 const TaskType task)
 :delayTime(delayTime), timeInterval(timeInterval), task(task) {
 
 }
@@ -67,13 +69,13 @@ MSTimer::stop() {
 }
 
 MSTimer &
-MSTimer::updateTask(TaskType task) {
+MSTimer::updateTask(const TaskType task) {
     this->task = task;
     return *this;
 }
 
 MSTimer &
-MSTimer::updateTimeInterval(microseconds timeInterval) {
+MSTimer::updateTimeInterval(const microseconds timeInterval) {
     this->timeInterval = timeInterval;
     return *this;
 }

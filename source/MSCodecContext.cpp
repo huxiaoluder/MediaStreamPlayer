@@ -10,9 +10,11 @@
 
 using namespace MS;
 
-MSCodecContext::MSCodecContext(MSCodecType codecType, MSCodecID codecID)
-:codecType(codecType), codecID(codecID),
-codec_ctx(initCodecContext()), fmt_ctx(initFormatContex()) {
+MSCodecContext::MSCodecContext(const MSCodecType codecType, const MSCodecID codecID)
+:codecType(codecType),
+codecID(codecID),
+codec_ctx(initCodecContext()),
+fmt_ctx(initFormatContex()) {
     assert(codecID != MSCodecID_None && codec_ctx != nullptr);
 }
 
@@ -26,12 +28,12 @@ AVCodecID const
 MSCodecContext::getAVCodecId() {
     AVCodecID codec_id;
     switch (codecID) {
-        case MSCodecID_None:    codec_id = AV_CODEC_ID_NONE; break;
-        case MSCodecID_H264:    codec_id = AV_CODEC_ID_H264; break;
-        case MSCodecID_H265:    codec_id = AV_CODEC_ID_NONE; break;
-        case MSCodecID_AAC:     codec_id = AV_CODEC_ID_AAC;  break;
-        case MSCodecID_G711:    codec_id = AV_CODEC_ID_NONE; break;
-        case MSCodecID_OPUS:    codec_id = AV_CODEC_ID_OPUS; break;
+        case MSCodecID_None:    codec_id = AV_CODEC_ID_NONE;    break;
+        case MSCodecID_H264:    codec_id = AV_CODEC_ID_H264;    break;
+        case MSCodecID_H265:    codec_id = AV_CODEC_ID_NONE;    break;
+        case MSCodecID_AAC:     codec_id = AV_CODEC_ID_AAC;     break;
+        case MSCodecID_G711:    codec_id = AV_CODEC_ID_NONE;    break;
+        case MSCodecID_OPUS:    codec_id = AV_CODEC_ID_OPUS;    break;
     }
     return codec_id;
 }

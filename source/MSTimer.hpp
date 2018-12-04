@@ -14,10 +14,13 @@
 #include <chrono>
 #include <mutex>
 #include <condition_variable>
-#include "MSType.hpp"
+
+#define intervale(rate) microseconds(1000000LL/rate)
 
 namespace MS {
 
+    typedef std::function<void()> TaskType;
+    
     using namespace std;
     
     using namespace chrono;
@@ -41,7 +44,9 @@ namespace MS {
         
         TaskType task;
     public:
-        MSTimer(microseconds delayTime, microseconds timeInterval, TaskType task);
+        MSTimer(const microseconds delayTime,
+                const microseconds timeInterval,
+                const TaskType task);
         
         ~MSTimer();
 
@@ -53,9 +58,9 @@ namespace MS {
         
         void stop();
         
-        MSTimer & updateTask(TaskType task);
+        MSTimer & updateTask(const TaskType task);
         
-        MSTimer & updateTimeInterval(microseconds timeInterval);
+        MSTimer & updateTimeInterval(const microseconds timeInterval);
     };
     
 }

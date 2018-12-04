@@ -7,57 +7,54 @@
 //
 
 #include <unistd.h>
-#include <csignal>
-#include <ctime>
-#include <MSPlayer.hpp>
 #include <iostream>
-#include <thread>
-#include <future>
-#include <chrono>
-//#include <mutex>
-//#include <shared_mutex>
-#include <condition_variable>
-#include <semaphore.h>
-#include <csignal>
-#include <sys/time.h>
-#include <MSTimer.hpp>
+#include <MSPlayer>
+#include <FFDecoder.hpp>
+#include <FFEncoder.hpp>
 
 using namespace MS;
 
-MSPlayer *player;
+MSPlayer<AVFrame *> *player;
 
 int i = 0;
 
 void test(){
-    player = new MSPlayer();
+
+    
+    auto decoder = new FFDecoder();
+    auto encoder = new FFEncoder();
+    player = new MSPlayer<AVFrame *>(decoder,encoder);
     sleep(5);
-    
-    player->startPlay([](MSData &data){
-        cout << "播放: " << data.timeInterval.count() << "-----" << i++ << endl;
-    });
-    
-    for (int i = 0; i < 20; i++) {
-        MSData *data = new MSData((uint8_t *)0x001,0,intervale(1));
-        player->pushVideoData(data);
-    }
-    
+
+//    player->startPlay([](const MSMediaData<isDecodeData,AVFrame *> &data){
+//        cout << "播放: " << data.content.timeInterval.count() << "-----" << i++ << endl;
+//    });
+//
+//    for (int i = 0; i < 20; i++) {
+//        MSContentData<isEncodeData> content((uint8_t*)0x10,0,MSCodecID_H264);
+//        MSMediaData<isEncodeData> *data = new MSMediaData<isEncodeData>(content);
+//        player->pushVideoData(data);
+//    }
+
     sleep(20);
-    
+
     delete player;
 }
 
 int main(int argc, const char * argv[]) {
     
     test();
-//    static int i = 0;
+    int *i = new int(10);
+    auto &ii = *i;
+    ii = 20;
+    printf("%p\n", i);
+    printf("%p\n", &ii);
+    printf("%d\n",*i);
     while (true) {
-//        printf("++++++++++\n");
-        
         this_thread::sleep_for(seconds(1));
     }
-
-//    this_thread::sleep_for(hours(24));
     return 0;
 }
+
 
 

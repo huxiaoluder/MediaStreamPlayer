@@ -1,0 +1,257 @@
+//
+//  MSPlayer
+//  MediaStreamPlayer
+//
+//  Created by 胡校明 on 2018/11/14.
+//  Copyright © 2018 freecoder. All rights reserved.
+//
+
+#ifndef _MSPlayer_
+#define _MSPlayer_
+
+#include <string>
+#include <queue>
+#include <cassert>
+#include "MSTimer.hpp"
+#include "MSCodecProtocol.h"
+
+namespace MS {
+    
+    using namespace std;
+    
+    using namespace chrono;
+
+#pragma mark - MSPlayer<T>(declaration)
+    template <typename T>
+    class MSPlayer {
+        typedef function<void(const MSMediaData<isDecode,T> &decodeData)> ThrowDecodeData;
+        
+        typedef function<void(const MSMediaData<isEncode> &decodeData)> ThrowEncodeData;
+        
+        MSDecoderProtocol<T> * const decoder;
+        
+        MSEncoderProtocol<T> * const encoder;
+        
+        MSTimer * const timer = new MSTimer(microseconds(0),intervale(25),nullptr);
+        
+        thread decodeThread;
+        
+        condition_variable condition;
+        
+        mutex conditionMutex;
+        
+        mutex videoMutex;
+        
+        mutex pixelMutex;
+        
+        mutex audioMutex;
+        
+        mutex sampleMutex;
+        
+        queue<MSMediaData<isEncode> *> videoQueue;
+        
+        queue<MSMediaData<isEncode> *> audioQueue;
+        
+        queue<MSMediaData<isDecode,T> *> pixelQueue;
+        
+        queue<MSMediaData<isDecode,T> *> sampleQueue;
+        
+        bool decodeState = true;
+        
+        bool encodeState = false;
+        
+        ThrowDecodeData throwDecodeData;
+        
+        ThrowEncodeData throwEncodeData;
+        
+        void clearAllData();
+    public:
+        MSPlayer(MSDecoderProtocol<T> * const decoder,
+                 MSEncoderProtocol<T> * const encoder);
+        
+        ~MSPlayer();
+        
+        void startPlay(const ThrowDecodeData throwDecodeData);
+        
+        void pausePlay();
+        
+        void continuePlay();
+        
+        void stopPlay();
+        
+        void startReEncode(const ThrowEncodeData throwEncodeData);
+        
+        void pauseReEncode();
+        
+        void continueReEncode();
+        
+        void stopReEncode();
+        
+        void pushVideoData(MSMediaData<isEncode> *videoData);
+        
+        void pushAudioData(MSMediaData<isEncode> *audioData);
+    };
+    
+#pragma mark - MSPlayer<T>(implementation)
+    template <typename T>
+    MSPlayer<T>::MSPlayer(MSDecoderProtocol<T> * const decoder,
+                          MSEncoderProtocol<T> * const encoder)
+    :decoder(decoder), encoder(encoder) {
+        decodeThread = thread([&](){
+            MSMediaData<isEncode> *sourceData = nullptr;
+            MSMediaData<isDecode,T> *frameData = nullptr;
+            while (decodeState) {
+                while (videoQueue.empty() || pixelQueue.size() > 20) {
+                    unique_lock<mutex> lock(conditionMutex);
+                    condition.wait(lock);
+                    if (!decodeState) break;
+                }
+                if (!decodeState) break;
+                sourceData = videoQueue.front();
+                while (!videoMutex.try_lock());
+                videoQueue.pop();
+                videoMutex.unlock();
+                frameData = decoder->decodeVideo(*sourceData);
+                if (frameData) {
+                    while (!pixelMutex.try_lock());
+                    pixelQueue.push(frameData);
+                    pixelMutex.unlock();
+                }
+                delete sourceData;
+            }
+        });
+        
+        timer->updateTask([&](){
+            if (!pixelQueue.empty()) {
+                MSMediaData<isDecode,T> *frameData = nullptr;
+                MSMediaData<isEncode> *encodeData = nullptr;
+                frameData = pixelQueue.front();
+                while (!pixelMutex.try_lock());
+                pixelQueue.pop();
+                pixelMutex.unlock();
+                if (pixelQueue.size() < 5) {
+                    condition.notify_one();
+                }
+                timer->updateTimeInterval(frameData->content.timeInterval);
+                throwDecodeData(*frameData);
+                if (encodeState) {
+                    encodeData = encoder->encodeVideo(*frameData);
+                    if (encodeData) {
+                        throwEncodeData(*encodeData);
+                        delete encodeData;
+                    }
+                }
+                delete frameData;
+            } else {
+                throwDecodeData(MSMediaData<isDecode,T>::defaultNullData);
+                condition.notify_one();
+            }
+        });
+    }
+    
+    template <typename T>
+    MSPlayer<T>::~MSPlayer() {
+        stopPlay();
+        decodeState = false;
+        condition.notify_one();
+        if (decodeThread.joinable()) {
+            decodeThread.join();
+        }
+        clearAllData();
+        delete decoder;
+        delete encoder;
+        delete timer;
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::clearAllData() {
+        MSMediaData<isEncode> *encodeData = nullptr;
+        MSMediaData<isDecode,T> *decodeData = nullptr;
+        while (!videoQueue.empty()) {
+            encodeData = videoQueue.front();
+            videoQueue.pop();
+            delete encodeData;
+        }
+        while (!pixelQueue.empty()) {
+            decodeData = pixelQueue.front();
+            pixelQueue.pop();
+            delete decodeData;
+        }
+        while (!audioQueue.empty()) {
+            encodeData = audioQueue.front();
+            audioQueue.pop();
+            delete encodeData;
+        }
+        while (!sampleQueue.empty()) {
+            decodeData = sampleQueue.front();
+            sampleQueue.pop();
+            delete decodeData;
+        }
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::startPlay(const ThrowDecodeData throwDecodeData) {
+        stopPlay();
+        clearAllData();
+        assert(throwDecodeData);
+        this->throwDecodeData = throwDecodeData;
+        timer->start();
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::pausePlay() {
+        timer->pause();
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::continuePlay() {
+        assert(throwDecodeData);
+        timer->_continue();
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::stopPlay() {
+        timer->stop();
+        encodeState = false;
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::startReEncode(const ThrowEncodeData throwEncodeData) {
+        assert(throwEncodeData);
+        this->throwEncodeData = throwEncodeData;
+        encodeState = true;
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::pauseReEncode() {
+        encodeState = false;
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::continueReEncode() {
+        assert(throwEncodeData);
+        encodeState = true;
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::stopReEncode() {
+        encodeState = false;
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::pushVideoData(MSMediaData<isEncode> *videoData) {
+        while (!videoMutex.try_lock());
+        videoQueue.push(videoData);
+        videoMutex.unlock();
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::pushAudioData(MSMediaData<isEncode> *audioData) {
+        while (!audioMutex.try_lock());
+        audioQueue.push(audioData);
+        audioMutex.unlock();
+    }
+    
+}
+
+#endif /* MSPlayer_hpp */

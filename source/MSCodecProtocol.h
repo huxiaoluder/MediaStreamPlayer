@@ -9,20 +9,28 @@
 #ifndef MSCodecProtocol_h
 #define MSCodecProtocol_h
 
+#include "MSMediaData"
+
 namespace MS {
     
+    template <typename T>
     class MSDecoderProtocol {
     public:
+        typedef MSMediaData<isDecode,T> outputType;
         virtual ~MSDecoderProtocol() {};
-        virtual MSData * const decodeVideo(const MSData &videoData) = 0;
-        virtual MSData * const decodeAudio(const MSData &audioData) = 0;
+        
+        virtual outputType * const decodeVideo(const MSMediaData<isEncode> &videoData) = 0;
+        virtual outputType * const decodeAudio(const MSMediaData<isEncode> &audioData) = 0;
     };
     
+    template <typename T>
     class MSEncoderProtocol {
     public:
+        typedef MSMediaData<isDecode,T> inputType;
         virtual ~MSEncoderProtocol() {};
-        virtual MSData * const encodeVideo(const MSData &pixelData) = 0;
-        virtual MSData * const encodeAudio(const MSData &sampleData) = 0;
+        
+        virtual MSMediaData<isEncode> * const encodeVideo(const inputType &pixelData) = 0;
+        virtual MSMediaData<isEncode> * const encodeAudio(const inputType &sampleData) = 0;
     };
     
 }

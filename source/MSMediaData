@@ -1,0 +1,189 @@
+//
+//  MSMediaData
+//  MediaStreamPlayer
+//
+//  Created by 胡校明 on 2018/11/30.
+//  Copyright © 2018 freecoder. All rights reserved.
+//
+
+#ifndef _MSMediaData_
+#define _MSMediaData_
+
+#include <chrono>
+#include <cstring>
+#include <functional>
+#include <type_traits>
+
+namespace MS {
+    
+    using namespace std;
+    
+    using namespace chrono;
+    
+    enum MSCodecID {
+        MSCodecID_None,
+        /*---video---*/
+        MSCodecID_H264,
+        MSCodecID_H265,
+        MSCodecID_HEVC = MSCodecID_H265,
+        /*---audio---*/
+        MSCodecID_AAC,
+        MSCodecID_OPUS,
+        MSCodecID_G711,
+    };
+    
+    enum MSContentType {
+        isDecode,
+        isEncode,
+    };
+    
+#pragma mark - MSContent<isEncode, CT>(declaration)
+    /*-------------------MSContent<isEncode, CT>(declaration)-------------------*/
+    template <MSContentType DT, typename CT = uint8_t *>
+    struct MSContent {
+        // packt data by encoder or from network source, free by player
+        const CT packt;
+        
+        // packt data size
+        const size_t size;
+        
+        // packt data's encode ID
+        const MSCodecID codecID;
+        
+        MSContent(const typename enable_if<is_same<CT, uint8_t *>::value,CT>::type packt,
+                  const size_t size, const MSCodecID codecID);
+        
+        MSContent(const MSContent &content);
+        
+        ~MSContent();
+    };
+    
+#pragma mark - MSContent<isDecode, CT>(declaration)
+    /*-------------------MSContent<isDecode, CT>(declaration)-------------------*/
+    template <typename CT>
+    struct MSContent<isDecode, CT> {
+        // frame data by user's decoder decoded, free by player
+        const CT frame;
+        
+        // associated with frame rate, to refresh palyer timer's interval dynamically
+        const microseconds timeInterval;
+        
+        // free function, T frame set by user's custom decoder, must provide the decoder's free method
+        const function<void(CT)> free;
+        
+        // copy function, T frame set by user's custom decoder, must provide the decoder's copy method
+        const function<CT(CT)> copy;
+        
+        MSContent(const typename enable_if<is_pointer<CT>::value,CT>::type frame,
+                  const microseconds timeInterval,
+                  const function<void(const CT)> free,
+                  const function<const CT(const CT)> copy);
+        
+        MSContent(const MSContent &content);
+        
+        ~MSContent();
+    };
+    
+#pragma mark - MSMediaData<DT, CT>(declaration)
+    /*---------------------MSMediaData<DT, CT>(declaration)---------------------*/
+    template <MSContentType DT, typename CT = uint8_t *>
+    struct MSMediaData {
+        
+        typedef MSContent<isDecode,CT> DefaultNullContent;
+        
+        typedef MSMediaData<isDecode,CT> DefaultNullData;
+        
+        // default null data, for decode data
+        static const DefaultNullData defaultNullData;
+        
+        const MSContent<DT, CT> content;
+        
+        MSMediaData(const MSContent<DT, CT> content);
+        
+        MSMediaData(const MSMediaData &data);
+        
+        ~MSMediaData();
+        
+        MSMediaData * copy();
+    };
+    
+#pragma mark - MSContent<isEncode, CT>(implementation)
+    /*-------------------MSContent<isEncode, CT>(implementation)-------------------*/
+    template <MSContentType DT, typename CT>
+    MSContent<DT,CT>::MSContent(const typename enable_if<is_same<CT, uint8_t *>::value,CT>::type packt,
+                                const size_t size, const MSCodecID codecID)
+    :packt(packt), size(size), codecID(codecID) {
+        
+    }
+    
+    template <MSContentType DT, typename CT>
+    MSContent<DT,CT>::MSContent(const MSContent &content)
+    :packt(new CT[content.size]), size(content.size), codecID(content.codecID) {
+        memcpy(packt, content.packt, size);
+    }
+    
+    template <MSContentType DT, typename CT>
+    MSContent<DT,CT>::~MSContent() {
+        delete[] packt;
+    }
+    
+#pragma mark - MSContent<isDecode, CT>(implementation)
+    /*-------------------MSContent<isDecode, CT>(implementation)-------------------*/
+    template <typename CT>
+    MSContent<isDecode,CT>::MSContent(const typename enable_if<is_pointer<CT>::value,CT>::type frame,
+                                      const microseconds timeInterval,
+                                      const function<void(const CT)> free,
+                                      const function<const CT(const CT)> copy)
+    :frame(frame), timeInterval(timeInterval),
+    free(free), copy(copy) {
+        if (frame) {
+            assert(free != nullptr && copy != nullptr);
+        }
+    }
+    
+    template <typename CT>
+    MSContent<isDecode,CT>::MSContent(const MSContent &content)
+    :frame(content.copy(content.frame)), timeInterval(content.timeInterval),
+    free(content.free), copy(content.copy) {
+
+    }
+    
+    template <typename CT>
+    MSContent<isDecode,CT>::~MSContent() {
+        free(frame);
+    }
+    
+#pragma mark - MSMediaData<DT, CT>(implementation)
+    /*---------------------MSMediaData<DT, CT>(implementation)---------------------*/
+    template <MSContentType DT, typename CT>
+    const typename MSMediaData<DT,CT>::DefaultNullData
+    MSMediaData<DT,CT>::defaultNullData(DefaultNullContent(nullptr,microseconds(0),nullptr,nullptr));
+    
+    template <MSContentType DT, typename CT>
+    MSMediaData<DT,CT>::MSMediaData(const MSContent<DT, CT> content)
+    :content(content) {
+        
+    }
+    
+    template <MSContentType DT, typename CT>
+    MSMediaData<DT,CT>::MSMediaData(const MSMediaData &mediaData)
+    :content(mediaData.content) {
+        
+    }
+    
+    template <MSContentType DT, typename CT>
+    MSMediaData<DT,CT>::~MSMediaData() {
+        
+    }
+    
+    template <MSContentType DT, typename CT>
+    MSMediaData<DT,CT> *
+    MSMediaData<DT,CT>::copy() {
+        return new MSMediaData(*this);
+    }
+    
+}
+
+#endif /* MSMediaData_hpp */
+
+
