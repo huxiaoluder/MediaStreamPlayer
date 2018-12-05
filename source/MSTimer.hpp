@@ -15,8 +15,6 @@
 #include <mutex>
 #include <condition_variable>
 
-#define intervale(rate) microseconds(1000000LL/rate)
-
 namespace MS {
 
     typedef std::function<void()> TaskType;

@@ -6,11 +6,17 @@
 //  Copyright © 2018 freecoder. All rights reserved.
 //
 
-#include "MSCodecContext.hpp"
+#include "FFCodecContext.hpp"
 
-using namespace MS;
+using namespace MS::FFmpeg;
 
-MSCodecContext::MSCodecContext(const MSCodecType codecType, const MSCodecID codecID)
+void
+MS::FFmpeg::av_frame_free(AVFrame * const frame) {
+    AVFrame *_frame = const_cast<AVFrame *>(frame);
+    av_frame_free(&_frame);
+}
+
+FFCodecContext::FFCodecContext(const FFCodecType codecType, const MSCodecID codecID)
 :codecType(codecType),
 codecID(codecID),
 codec_ctx(initCodecContext()),
@@ -18,14 +24,14 @@ fmt_ctx(initFormatContex()) {
     assert(codecID != MSCodecID_None && codec_ctx != nullptr);
 }
 
-MSCodecContext::~MSCodecContext() {
+FFCodecContext::~FFCodecContext() {
     avcodec_close(codec_ctx);
     av_free(codec_ctx);
     avformat_free_context(fmt_ctx);
 }
 
 AVCodecID const
-MSCodecContext::getAVCodecId() {
+FFCodecContext::getAVCodecId() {
     AVCodecID codec_id;
     switch (codecID) {
         case MSCodecID_None:    codec_id = AV_CODEC_ID_NONE;    break;
@@ -39,20 +45,25 @@ MSCodecContext::getAVCodecId() {
 }
 
 AVCodecContext * const
-MSCodecContext::initCodecContext() {
+FFCodecContext::initCodecContext() {
     AVCodec *codec = nullptr;
-    if (codecType == MSCodecDecoder) {
+    if (codecType == FFCodecDecoder) {
         codec = avcodec_find_decoder(getAVCodecId());
     } else {
         codec = avcodec_find_encoder(getAVCodecId());
     }
     AVCodecContext *codec_ctx = avcodec_alloc_context3(codec);
-    avcodec_open2(codec_ctx, codec, nullptr);
+    int ret = avcodec_open2(codec_ctx, codec, nullptr);
+    
+    if (ret < 0) {
+        av_err2str(ret);
+        assert(ret == 0);
+    }
     return codec_ctx;
 }
 
 AVFormatContext * const
-MSCodecContext::initFormatContex() {
+FFCodecContext::initFormatContex() {
     AVFormatContext *fmt_ctx = avformat_alloc_context();
     return fmt_ctx;
 }

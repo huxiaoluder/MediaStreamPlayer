@@ -8,30 +8,28 @@
 
 #include "FFEncoder.hpp"
 
-using namespace MS;
-
 using namespace std;
+using namespace MS;
+using namespace MS::FFmpeg;
 
 MSMediaData<isEncode> * const
-FFEncoder::encodeVideo(const inputType &pixelData) {
+FFEncoder::encodeVideo(const MSInputData &pixelData) {
     
     return nullptr;
 }
 
 MSMediaData<isEncode> * const
-FFEncoder::encodeAudio(const inputType &sampleData) {
+FFEncoder::encodeAudio(const MSInputData &sampleData) {
     
     return nullptr;
 }
 
-FFEncoder::FFEncoder() {
+FFEncoder::FFEncoder(const AVCodecID vedioCodecID, const AVCodecID audioCodecID)
+:vedioCodecID(vedioCodecID), audioCodecID(audioCodecID) {
     
 }
 
 FFEncoder::~FFEncoder() {
     // 释放编码器
-    for (auto element : encoderContexts) {
-        delete element.second;
-    }
-    encoderContexts.clear();
+    
 }

@@ -8,30 +8,51 @@
 
 #include "FFDecoder.hpp"
 
-using namespace MS;
-
 using namespace std;
+using namespace MS::FFmpeg;
 
-FFDecoderProtocol::outputType * const
+FFDecoderProtocol::MSOutputData * const
 FFDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
-    auto decoderContext = getDecoderContext(videoData.content.codecID);
-    auto &codec_ctx = *decoderContext.codec_ctx;
-    AVPacket packet;
-    packet.data = videoData.content.packt;
-    packet.size = static_cast<int>(videoData.content.size);
-    AVFrame *frame = nullptr;
-    avcodec_send_packet(&codec_ctx, &packet);
-    avcodec_receive_frame(&codec_ctx, frame);
-//    AVPixelFormat
-//    frame->sample_rate
-//    AVSampleFormat
-//    frame->format;
+    auto decoderContext = getDecoderContext(videoData.content->codecID);
+    auto codec_ctx = decoderContext.codec_ctx;
     
-//    MSData *data = new MSData(<#const uint8_t *const bytes#>, <#const size_t len#>, <#const MSCodecID codecID#>, <#const MSMediaFormat mediaFormat#>, <#const std::chrono::microseconds timeInterval#>);
-    return nullptr;
+    AVPacket packet;
+    packet.data = videoData.content->packt;
+    packet.size = static_cast<int>(videoData.content->size);
+    
+    AVFrame *frame = nullptr;
+    
+    int ret = avcodec_send_packet(codec_ctx, &packet);
+    if (ret < 0) {
+        av_err2str(ret);
+        ErrorLocationLog;
+        av_packet_unref(&packet);
+        return nullptr;
+    }
+    ret = avcodec_receive_frame(codec_ctx, frame);
+    if (ret < 0) {
+        av_err2str(ret);
+        ErrorLocationLog;
+        av_packet_unref(&packet);
+        return nullptr;
+    }
+    
+    int rate = 0;
+    
+    if (videoData.content->codecID <= MSCodecID_HEVC) {
+        rate = codec_ctx->framerate.num * codec_ctx->framerate.den;
+    } else {
+        rate = codec_ctx->sample_rate;
+    }
+    
+    auto content = new MSOutputContent(frame,
+                                       intervale(rate),
+                                       av_frame_free,
+                                       av_frame_clone);
+    return new MSOutputData(content);
 }
 
-FFDecoderProtocol::outputType * const
+FFDecoderProtocol::MSOutputData * const
 FFDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
     return nullptr;
 }
@@ -48,11 +69,11 @@ FFDecoder::~FFDecoder() {
     decoderContexts.clear();
 }
 
-const MSCodecContext &
+const FFCodecContext &
 FFDecoder::getDecoderContext(MSCodecID codecID) {
     auto decoderContext = decoderContexts[codecID];
     if (!decoderContext) {
-        decoderContext = new MSCodecContext(MSCodecEncoder, codecID);
+        decoderContext = new FFCodecContext(FFCodecDecoder, codecID);
         auto pair = decltype(decoderContexts)::value_type(codecID, decoderContext);
         decoderContexts.insert(pair);
     }

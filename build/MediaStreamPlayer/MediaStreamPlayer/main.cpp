@@ -13,36 +13,35 @@
 #include <FFEncoder.hpp>
 
 using namespace MS;
+using namespace MS::FFmpeg;
 
-MSPlayer<AVFrame *> *player;
+MSPlayer<AVFrame> *player = nullptr;
 
 int i = 0;
 
 void test(){
 
-    
     auto decoder = new FFDecoder();
-    auto encoder = new FFEncoder();
-    player = new MSPlayer<AVFrame *>(decoder,encoder);
-    sleep(5);
+    auto encoder = new FFEncoder(AV_CODEC_ID_H264,AV_CODEC_ID_AAC);
+    player = new MSPlayer<AVFrame>(decoder,encoder);
+    sleep(10);
 
-//    player->startPlay([](const MSMediaData<isDecodeData,AVFrame *> &data){
-//        cout << "播放: " << data.content.timeInterval.count() << "-----" << i++ << endl;
-//    });
-//
-//    for (int i = 0; i < 20; i++) {
-//        MSContentData<isEncodeData> content((uint8_t*)0x10,0,MSCodecID_H264);
-//        MSMediaData<isEncodeData> *data = new MSMediaData<isEncodeData>(content);
-//        player->pushVideoData(data);
-//    }
+    player->startPlay([](const MSMediaData<isDecode,AVFrame> &data){
+        cout << "播放: " << data.content->timeInterval.count() << "-----" << i++ << endl;
+    });
 
-    sleep(20);
+    for (int i = 0; i < 30; i++) {
+        auto content = new MSContent<isEncode>(nullptr,0,MSCodecID_H264);
+        MSMediaData<isEncode> *data = new MSMediaData<isEncode>(content);
+        player->pushVideoData(data);
+    }
+
+    sleep(40);
 
     delete player;
 }
 
 int main(int argc, const char * argv[]) {
-    
     test();
     int *i = new int(10);
     auto &ii = *i;

@@ -10,24 +10,26 @@
 #define MSEncoder_hpp
 
 #include <map>
-#include "MSMediaData"
 #include "MSCodecProtocol.h"
-#include "MSCodecContext.hpp"
+#include "FFCodecContext.hpp"
 
 namespace MS {
-
-    typedef MSEncoderProtocol<AVFrame *> FFEncoderProtocol;
-    
-    class FFEncoder : public FFEncoderProtocol {
-        std::map<MSCodecID,MSCodecContext *> encoderContexts;
+    namespace FFmpeg {
+      
+        typedef MSEncoderProtocol<AVFrame> FFEncoderProtocol;
         
-    public:
-        MSMediaData<isEncode> * const encodeVideo(const inputType &pixelData);
-        MSMediaData<isEncode> * const encodeAudio(const inputType &sampleData);
-        FFEncoder();
-        ~FFEncoder();
-    };
-    
+        class FFEncoder : public FFEncoderProtocol {
+            const AVCodecID vedioCodecID;
+            const AVCodecID audioCodecID;
+            
+        public:
+            MSMediaData<isEncode> * const encodeVideo(const MSInputData &pixelData);
+            MSMediaData<isEncode> * const encodeAudio(const MSInputData &sampleData);
+            FFEncoder(const AVCodecID vedioCodecID, const AVCodecID audioCodecID);
+            ~FFEncoder();
+        };
+        
+    }
 }
 
 #endif /* MSEncoder_hpp */

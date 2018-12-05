@@ -32,7 +32,7 @@ namespace MS {
         
         MSEncoderProtocol<T> * const encoder;
         
-        MSTimer * const timer = new MSTimer(microseconds(0),intervale(25),nullptr);
+        MSTimer * const timer = new MSTimer(microseconds(0),intervale(1),nullptr);
         
         thread decodeThread;
         
@@ -97,7 +97,7 @@ namespace MS {
     MSPlayer<T>::MSPlayer(MSDecoderProtocol<T> * const decoder,
                           MSEncoderProtocol<T> * const encoder)
     :decoder(decoder), encoder(encoder) {
-        decodeThread = thread([&](){
+        decodeThread = thread([this](){
             MSMediaData<isEncode> *sourceData = nullptr;
             MSMediaData<isDecode,T> *frameData = nullptr;
             while (decodeState) {
@@ -111,7 +111,7 @@ namespace MS {
                 while (!videoMutex.try_lock());
                 videoQueue.pop();
                 videoMutex.unlock();
-                frameData = decoder->decodeVideo(*sourceData);
+                frameData = this->decoder->decodeVideo(*sourceData);
                 if (frameData) {
                     while (!pixelMutex.try_lock());
                     pixelQueue.push(frameData);
@@ -121,7 +121,7 @@ namespace MS {
             }
         });
         
-        timer->updateTask([&](){
+        timer->updateTask([this](){
             if (!pixelQueue.empty()) {
                 MSMediaData<isDecode,T> *frameData = nullptr;
                 MSMediaData<isEncode> *encodeData = nullptr;
@@ -132,10 +132,10 @@ namespace MS {
                 if (pixelQueue.size() < 5) {
                     condition.notify_one();
                 }
-                timer->updateTimeInterval(frameData->content.timeInterval);
+                timer->updateTimeInterval(frameData->content->timeInterval);
                 throwDecodeData(*frameData);
                 if (encodeState) {
-                    encodeData = encoder->encodeVideo(*frameData);
+                    encodeData = this->encoder->encodeVideo(*frameData);
                     if (encodeData) {
                         throwEncodeData(*encodeData);
                         delete encodeData;

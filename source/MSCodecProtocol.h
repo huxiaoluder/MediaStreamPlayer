@@ -11,26 +11,30 @@
 
 #include "MSMediaData"
 
+#define intervale(rate) microseconds(1000000LL/rate)
+
 namespace MS {
     
     template <typename T>
     class MSDecoderProtocol {
     public:
-        typedef MSMediaData<isDecode,T> outputType;
-        virtual ~MSDecoderProtocol() {};
+        typedef MSMediaData<isDecode,T> MSOutputData;
+        typedef MSContent<isDecode,T> MSOutputContent;
         
-        virtual outputType * const decodeVideo(const MSMediaData<isEncode> &videoData) = 0;
-        virtual outputType * const decodeAudio(const MSMediaData<isEncode> &audioData) = 0;
+        virtual ~MSDecoderProtocol() {};
+        virtual MSOutputData * const decodeVideo(const MSMediaData<isEncode> &videoData) = 0;
+        virtual MSOutputData * const decodeAudio(const MSMediaData<isEncode> &audioData) = 0;
     };
     
     template <typename T>
     class MSEncoderProtocol {
     public:
-        typedef MSMediaData<isDecode,T> inputType;
-        virtual ~MSEncoderProtocol() {};
+        typedef MSMediaData<isDecode,T> MSInputData;
+        typedef MSContent<isDecode,T> MSInputContent;
         
-        virtual MSMediaData<isEncode> * const encodeVideo(const inputType &pixelData) = 0;
-        virtual MSMediaData<isEncode> * const encodeAudio(const inputType &sampleData) = 0;
+        virtual ~MSEncoderProtocol() {};
+        virtual MSMediaData<isEncode> * const encodeVideo(const MSInputData &pixelData) = 0;
+        virtual MSMediaData<isEncode> * const encodeAudio(const MSInputData &sampleData) = 0;
     };
     
 }
