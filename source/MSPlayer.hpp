@@ -56,6 +56,8 @@ namespace MS {
         
         mutex sampleMutex;
         
+        mutex encodeMutex;
+        
         queue<MSMediaData<isEncode> *> videoQueue;
         
         queue<MSMediaData<isEncode> *> audioQueue;
@@ -191,7 +193,9 @@ namespace MS {
                 if (isEncoding) {
                     encodeData = this->encoder->encodeVideo(*frameData);
                     if (encodeData) {
+                        while (!encodeMutex.try_lock());
                         this->throwEncodeData(*encodeData,false);
+                        encodeMutex.unlock();
                         delete encodeData;
                     }
                 }
@@ -218,7 +222,9 @@ namespace MS {
                 if (isEncoding) {
                     encodeData = this->encoder->encodeAudio(*frameData);
                     if (encodeData) {
+                        while (!encodeMutex.try_lock());
                         this->throwEncodeData(*encodeData,false);
+                        encodeMutex.unlock();
                         delete encodeData;
                     }
                 }
@@ -345,7 +351,9 @@ namespace MS {
     template <typename T>
     void MSPlayer<T>::stopReEncode() {
         isEncoding = false;
+        while (!encodeMutex.try_lock());
         throwEncodeData(MSMediaData<isEncode>::defaultNullData,true);
+        encodeMutex.unlock();
         throwEncodeData = nullptr;
     }
     
