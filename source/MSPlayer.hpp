@@ -44,9 +44,11 @@ namespace MS {
         
         condition_variable audioThreadCondition;
         
-        mutex conditionMutex;
+        mutex videoConditionMutex;
         
-        mutex VideoMutex;
+        mutex audioConditionMutex;
+        
+        mutex videoMutex;
         
         mutex pixelMutex;
         
@@ -130,20 +132,44 @@ namespace MS {
             MSMediaData<isDecode,T> *frameData = nullptr;
             while (isDecoding) {
                 while (videoQueue.empty() || pixelQueue.size() > 20) {
-                    unique_lock<mutex> lock(conditionMutex);
+                    unique_lock<mutex> lock(videoConditionMutex);
                     videoThreadCondition.wait(lock);
                     if (!isDecoding) break;
                 }
                 if (!isDecoding) break;
                 sourceData = videoQueue.front();
-                while (!VideoMutex.try_lock());
+                while (!videoMutex.try_lock());
                 videoQueue.pop();
-                VideoMutex.unlock();
+                videoMutex.unlock();
                 frameData = this->decoder->decodeVideo(*sourceData);
                 if (frameData) {
                     while (!pixelMutex.try_lock());
                     pixelQueue.push(frameData);
                     pixelMutex.unlock();
+                }
+                delete sourceData;
+            }
+        });
+        
+        audioDecodeThread = thread([this](){
+            MSMediaData<isEncode> *sourceData = nullptr;
+            MSMediaData<isDecode,T> *frameData = nullptr;
+            while (isDecoding) {
+                while (audioQueue.empty() || sampleQueue.size() > 20) {
+                    unique_lock<mutex> lock(audioConditionMutex);
+                    audioThreadCondition.wait(lock);
+                    if (!isDecoding) break;
+                }
+                if (!isDecoding) break;
+                sourceData = audioQueue.front();
+                while (!audioMutex.try_lock());
+                audioQueue.pop();
+                audioMutex.unlock();
+                frameData = this->decoder->decodeAudio(*sourceData);
+                if (frameData) {
+                    while (!sampleMutex.try_lock());
+                    sampleQueue.push(frameData);
+                    sampleMutex.unlock();
                 }
                 delete sourceData;
             }
@@ -185,12 +211,12 @@ namespace MS {
                 sampleQueue.pop();
                 sampleMutex.unlock();
                 if (sampleQueue.size() < 5) {
-                    videoThreadCondition.notify_one();
+                    audioThreadCondition.notify_one();
                 }
                 audioTimer->updateTimeInterval(frameData->content->timeInterval);
                 this->throwDecodeAudio(*frameData);
                 if (isEncoding) {
-                    encodeData = this->encoder->encodeVideo(*frameData);
+                    encodeData = this->encoder->encodeAudio(*frameData);
                     if (encodeData) {
                         this->throwEncodeData(*encodeData,false);
                         delete encodeData;
@@ -199,7 +225,7 @@ namespace MS {
                 delete frameData;
             } else {
                 this->throwDecodeAudio(MSMediaData<isDecode,T>::defaultNullData);
-                videoThreadCondition.notify_one();
+                audioThreadCondition.notify_one();
             }
         });
     }
@@ -212,6 +238,10 @@ namespace MS {
         videoThreadCondition.notify_one();
         if (videoDecodeThread.joinable()) {
             videoDecodeThread.join();
+        }
+        audioThreadCondition.notify_one();
+        if (audioDecodeThread.joinable()) {
+            audioDecodeThread.join();
         }
         delete decoder;
         delete encoder;
@@ -322,9 +352,9 @@ namespace MS {
     template <typename T>
     void MSPlayer<T>::pushVideoData(MSMediaData<isEncode> *VideoData) {
         if (videoTimer->isValid()) {
-            while (!VideoMutex.try_lock());
+            while (!videoMutex.try_lock());
             videoQueue.push(VideoData);
-            VideoMutex.unlock();
+            videoMutex.unlock();
         } else {
             delete VideoData;
         }
