@@ -8,7 +8,7 @@
 
 #include <unistd.h>
 #include <iostream>
-#include <MSPlayer>
+#include <MSPlayer.hpp>
 #include <FFDecoder.hpp>
 #include <FFEncoder.hpp>
 
@@ -19,15 +19,28 @@ MSPlayer<AVFrame> *player = nullptr;
 
 int i = 0;
 
+
 void test(){
 
-    auto decoder = new FFDecoder();
-    auto encoder = new FFEncoder(AV_CODEC_ID_H264,AV_CODEC_ID_AAC);
+    FFDecoder *decoder = new FFDecoder();
+    FFEncoder *encoder = new FFEncoder(AV_CODEC_ID_H264,AV_CODEC_ID_AAC);
     player = new MSPlayer<AVFrame>(decoder,encoder);
-    sleep(10);
 
     player->startPlay([](const MSMediaData<isDecode,AVFrame> &data){
-        cout << "播放: " << data.content->timeInterval.count() << "-----" << i++ << endl;
+        if (data.content) {
+            cout << "播放: " << data.content->timeInterval.count() << "-----" << i++ << endl;
+        } else {
+            cout << "没有资源" << endl;
+        }
+        
+        
+    });
+    player->startPlay([](const MSMediaData<isDecode,AVFrame> &data){
+        if (data.content) {
+            cout << "播放: " << data.content->timeInterval.count() << "-----" << i++ << endl;
+        } else {
+            cout << "没有资源" << endl;
+        }
     });
 
     for (int i = 0; i < 30; i++) {
@@ -42,16 +55,12 @@ void test(){
 }
 
 int main(int argc, const char * argv[]) {
+    
     test();
-    int *i = new int(10);
-    auto &ii = *i;
-    ii = 20;
-    printf("%p\n", i);
-    printf("%p\n", &ii);
-    printf("%d\n",*i);
     while (true) {
         this_thread::sleep_for(seconds(1));
     }
+
     return 0;
 }
 

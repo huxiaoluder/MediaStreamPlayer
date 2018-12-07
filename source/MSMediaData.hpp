@@ -6,8 +6,8 @@
 //  Copyright © 2018 freecoder. All rights reserved.
 //
 
-#ifndef _MSMediaData_
-#define _MSMediaData_
+#ifndef MSMediaData_hpp
+#define MSMediaData_hpp
 
 #include <chrono>
 #include <cstring>
@@ -135,9 +135,7 @@ namespace MS {
     template <MSContentType DT, typename CT = uint8_t>
     struct MSMediaData {
         
-        typedef MSContent<isDecode,CT> DefaultNullContent;
-        
-        typedef MSMediaData<isDecode,CT> DefaultNullData;
+        typedef MSMediaData<DT, CT> DefaultNullData;
         
         // default null data, for decode data
         static const DefaultNullData defaultNullData;
@@ -157,10 +155,7 @@ namespace MS {
     /*---------------------MSMediaData<DT, CT>(implementation)---------------------*/
     template <MSContentType DT, typename CT>
     const typename MSMediaData<DT,CT>::DefaultNullData
-    MSMediaData<DT,CT>::defaultNullData(new DefaultNullContent(nullptr,
-                                                               microseconds(0),
-                                                               [](CT * const frame){},
-                                                               [](CT * const frame){return nullptr;}));
+    MSMediaData<DT,CT>::defaultNullData(nullptr);
     
     template <MSContentType DT, typename CT>
     MSMediaData<DT,CT>::MSMediaData(MSContent<DT, CT> * const content)

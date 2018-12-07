@@ -20,10 +20,14 @@ extern "C" {
 }
 #pragma clang diagnostic pop
 
-#include "MSMediaData"
+#include "MSMediaData.hpp"
 
 #define ErrorLocationLog \
-        printf("Error:\nfile: %s,\nline: %d,\nfunc: %s",__FILE__,__LINE__,__func__)
+        printf( "-----------------------ERROR----------------------\n"\
+                "filename: %s\n"\
+                "linenumber: %d,\n"\
+                "funcname: %s\n"\
+                "--------------------------------------------------\n",__FILE__,__LINE__,__func__)
 
 namespace MS {
     namespace FFmpeg {
@@ -41,8 +45,6 @@ namespace MS {
             const MSCodecID codecID;
             
             AVCodecContext * const codec_ctx;
-            
-            AVFormatContext * const fmt_ctx;
             
             FFCodecContext(const FFCodecType codecType, const MSCodecID codecID);
             

@@ -32,9 +32,9 @@ namespace MS {
         
         condition_variable condition;
         
-        bool isRun = false;
+        bool isRunning = false;
         
-        bool isPause = false;
+        bool isPausing = false;
         
         const microseconds delayTime;
         
@@ -55,6 +55,8 @@ namespace MS {
         void _continue();
         
         void stop();
+        
+        const bool isValid();
         
         MSTimer & updateTask(const TaskType task);
         

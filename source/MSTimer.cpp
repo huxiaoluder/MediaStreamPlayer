@@ -21,31 +21,25 @@ MSTimer::MSTimer(const microseconds delayTime,
 
 MSTimer::~MSTimer() {
     stop();
-    if (timerThread.joinable()) {
-        timerThread.join();
-    }
-    if (taskThread.joinable()) {
-        taskThread.join();
-    }
 }
 
 void
 MSTimer::start() {
-    assert(isRun == false && task != nullptr);
-    isRun = true;
+    assert(isRunning == false && task != nullptr);
+    isRunning = true;
     timerThread = thread([&]() {
         sleep_for(delayTime);
         taskThread = thread([&](){
-            while (isRun) {
+            while (isRunning) {
                 task();
                 unique_lock<mutex> lock(mtx);
                 condition.wait(lock);
             }
         });
         condition.notify_one();
-        while (isRun) {
+        while (isRunning) {
             sleep_for(timeInterval);
-            if (!isPause) {
+            if (!isPausing) {
                 condition.notify_one();
             }
         }
@@ -54,18 +48,32 @@ MSTimer::start() {
 
 void
 MSTimer::pause() {
-    isPause = true;
+    assert(isRunning);
+    isPausing = true;
 }
 
 void
 MSTimer::_continue() {
-    isPause = false;
+    assert(isRunning);
+    isPausing = false;
 }
 
 void
 MSTimer::stop() {
-    isRun = false;
+    isRunning = false;
+    isPausing = false;
     condition.notify_one();
+    if (timerThread.joinable()) {
+        timerThread.join();
+    }
+    if (taskThread.joinable()) {
+        taskThread.join();
+    }
+}
+
+const bool
+MSTimer::isValid() {
+    return isRunning;
 }
 
 MSTimer &

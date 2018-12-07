@@ -9,7 +9,7 @@
 #ifndef MSCodecProtocol_h
 #define MSCodecProtocol_h
 
-#include "MSMediaData"
+#include "MSMediaData.hpp"
 
 #define intervale(rate) microseconds(1000000LL/rate)
 

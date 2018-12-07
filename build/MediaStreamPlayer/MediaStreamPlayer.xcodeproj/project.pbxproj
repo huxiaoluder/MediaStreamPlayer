@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		4F01917821A65812003E1408 /* MSTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F01917621A65812003E1408 /* MSTimer.cpp */; };
-		4F61CC55219BF1C500B4B76E /* MSPlayer in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC53219BF1C500B4B76E /* MSPlayer */; };
 		4F61CC58219BF1D400B4B76E /* FFEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC56219BF1D400B4B76E /* FFEncoder.cpp */; };
 		4F61CC5B219BF1E700B4B76E /* FFDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC59219BF1E700B4B76E /* FFDecoder.cpp */; };
 		4F654E7721A649E800F74803 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC47219BF07F00B4B76E /* main.cpp */; };
@@ -18,7 +17,6 @@
 		4F8C6ECC21AE8B2000E3443C /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC321AE8B2000E3443C /* libavcodec.a */; };
 		4F8C6ECD21AE8B2000E3443C /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC421AE8B2000E3443C /* libswresample.a */; };
 		4F8C6ECE21AE8B2000E3443C /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC521AE8B2000E3443C /* libswscale.a */; };
-		4F8C6ED121B0C7AB00E3443C /* MSMediaData in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C6ECF21B0C7AB00E3443C /* MSMediaData */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,7 +37,6 @@
 		4F5F6F9F219D47B300FF46D8 /* libdispatch.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libdispatch.tbd; path = usr/lib/system/introspection/libdispatch.tbd; sourceTree = SDKROOT; };
 		4F61CC44219BF07F00B4B76E /* MediaStreamPlayer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MediaStreamPlayer; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F61CC47219BF07F00B4B76E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		4F61CC53219BF1C500B4B76E /* MSPlayer */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = MSPlayer; sourceTree = "<group>"; };
 		4F61CC56219BF1D400B4B76E /* FFEncoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FFEncoder.cpp; sourceTree = "<group>"; };
 		4F61CC57219BF1D400B4B76E /* FFEncoder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FFEncoder.hpp; sourceTree = "<group>"; };
 		4F61CC59219BF1E700B4B76E /* FFDecoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FFDecoder.cpp; sourceTree = "<group>"; };
@@ -59,7 +56,8 @@
 		4F8C6EC321AE8B2000E3443C /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavcodec.a; sourceTree = "<group>"; };
 		4F8C6EC421AE8B2000E3443C /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswresample.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libswresample.a; sourceTree = "<group>"; };
 		4F8C6EC521AE8B2000E3443C /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswscale.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libswscale.a; sourceTree = "<group>"; };
-		4F8C6ECF21B0C7AB00E3443C /* MSMediaData */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = MSMediaData; sourceTree = "<group>"; };
+		4F9ADF1721B8ED5700862770 /* MSMediaData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSMediaData.hpp; sourceTree = "<group>"; };
+		4F9ADF1821B8ED5700862770 /* MSPlayer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSPlayer.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,8 +110,8 @@
 				4F61CC5E219C140100B4B76E /* MSCodecProtocol.h */,
 				4F01917721A65812003E1408 /* MSTimer.hpp */,
 				4F01917621A65812003E1408 /* MSTimer.cpp */,
-				4F8C6ECF21B0C7AB00E3443C /* MSMediaData */,
-				4F61CC53219BF1C500B4B76E /* MSPlayer */,
+				4F9ADF1721B8ED5700862770 /* MSMediaData.hpp */,
+				4F9ADF1821B8ED5700862770 /* MSPlayer.hpp */,
 				4F8C6EBB21AE825B00E3443C /* FFCodecContext.hpp */,
 				4F8C6EBA21AE825B00E3443C /* FFCodecContext.cpp */,
 				4F61CC5A219BF1E700B4B76E /* FFDecoder.hpp */,
@@ -200,9 +198,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F01917821A65812003E1408 /* MSTimer.cpp in Sources */,
-				4F8C6ED121B0C7AB00E3443C /* MSMediaData in Sources */,
 				4F61CC5B219BF1E700B4B76E /* FFDecoder.cpp in Sources */,
-				4F61CC55219BF1C500B4B76E /* MSPlayer in Sources */,
 				4F654E7721A649E800F74803 /* main.cpp in Sources */,
 				4F61CC58219BF1D400B4B76E /* FFEncoder.cpp in Sources */,
 				4F8C6EBC21AE825B00E3443C /* FFCodecContext.cpp in Sources */,

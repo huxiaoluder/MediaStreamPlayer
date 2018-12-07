@@ -19,15 +19,14 @@ MS::FFmpeg::av_frame_free(AVFrame * const frame) {
 FFCodecContext::FFCodecContext(const FFCodecType codecType, const MSCodecID codecID)
 :codecType(codecType),
 codecID(codecID),
-codec_ctx(initCodecContext()),
-fmt_ctx(initFormatContex()) {
+codec_ctx(initCodecContext()) {
     assert(codecID != MSCodecID_None && codec_ctx != nullptr);
 }
 
 FFCodecContext::~FFCodecContext() {
-    avcodec_close(codec_ctx);
-    av_free(codec_ctx);
-    avformat_free_context(fmt_ctx);
+//    avcodec_close(codec_ctx);
+    AVCodecContext *_codec_ctx = const_cast<AVCodecContext *>(codec_ctx);
+    avcodec_free_context(&_codec_ctx);
 }
 
 AVCodecID const
@@ -36,7 +35,7 @@ FFCodecContext::getAVCodecId() {
     switch (codecID) {
         case MSCodecID_None:    codec_id = AV_CODEC_ID_NONE;    break;
         case MSCodecID_H264:    codec_id = AV_CODEC_ID_H264;    break;
-        case MSCodecID_H265:    codec_id = AV_CODEC_ID_NONE;    break;
+        case MSCodecID_H265:    codec_id = AV_CODEC_ID_HEVC;    break;
         case MSCodecID_AAC:     codec_id = AV_CODEC_ID_AAC;     break;
         case MSCodecID_G711:    codec_id = AV_CODEC_ID_NONE;    break;
         case MSCodecID_OPUS:    codec_id = AV_CODEC_ID_OPUS;    break;

@@ -13,14 +13,45 @@ using namespace MS::FFmpeg;
 
 FFDecoderProtocol::MSOutputData * const
 FFDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
-    auto decoderContext = getDecoderContext(videoData.content->codecID);
-    auto codec_ctx = decoderContext.codec_ctx;
+    return decodeData(videoData);
+}
+
+FFDecoderProtocol::MSOutputData * const
+FFDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
+    return decodeData(audioData);
+}
+
+FFDecoder::FFDecoder() {
     
-    AVPacket packet;
-    packet.data = videoData.content->packt;
-    packet.size = static_cast<int>(videoData.content->size);
+}
+
+FFDecoder::~FFDecoder() {
+    // 释放解码器
+    for (auto element : decoderContexts) {
+        delete element.second;
+    }
+    decoderContexts.clear();
+}
+
+const FFCodecContext &
+FFDecoder::getDecoderContext(MSCodecID codecID) {
+    FFCodecContext *decoderContext = decoderContexts[codecID];
+    if (!decoderContext) {
+        decoderContext = new FFCodecContext(FFCodecDecoder, codecID);
+        decoderContexts[codecID] = decoderContext;
+    }
+    return *decoderContext;
+}
+
+FFDecoderProtocol::MSOutputData * const
+FFDecoder::decodeData(const MSMediaData<isEncode> &data) {
+    const FFCodecContext &decoderContext = getDecoderContext(data.content->codecID);
+    AVCodecContext *codec_ctx = decoderContext.codec_ctx;
+    AVPacket packet{0};
+    packet.data = data.content->packt;
+    packet.size = static_cast<int>(data.content->size);
     
-    AVFrame *frame = nullptr;
+    AVFrame * const frame = av_frame_alloc();
     
     int ret = avcodec_send_packet(codec_ctx, &packet);
     if (ret < 0) {
@@ -39,44 +70,15 @@ FFDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
     
     int rate = 0;
     
-    if (videoData.content->codecID <= MSCodecID_HEVC) {
-        rate = codec_ctx->framerate.num * codec_ctx->framerate.den;
+    if (data.content->codecID <= MSCodecID_HEVC) {
+        rate = codec_ctx->framerate.num / codec_ctx->framerate.den;
     } else {
         rate = codec_ctx->sample_rate;
     }
     
-    auto content = new MSOutputContent(frame,
-                                       intervale(rate),
-                                       av_frame_free,
-                                       av_frame_clone);
+    MSOutputContent *content = new MSOutputContent(frame,
+                                                   intervale(rate),
+                                                   av_frame_free,
+                                                   av_frame_clone);
     return new MSOutputData(content);
 }
-
-FFDecoderProtocol::MSOutputData * const
-FFDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
-    return nullptr;
-}
-
-FFDecoder::FFDecoder() {
-    
-}
-
-FFDecoder::~FFDecoder() {
-    // 释放解码器
-    for (auto element : decoderContexts) {
-        delete element.second;
-    }
-    decoderContexts.clear();
-}
-
-const FFCodecContext &
-FFDecoder::getDecoderContext(MSCodecID codecID) {
-    auto decoderContext = decoderContexts[codecID];
-    if (!decoderContext) {
-        decoderContext = new FFCodecContext(FFCodecDecoder, codecID);
-        auto pair = decltype(decoderContexts)::value_type(codecID, decoderContext);
-        decoderContexts.insert(pair);
-    }
-    return *decoderContext;
-}
-

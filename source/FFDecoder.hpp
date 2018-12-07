@@ -22,6 +22,8 @@ namespace MS {
             std::map<MSCodecID,FFCodecContext *> decoderContexts;
             
             const FFCodecContext & getDecoderContext(MSCodecID codecID);
+            
+            MSOutputData * const decodeData(const MSMediaData<isEncode> &data);
         public:
             MSOutputData * const decodeVideo(const MSMediaData<isEncode> &videoData);
             MSOutputData * const decodeAudio(const MSMediaData<isEncode> &audioData);
