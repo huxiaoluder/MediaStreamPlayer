@@ -76,9 +76,20 @@ MSTimer::isValid() {
     return isRunning;
 }
 
+microseconds
+MSTimer::getTimeInterval() {
+    return this->timeInterval;
+}
+
 MSTimer &
 MSTimer::updateTask(const TaskType task) {
     this->task = task;
+    return *this;
+}
+
+MSTimer &
+MSTimer::updateDelayTime(const microseconds delayTime) {
+    this->delayTime = delayTime;
     return *this;
 }
 

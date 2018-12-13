@@ -47,7 +47,7 @@ static int i;
                                            << "播放: ----- 没有资源"
                                            << endl;
                                        }
-                                   },nullptr,nullptr);
+                                   },nullptr);
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(connectsuccess:)

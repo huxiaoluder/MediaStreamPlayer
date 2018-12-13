@@ -15,26 +15,31 @@
 
 namespace MS {
     
-    template <typename T>
+    template <typename T,
+    typename = typename enable_if<!is_pointer<T>::value,T>::type>
     class MSDecoderProtocol {
     public:
-        typedef MSMediaData<isDecode,T> MSOutputData;
-        typedef MSContent<isDecode,T> MSOutputContent;
+        typedef MSMediaData<isDecode,T> MSDecoderOutputData;
+        typedef MSContent<isDecode,T> MSDecoderOutputContent;
         
         virtual ~MSDecoderProtocol() {};
-        virtual MSOutputData * const decodeVideo(const MSMediaData<isEncode> &videoData) = 0;
-        virtual MSOutputData * const decodeAudio(const MSMediaData<isEncode> &audioData) = 0;
+        virtual MSDecoderOutputData * const decodeVideo(const MSMediaData<isEncode> &videoData) = 0;
+        virtual MSDecoderOutputData * const decodeAudio(const MSMediaData<isEncode> &audioData) = 0;
     };
     
-    template <typename T>
+    template <typename T,
+    typename = typename enable_if<!is_pointer<T>::value,T>::type>
     class MSEncoderProtocol {
     public:
-        typedef MSMediaData<isDecode,T> MSInputData;
-        typedef MSContent<isDecode,T> MSInputContent;
+        typedef MSMediaData<isDecode,T> MSEncoderInputData;
+        typedef MSContent<isDecode,T> MSEncoderInputContent;
         
         virtual ~MSEncoderProtocol() {};
-        virtual MSMediaData<isEncode> * const encodeVideo(const MSInputData &pixelData) = 0;
-        virtual MSMediaData<isEncode> * const encodeAudio(const MSInputData &sampleData) = 0;
+        virtual void beginEncodeToFile(const string filePath) = 0;
+        virtual void encodeVideo(const MSEncoderInputData &pixelData) = 0;
+        virtual void encodeAudio(const MSEncoderInputData &sampleData) = 0;
+        virtual void endEncode() = 0;
+        virtual bool isEncoding() = 0;
     };
     
 }

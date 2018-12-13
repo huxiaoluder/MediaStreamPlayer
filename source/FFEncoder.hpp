@@ -10,6 +10,7 @@
 #define MSEncoder_hpp
 
 #include <map>
+#include <string>
 #include "MSCodecProtocol.h"
 #include "FFCodecContext.hpp"
 
@@ -19,13 +20,19 @@ namespace MS {
         typedef MSEncoderProtocol<AVFrame> FFEncoderProtocol;
         
         class FFEncoder : public FFEncoderProtocol {
+            string filePath;
+            bool _isEncoding;
             const AVCodecID vedioCodecID;
             const AVCodecID audioCodecID;
             
         public:
-            MSMediaData<isEncode> * const encodeVideo(const MSInputData &pixelData);
-            MSMediaData<isEncode> * const encodeAudio(const MSInputData &sampleData);
-            FFEncoder(const AVCodecID vedioCodecID, const AVCodecID audioCodecID);
+            void beginEncodeToFile(const string filePath);
+            void encodeVideo(const MSEncoderInputData &pixelData);
+            void encodeAudio(const MSEncoderInputData &sampleData);
+            void endEncode();
+            bool isEncoding();
+            FFEncoder(const AVCodecID vedioCodecID,
+                      const AVCodecID audioCodecID);
             ~FFEncoder();
         };
         

@@ -298,8 +298,8 @@
 		4F0A735D21B7B462000E0E31 /* source */ = {
 			isa = PBXGroup;
 			children = (
-				4F0A735E21B7B462000E0E31 /* MSCodecProtocol.h */,
 				4F0A736021B7B462000E0E31 /* MediaStreamPlayer.h */,
+				4F0A735E21B7B462000E0E31 /* MSCodecProtocol.h */,
 				4F0A736221B7B462000E0E31 /* MSPlayer.hpp */,
 				4F0A736321B7B462000E0E31 /* MSMediaData.hpp */,
 				4F0A736921B7B462000E0E31 /* MSTimer.hpp */,

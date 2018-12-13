@@ -11,12 +11,12 @@
 using namespace std;
 using namespace MS::FFmpeg;
 
-FFDecoderProtocol::MSOutputData * const
+FFDecoderProtocol::MSDecoderOutputData * const
 FFDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
     return decodeData(videoData);
 }
 
-FFDecoderProtocol::MSOutputData * const
+FFDecoderProtocol::MSDecoderOutputData * const
 FFDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
     return decodeData(audioData);
 }
@@ -43,7 +43,7 @@ FFDecoder::getDecoderContext(MSCodecID codecID) {
     return *decoderContext;
 }
 
-FFDecoderProtocol::MSOutputData * const
+FFDecoderProtocol::MSDecoderOutputData * const
 FFDecoder::decodeData(const MSMediaData<isEncode> &data) {
     const FFCodecContext &decoderContext = getDecoderContext(data.content->codecID);
     AVCodecContext *codec_ctx = decoderContext.codec_ctx;
@@ -76,9 +76,9 @@ FFDecoder::decodeData(const MSMediaData<isEncode> &data) {
         rate = codec_ctx->sample_rate;
     }
     
-    MSOutputContent *content = new MSOutputContent(frame,
-                                                   intervale(rate),
-                                                   av_frame_free,
-                                                   av_frame_clone);
-    return new MSOutputData(content);
+    MSDecoderOutputContent *content = new MSDecoderOutputContent(frame,
+                                                                 intervale(rate),
+                                                                 av_frame_free,
+                                                                 av_frame_clone);
+    return new MSDecoderOutputData(content);
 }

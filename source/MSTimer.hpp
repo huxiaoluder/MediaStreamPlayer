@@ -36,7 +36,7 @@ namespace MS {
         
         bool isPausing = false;
         
-        const microseconds delayTime;
+        microseconds delayTime;
         
         microseconds timeInterval;
         
@@ -58,7 +58,11 @@ namespace MS {
         
         const bool isValid();
         
+        microseconds getTimeInterval();
+        
         MSTimer & updateTask(const TaskType task);
+        
+        MSTimer & updateDelayTime(const microseconds delayTime);
         
         MSTimer & updateTimeInterval(const microseconds timeInterval);
     };

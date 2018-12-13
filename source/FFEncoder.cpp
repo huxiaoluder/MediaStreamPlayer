@@ -12,19 +12,35 @@ using namespace std;
 using namespace MS;
 using namespace MS::FFmpeg;
 
-MSMediaData<isEncode> * const
-FFEncoder::encodeVideo(const MSInputData &pixelData) {
+void
+FFEncoder::beginEncodeToFile(const string filePath) {
     
-    return nullptr;
 }
 
-MSMediaData<isEncode> * const
-FFEncoder::encodeAudio(const MSInputData &sampleData) {
+void
+FFEncoder::encodeVideo(const MSEncoderInputData &pixelData) {
     
-    return nullptr;
+    
 }
 
-FFEncoder::FFEncoder(const AVCodecID vedioCodecID, const AVCodecID audioCodecID)
+void
+FFEncoder::encodeAudio(const MSEncoderInputData &sampleData) {
+    
+    
+}
+
+void
+FFEncoder::endEncode() {
+    
+}
+
+bool
+FFEncoder::isEncoding() {
+    return _isEncoding;
+}
+
+FFEncoder::FFEncoder(const AVCodecID vedioCodecID,
+                     const AVCodecID audioCodecID)
 :vedioCodecID(vedioCodecID), audioCodecID(audioCodecID) {
     
 }

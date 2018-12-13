@@ -35,13 +35,13 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // sdk ()
 NP_EXPORT bool iotsdk_init(bool user); // 初始化sdk(最先调用,只需要调用一次)
-NP_EXPORT void iotsdk_uninit();        // 不必调用
-NP_EXPORT bool iotsdk_start();         // 启动sdk(参数设置好后调用,内部开启线程,只需要调用一次)
-NP_EXPORT bool iotsdk_stop();          // 不必调用
+    NP_EXPORT void iotsdk_uninit(void);        // 不必调用
+    NP_EXPORT bool iotsdk_start(void);         // 启动sdk(参数设置好后调用,内部开启线程,只需要调用一次)
+    NP_EXPORT bool iotsdk_stop(void);          // 不必调用
 NP_EXPORT void iotsdk_debug(bool);     // 设置是否是测试模式
 
-NP_EXPORT const char* iotsdk_version(); // return the sdk version string
-NP_EXPORT int         iotsdk_build();
+    NP_EXPORT const char* iotsdk_version(void); // return the sdk version string
+    NP_EXPORT int         iotsdk_build(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 // for common
@@ -185,7 +185,7 @@ NP_EXPORT void iotsdk_set_log_cb(cb_on_write_log cb);
  * 判断是否连接到网关
  * @return
  */
-NP_EXPORT bool iotsdk_is_online();
+    NP_EXPORT bool iotsdk_is_online(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 // for device
@@ -457,7 +457,7 @@ NP_EXPORT void iotsdk_user_set_hardware_id(const char *hw_feature);
 /**
  * retry conn gw(when speed limit triggered, app need use this api to refresh conn to gw)
  */
-NP_EXPORT void iotsdk_user_retry_conn_gw();
+    NP_EXPORT void iotsdk_user_retry_conn_gw(void);
 
 /**
  * 获取本地局域网搜索到的设备ID
@@ -558,7 +558,7 @@ NP_EXPORT void iotsdk_user_set_wait_timeo(uint64_t wait_ms);
  * 获取ipc请求的超时时间
  * @return
  */
-NP_EXPORT uint64_t iotsdk_user_get_wait_timeo();
+    NP_EXPORT uint64_t iotsdk_user_get_wait_timeo(void);
 
 /**
  * 开启视频
@@ -1418,7 +1418,7 @@ NP_EXPORT int iotsdk_dev_cloud_write_media(
  * 结束云录像(主要是针对alarm,doorbell类型)
  * @return
  */
-NP_EXPORT int iotsdk_dev_cloud_finish_rec();
+    NP_EXPORT int iotsdk_dev_cloud_finish_rec(void);
 
 /**
  * 设置云录控制选项
@@ -1513,7 +1513,7 @@ NP_EXPORT int iotsdk_user_cloud_start_data_decode(const char *input_ptr,
  * @param arg                   [in] ctx(return from iotsdk_user_cloud_start_data_decode)
  * @return
  */
-NP_EXPORT int iotsdk_user_cloud_stop_data_decode();
+    NP_EXPORT int iotsdk_user_cloud_stop_data_decode(void);
 
 #endif
 
@@ -1628,7 +1628,7 @@ NP_EXPORT void iotsdk_dev_notice_online_chans(uint32_t conn_id,
  *
  * @remark 当自动升级时由device端主动调用
  */
-NP_EXPORT void iotsdk_dev_query_upgrade();
+    NP_EXPORT void iotsdk_dev_query_upgrade(void);
 
 // for device
 ///////////////////////////////////////////////////////////////////////////////////////////////
