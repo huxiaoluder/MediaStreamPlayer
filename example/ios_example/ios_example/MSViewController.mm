@@ -32,7 +32,7 @@ static int i;
 - (void)viewDidLoad {
     [super viewDidLoad];
     auto decoder = new FFDecoder();
-    auto encoder = new FFEncoder(AV_CODEC_ID_H264,AV_CODEC_ID_AAC);
+    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
     player = new MSPlayer<AVFrame>(decoder,encoder,
                                    [&](const MSMediaData<isDecode,AVFrame> &data) {
                                        if (data.content) {

@@ -11,12 +11,12 @@
 using namespace std;
 using namespace MS::FFmpeg;
 
-FFDecoderProtocol::MSDecoderOutputData * const
+const FFDecoderProtocol::MSDecoderOutputData *
 FFDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
     return decodeData(videoData);
 }
 
-FFDecoderProtocol::MSDecoderOutputData * const
+const FFDecoderProtocol::MSDecoderOutputData *
 FFDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
     return decodeData(audioData);
 }
@@ -43,7 +43,7 @@ FFDecoder::getDecoderContext(MSCodecID codecID) {
     return *decoderContext;
 }
 
-FFDecoderProtocol::MSDecoderOutputData * const
+const FFDecoderProtocol::MSDecoderOutputData *
 FFDecoder::decodeData(const MSMediaData<isEncode> &data) {
     const FFCodecContext &decoderContext = getDecoderContext(data.content->codecID);
     AVCodecContext *codec_ctx = decoderContext.codec_ctx;
@@ -55,14 +55,14 @@ FFDecoder::decodeData(const MSMediaData<isEncode> &data) {
     
     int ret = avcodec_send_packet(codec_ctx, &packet);
     if (ret < 0) {
-        av_err2str(ret);
+        printf("error: %s\n",av_err2str(ret));
         ErrorLocationLog;
         av_packet_unref(&packet);
         return nullptr;
     }
     ret = avcodec_receive_frame(codec_ctx, frame);
     if (ret < 0) {
-        av_err2str(ret);
+        printf("error: %s\n",av_err2str(ret));
         ErrorLocationLog;
         av_packet_unref(&packet);
         return nullptr;

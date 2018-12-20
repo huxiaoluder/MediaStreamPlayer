@@ -23,8 +23,8 @@ namespace MS {
         typedef MSContent<isDecode,T> MSDecoderOutputContent;
         
         virtual ~MSDecoderProtocol() {};
-        virtual MSDecoderOutputData * const decodeVideo(const MSMediaData<isEncode> &videoData) = 0;
-        virtual MSDecoderOutputData * const decodeAudio(const MSMediaData<isEncode> &audioData) = 0;
+        virtual const MSDecoderOutputData * decodeVideo(const MSMediaData<isEncode> &videoData) = 0;
+        virtual const MSDecoderOutputData * decodeAudio(const MSMediaData<isEncode> &audioData) = 0;
     };
     
     template <typename T,
@@ -35,7 +35,7 @@ namespace MS {
         typedef MSContent<isDecode,T> MSEncoderInputContent;
         
         virtual ~MSEncoderProtocol() {};
-        virtual void beginEncodeToFile(const string filePath) = 0;
+        virtual void beginEncode() = 0;
         virtual void encodeVideo(const MSEncoderInputData &pixelData) = 0;
         virtual void encodeAudio(const MSEncoderInputData &sampleData) = 0;
         virtual void endEncode() = 0;

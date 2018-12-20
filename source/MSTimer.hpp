@@ -56,7 +56,7 @@ namespace MS {
         
         void stop();
         
-        const bool isValid();
+        bool isValid();
         
         microseconds getTimeInterval();
         

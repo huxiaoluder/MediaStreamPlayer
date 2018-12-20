@@ -20,20 +20,36 @@ namespace MS {
         typedef MSEncoderProtocol<AVFrame> FFEncoderProtocol;
         
         class FFEncoder : public FFEncoderProtocol {
+            
             string filePath;
+            
             bool _isEncoding;
-            const AVCodecID vedioCodecID;
-            const AVCodecID audioCodecID;
+            
+            const MSCodecID videoCodecID;
+            const MSCodecID audioCodecID;
+
+            AVFormatContext *outputFormatContext;
+            FFCodecContext  *videoEncoderContext;
+            FFCodecContext  *audioEncoderContext;
+            
+            AVFormatContext * configureOutputFormatContext();
+            FFCodecContext  * configureVideoEncoderContext(const FFCodecContext &videoDecoderContext);
+            FFCodecContext  * configureAudioEncoderContext(const FFCodecContext &audioDecoderContext);
             
         public:
-            void beginEncodeToFile(const string filePath);
+            void beginEncode();
             void encodeVideo(const MSEncoderInputData &pixelData);
             void encodeAudio(const MSEncoderInputData &sampleData);
             void endEncode();
             bool isEncoding();
-            FFEncoder(const AVCodecID vedioCodecID,
-                      const AVCodecID audioCodecID);
+            
+            FFEncoder(const MSCodecID videoCodecID,
+                      const MSCodecID audioCodecID);
             ~FFEncoder();
+            
+            bool configureEncoder(const string muxingfilePath,
+                                  const FFCodecContext &videoDecoderContext,
+                                  const FFCodecContext &audioDecoderContext);
         };
         
     }

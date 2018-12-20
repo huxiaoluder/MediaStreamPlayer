@@ -54,13 +54,13 @@ namespace MS {
         
         mutex sampleQueueMutex;
         
-        queue<MSMediaData<isEncode> *> videoQueue;
+        queue<const MSMediaData<isEncode> *> videoQueue;
         
-        queue<MSMediaData<isEncode> *> audioQueue;
+        queue<const MSMediaData<isEncode> *> audioQueue;
         
-        queue<MSMediaData<isDecode, T> *> pixelQueue;
+        queue<const MSMediaData<isDecode, T> *> pixelQueue;
         
-        queue<MSMediaData<isDecode, T> *> sampleQueue;
+        queue<const MSMediaData<isDecode, T> *> sampleQueue;
         
         bool isDecoding = true;
         
@@ -119,10 +119,11 @@ namespace MS {
     :decoder(decoder), encoder(encoder),
     throwDecodeVideo(throwDecodeVideo),
     throwDecodeAudio(throwDecodeAudio) {
+        assert(throwDecodeVideo && throwDecodeAudio);
         
         videoDecodeThread = thread([this](){
-            MSMediaData<isEncode> *sourceData = nullptr;
-            MSMediaData<isDecode,T> *frameData = nullptr;
+            const MSMediaData<isEncode> *sourceData = nullptr;
+            const MSMediaData<isDecode,T> *frameData = nullptr;
             while (isDecoding) {
                 while (videoQueue.empty() || pixelQueue.size() > 20) {
                     unique_lock<mutex> lock(videoConditionMutex);
@@ -145,8 +146,8 @@ namespace MS {
         });
         
         audioDecodeThread = thread([this](){
-            MSMediaData<isEncode> *sourceData = nullptr;
-            MSMediaData<isDecode,T> *frameData = nullptr;
+            const MSMediaData<isEncode> *sourceData = nullptr;
+            const MSMediaData<isDecode,T> *frameData = nullptr;
             while (isDecoding) {
                 while (audioQueue.empty() || sampleQueue.size() > 20) {
                     unique_lock<mutex> lock(audioConditionMutex);
@@ -170,7 +171,7 @@ namespace MS {
         
         videoTimer->updateTask([this](){
             if (!pixelQueue.empty()) {
-                MSMediaData<isDecode,T> *frameData = nullptr;
+                const MSMediaData<isDecode,T> *frameData = nullptr;
                 frameData = pixelQueue.front();
                 while (!pixelQueueMutex.try_lock());
                 pixelQueue.pop();
@@ -192,7 +193,7 @@ namespace MS {
         
         audioTimer->updateTask([this](){
             if (!sampleQueue.empty()) {
-                MSMediaData<isDecode,T> *frameData = nullptr;
+                const MSMediaData<isDecode,T> *frameData = nullptr;
                 frameData = sampleQueue.front();
                 while (!sampleQueueMutex.try_lock());
                 sampleQueue.pop();
@@ -233,8 +234,8 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::clearAllVideo() {
-        MSMediaData<isEncode> *encodeData = nullptr;
-        MSMediaData<isDecode,T> *decodeData = nullptr;
+        const MSMediaData<isEncode> *encodeData = nullptr;
+        const MSMediaData<isDecode,T> *decodeData = nullptr;
         while (!videoQueue.empty()) {
             encodeData = videoQueue.front();
             videoQueue.pop();
@@ -249,8 +250,8 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::clearAllAudio() {
-        MSMediaData<isEncode> *encodeData = nullptr;
-        MSMediaData<isDecode,T> *decodeData = nullptr;
+        const MSMediaData<isEncode> *encodeData = nullptr;
+        const MSMediaData<isDecode,T> *decodeData = nullptr;
         while (!audioQueue.empty()) {
             encodeData = audioQueue.front();
             audioQueue.pop();

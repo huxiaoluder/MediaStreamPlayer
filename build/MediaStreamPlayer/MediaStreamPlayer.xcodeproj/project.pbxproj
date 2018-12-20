@@ -338,7 +338,6 @@
 					"$(mac_ffmpeg_lib)",
 					"$(mac_x264_lib)",
 					"$(mac_x265_lib)",
-					/usr/local/Cellar/ffmpeg/4.0.2_1/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -363,7 +362,6 @@
 					"$(mac_ffmpeg_lib)",
 					"$(mac_x264_lib)",
 					"$(mac_x265_lib)",
-					/usr/local/Cellar/ffmpeg/4.0.2_1/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

@@ -71,7 +71,7 @@ MSTimer::stop() {
     }
 }
 
-const bool
+bool
 MSTimer::isValid() {
     return isRunning;
 }

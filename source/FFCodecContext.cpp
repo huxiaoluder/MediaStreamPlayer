@@ -19,17 +19,27 @@ MS::FFmpeg::av_frame_free(AVFrame * const frame) {
 FFCodecContext::FFCodecContext(const FFCodecType codecType, const MSCodecID codecID)
 :codecType(codecType),
 codecID(codecID),
+realCodecID(getAVCodecId()),
+codec(initCodec()),
 codec_ctx(initCodecContext()) {
     assert(codecID != MSCodecID_None && codec_ctx != nullptr);
 }
 
+FFCodecContext::FFCodecContext(const FFCodecContext & codecContext)
+:codecType(codecContext.codecType),
+codecID(codecContext.codecID),
+realCodecID(getAVCodecId()),
+codec(initCodec()),
+codec_ctx(initCodecContext()) {
+    
+}
+
 FFCodecContext::~FFCodecContext() {
-//    avcodec_close(codec_ctx);
     AVCodecContext *_codec_ctx = const_cast<AVCodecContext *>(codec_ctx);
     avcodec_free_context(&_codec_ctx);
 }
 
-AVCodecID const
+AVCodecID
 FFCodecContext::getAVCodecId() {
     AVCodecID codec_id;
     switch (codecID) {
@@ -43,25 +53,34 @@ FFCodecContext::getAVCodecId() {
     return codec_id;
 }
 
-AVCodecContext * const
-FFCodecContext::initCodecContext() {
+AVCodec *
+FFCodecContext::initCodec() {
     AVCodec *codec = nullptr;
     if (codecType == FFCodecDecoder) {
-        codec = avcodec_find_decoder(getAVCodecId());
+        codec = avcodec_find_decoder(realCodecID);
     } else {
-        codec = avcodec_find_encoder(getAVCodecId());
+        codec = avcodec_find_encoder(realCodecID);
     }
+    return codec;
+}
+
+AVCodecContext *
+FFCodecContext::initCodecContext() {
     AVCodecContext *codec_ctx = avcodec_alloc_context3(codec);
-    int ret = avcodec_open2(codec_ctx, codec, nullptr);
     
-    if (ret < 0) {
-        av_err2str(ret);
-        assert(ret == 0);
+    if (codecType == FFCodecDecoder) {
+        int ret = avcodec_open2(codec_ctx, codec, nullptr);
+        
+        if (ret < 0) {
+            printf("error: %s\n",av_err2str(ret));
+            assert(ret == 0);
+        }
     }
+    
     return codec_ctx;
 }
 
-AVFormatContext * const
+AVFormatContext * 
 FFCodecContext::initFormatContex() {
     AVFormatContext *fmt_ctx = avformat_alloc_context();
     return fmt_ctx;

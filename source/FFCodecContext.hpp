@@ -24,9 +24,9 @@ extern "C" {
 
 #define ErrorLocationLog \
         printf( "-----------------------ERROR----------------------\n"\
-                "filename: %s\n"\
-                "linenumber: %d,\n"\
-                "funcname: %s\n"\
+                "| filename:    %-s\n"\
+                "| linenumber:  %d,\n"\
+                "| funcname:    %s\n"\
                 "--------------------------------------------------\n",__FILE__,__LINE__,__func__)
 
 namespace MS {
@@ -44,18 +44,32 @@ namespace MS {
             
             const MSCodecID codecID;
             
+            const AVCodecID realCodecID;
+            
+            AVCodec * const codec;
+            
             AVCodecContext * const codec_ctx;
             
+            /**
+             * if codecType == FFCodecEncoder
+             * set codec_ctx params by user
+             * codec open by user
+             */
             FFCodecContext(const FFCodecType codecType, const MSCodecID codecID);
             
             ~FFCodecContext();
             
         private:
-            AVCodecID const getAVCodecId();
+            // Note: don't allow copy with (FFCodecContext &)obj
+            FFCodecContext(const FFCodecContext &codecContext);
             
-            AVCodecContext * const initCodecContext();
+            AVCodecID getAVCodecId();
             
-            AVFormatContext * const initFormatContex();
+            AVCodec * initCodec();
+            
+            AVCodecContext * initCodecContext();
+            
+            AVFormatContext * initFormatContex();
         };
         
     }

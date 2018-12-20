@@ -23,10 +23,10 @@ namespace MS {
             
             const FFCodecContext & getDecoderContext(MSCodecID codecID);
             
-            MSDecoderOutputData * const decodeData(const MSMediaData<isEncode> &data);
+            const MSDecoderOutputData * decodeData(const MSMediaData<isEncode> &data);
         public:
-            MSDecoderOutputData * const decodeVideo(const MSMediaData<isEncode> &videoData);
-            MSDecoderOutputData * const decodeAudio(const MSMediaData<isEncode> &audioData);
+            const MSDecoderOutputData * decodeVideo(const MSMediaData<isEncode> &videoData);
+            const MSDecoderOutputData * decodeAudio(const MSMediaData<isEncode> &audioData);
             FFDecoder();
             ~FFDecoder();
         };
