@@ -14,52 +14,68 @@ using namespace MS::FFmpeg;
 
 void
 FFEncoder::beginEncode() {
-    _isEncoding = true;
-    this->filePath = filePath;
-    
-    int ret = avformat_alloc_output_context2(&outputFormatContext, nullptr, nullptr, filePath.c_str());
+    int ret = avio_open(&outputFormatContext->pb, filePath.c_str(), AVIO_FLAG_READ_WRITE);
     if (ret < 0) {
-        printf("error: %s\n",av_err2str(ret));
-        assert(ret == 0);
+        printf("Encoder error: %s\n",av_err2str(ret));
+        releaseEncoderConfiguration();
+        return;
     }
     
+    ret = avformat_write_header(outputFormatContext, nullptr);
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
+        releaseEncoderConfiguration();
+        return;
+    }
+    _isEncoding = true;
+}
+
+bool
+FFEncoder::isEncoding() {
+    return _isEncoding;
 }
 
 void
 FFEncoder::encodeVideo(const MSEncoderInputData &pixelData) {
-    assert(_isEncoding);
+    assert(_isEncoding && videoEncoderContext);
     
+    AVPacket packet{0};
+    
+    int ret = avcodec_send_frame(videoEncoderContext->codec_ctx, pixelData.content->frame);
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
+        return;
+    }
+    
+    ret = avcodec_receive_packet(videoEncoderContext->codec_ctx, &packet);
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
+        return;
+    }
+    
+    av_interleaved_write_frame(outputFormatContext, &packet);
 }
 
 void
 FFEncoder::encodeAudio(const MSEncoderInputData &sampleData) {
-    assert(_isEncoding);
+    assert(_isEncoding && audioEncoderContext);
 
+    
+    
 }
 
 void
 FFEncoder::endEncode() {
     _isEncoding = false;
     
-    // 释放编码环境
-    if (videoEncoderContext) {
-        delete videoEncoderContext;
-        videoEncoderContext = nullptr;
+    avio_flush(outputFormatContext->pb);
+    
+    int ret = av_write_trailer(outputFormatContext);
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
     }
     
-    if (audioEncoderContext) {
-        delete audioEncoderContext;
-        audioEncoderContext = nullptr;
-    }
-    
-    if (outputFormatContext) {
-        avformat_free_context(outputFormatContext);
-    }
-}
-
-bool
-FFEncoder::isEncoding() {
-    return _isEncoding;
+    releaseEncoderConfiguration();
 }
 
 FFEncoder::FFEncoder(const MSCodecID videoCodecID,
@@ -74,20 +90,30 @@ FFEncoder::~FFEncoder() {
 
 bool
 FFEncoder::configureEncoder(const string muxingfilePath,
-                            const FFCodecContext &videoDecoderContext,
-                            const FFCodecContext &audioDecoderContext) {
+                            const FFCodecContext * const videoDecoderContext,
+                            const FFCodecContext * const audioDecoderContext) {
+    filePath = muxingfilePath;
     
-  
-    int ret = avio_open(&outputFormatContext->pb, filePath.c_str(), AVIO_FLAG_READ_WRITE);
-    if (ret < 0) {
-        printf("error: %s\n",av_err2str(ret));
-        return nullptr;
+    outputFormatContext = configureOutputFormatContext();
+    if (!outputFormatContext) {
+        releaseEncoderConfiguration();
+        return false;
     }
     
-    ret = avformat_write_header(outputFormatContext, nullptr);
-    if (ret < 0) {
-        printf("error: %s\n",av_err2str(ret));
-        return nullptr;
+    if (videoDecoderContext) {
+        videoEncoderContext = configureVideoEncoderContext(*videoDecoderContext);
+        if (!videoEncoderContext) {
+            releaseEncoderConfiguration();
+            return false;
+        }
+    }
+    
+    if (audioDecoderContext) {
+        audioEncoderContext = configureAudioEncoderContext(*audioDecoderContext);
+        if (!audioEncoderContext) {
+            releaseEncoderConfiguration();
+            return false;
+        }
     }
     
     return true;
@@ -95,7 +121,17 @@ FFEncoder::configureEncoder(const string muxingfilePath,
 
 AVFormatContext *
 FFEncoder::configureOutputFormatContext() {
-    return nullptr;
+    AVFormatContext *outputFormatContext = nullptr;
+    int ret = avformat_alloc_output_context2(&outputFormatContext, nullptr, nullptr, filePath.c_str());
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
+        return nullptr;
+    }
+    
+    outputFormatContext->oformat->video_codec = FFCodecContext::getAVCodecId(videoCodecID);
+    outputFormatContext->oformat->audio_codec = FFCodecContext::getAVCodecId(audioCodecID);
+    
+    return outputFormatContext;
 }
 
 FFCodecContext *
@@ -127,19 +163,20 @@ FFEncoder::configureVideoEncoderContext(const FFCodecContext &videoDecoderContex
     
     int ret = avcodec_open2(&encoderContext, videoEncoderContext->codec, &dict);
     if (ret < 0) {
-        printf("error: %s\n",av_err2str(ret));
+        printf("Encoder error: %s\n",av_err2str(ret));
         return nullptr;
     }
     
     av_dict_free(&dict);
     
-    AVStream *videoStream = avformat_new_stream(outputFormatContext, videoEncoderContext->codec);
+    AVStream &outStream = *avformat_new_stream(outputFormatContext, videoEncoderContext->codec);
     
-    ret = avcodec_parameters_from_context(videoStream->codecpar, &encoderContext);
+    ret = avcodec_parameters_from_context(outStream.codecpar, &encoderContext);
     if (ret < 0) {
-        printf("error: %s\n",av_err2str(ret));
+        printf("Encoder error: %s\n",av_err2str(ret));
         return nullptr;
     }
+    outStream.time_base = encoderContext.time_base;
     
     return videoEncoderContext;
 }
@@ -149,13 +186,53 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     FFCodecContext *audioEncoderContext = new FFCodecContext(FFCodecEncoder,audioCodecID);
     AVCodecContext &encoderContext = *audioEncoderContext->codec_ctx;
     const AVCodecContext &decoderContext = *audioDecoderContext.codec_ctx;
-    encoderContext.profile = FF_PROFILE_AAC_MAIN;
-    encoderContext.sample_fmt = decoderContext.sample_fmt;
     
+    // 编码器参数配置
+    if (encoderContext.codec_id == AV_CODEC_ID_AAC) {
+        encoderContext.profile = FF_PROFILE_AAC_MAIN;
+    }
     
-    avcodec_open2(&encoderContext, audioEncoderContext->codec, nullptr);
+    encoderContext.sample_fmt       = decoderContext.sample_fmt;
+    encoderContext.sample_rate      = decoderContext.sample_rate;
+    encoderContext.time_base        = (AVRational){1, encoderContext.sample_rate};
+    encoderContext.channel_layout   = decoderContext.channel_layout;
+    encoderContext.channels         = av_get_channel_layout_nb_channels(encoderContext.channel_layout);
+    if (outputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
+        encoderContext.flags       |= AV_CODEC_FLAG_GLOBAL_HEADER;
+    }
     
-    AVStream *audioStream;
+    int ret = avcodec_open2(&encoderContext, audioEncoderContext->codec, nullptr);
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
+        return nullptr;
+    }
+    
+    AVStream &outStream = *avformat_new_stream(outputFormatContext, audioEncoderContext->codec);
+    
+    ret = avcodec_parameters_from_context(outStream.codecpar, &encoderContext);
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
+        return nullptr;
+    }
+    outStream.time_base = encoderContext.time_base;
+    
     return audioEncoderContext;
 }
 
+void
+FFEncoder::releaseEncoderConfiguration() {
+    if (videoEncoderContext) {
+        delete videoEncoderContext;
+        videoEncoderContext = nullptr;
+    }
+    
+    if (audioEncoderContext) {
+        delete audioEncoderContext;
+        audioEncoderContext = nullptr;
+    }
+    
+    if (outputFormatContext) {
+        avformat_free_context(outputFormatContext);
+        outputFormatContext = nullptr;
+    }
+}

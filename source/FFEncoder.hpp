@@ -36,20 +36,22 @@ namespace MS {
             FFCodecContext  * configureVideoEncoderContext(const FFCodecContext &videoDecoderContext);
             FFCodecContext  * configureAudioEncoderContext(const FFCodecContext &audioDecoderContext);
             
+            void releaseEncoderConfiguration();
+            
         public:
             void beginEncode();
+            bool isEncoding();
             void encodeVideo(const MSEncoderInputData &pixelData);
             void encodeAudio(const MSEncoderInputData &sampleData);
             void endEncode();
-            bool isEncoding();
             
             FFEncoder(const MSCodecID videoCodecID,
                       const MSCodecID audioCodecID);
             ~FFEncoder();
             
             bool configureEncoder(const string muxingfilePath,
-                                  const FFCodecContext &videoDecoderContext,
-                                  const FFCodecContext &audioDecoderContext);
+                                  const FFCodecContext * const videoDecoderContext,
+                                  const FFCodecContext * const audioDecoderContext);
         };
         
     }

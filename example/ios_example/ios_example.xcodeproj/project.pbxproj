@@ -30,6 +30,7 @@
 		4F0A740621B7BC09000E0E31 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0A740521B7BC09000E0E31 /* libiconv.tbd */; };
 		4F0A740821B7BC4C000E0E31 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0A740721B7BC4C000E0E31 /* libz.tbd */; };
 		4F0A740B21B7C4A0000E0E31 /* MSViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A740A21B7C4A0000E0E31 /* MSViewController.mm */; };
+		4F1DA55F21CCE5D6000EFE53 /* transcoding.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F1DA55E21CCE5D6000EFE53 /* transcoding.c */; };
 		4F9ADF0321B7D02900862770 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEEF21B7D02900862770 /* libcrypto.a */; };
 		4F9ADF0421B7D02900862770 /* libpjlib-util.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF121B7D02900862770 /* libpjlib-util.a */; };
 		4F9ADF0521B7D02900862770 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF221B7D02900862770 /* libmxml.a */; };
@@ -196,6 +197,7 @@
 		4F0A740721B7BC4C000E0E31 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		4F0A740921B7C4A0000E0E31 /* MSViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSViewController.h; sourceTree = "<group>"; };
 		4F0A740A21B7C4A0000E0E31 /* MSViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MSViewController.mm; sourceTree = "<group>"; };
+		4F1DA55E21CCE5D6000EFE53 /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transcoding.c; sourceTree = "<group>"; };
 		4F9ADEEF21B7D02900862770 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		4F9ADEF021B7D02900862770 /* iot_comm.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iot_comm.pb.h; sourceTree = "<group>"; };
 		4F9ADEF121B7D02900862770 /* libpjlib-util.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libpjlib-util.a"; sourceTree = "<group>"; };
@@ -279,6 +281,7 @@
 				4F0A737021B7B50C000E0E31 /* thirdlibs */,
 				4F0A735D21B7B462000E0E31 /* source */,
 				4F9ADF1421B7D12F00862770 /* IotlibTool.h */,
+				4F1DA55E21CCE5D6000EFE53 /* transcoding.c */,
 				4F9ADF1521B7D12F00862770 /* IotlibTool.m */,
 				4F0A734721B7B3C4000E0E31 /* AppDelegate.h */,
 				4F0A734821B7B3C4000E0E31 /* AppDelegate.m */,
@@ -712,6 +715,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F1DA55F21CCE5D6000EFE53 /* transcoding.c in Sources */,
 				4F0A736A21B7B462000E0E31 /* FFDecoder.cpp in Sources */,
 				4F0A734C21B7B3C4000E0E31 /* ViewController.m in Sources */,
 				4F0A736E21B7B462000E0E31 /* FFEncoder.cpp in Sources */,

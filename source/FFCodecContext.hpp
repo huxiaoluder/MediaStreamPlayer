@@ -44,8 +44,6 @@ namespace MS {
             
             const MSCodecID codecID;
             
-            const AVCodecID realCodecID;
-            
             AVCodec * const codec;
             
             AVCodecContext * const codec_ctx;
@@ -59,11 +57,10 @@ namespace MS {
             
             ~FFCodecContext();
             
+            static AVCodecID getAVCodecId(const MSCodecID codecID);
         private:
             // Note: don't allow copy with (FFCodecContext &)obj
             FFCodecContext(const FFCodecContext &codecContext);
-            
-            AVCodecID getAVCodecId();
             
             AVCodec * initCodec();
             

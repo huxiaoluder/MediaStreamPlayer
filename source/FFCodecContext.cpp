@@ -19,7 +19,7 @@ MS::FFmpeg::av_frame_free(AVFrame * const frame) {
 FFCodecContext::FFCodecContext(const FFCodecType codecType, const MSCodecID codecID)
 :codecType(codecType),
 codecID(codecID),
-realCodecID(getAVCodecId()),
+//realCodecID(getAVCodecId()),
 codec(initCodec()),
 codec_ctx(initCodecContext()) {
     assert(codecID != MSCodecID_None && codec_ctx != nullptr);
@@ -28,7 +28,7 @@ codec_ctx(initCodecContext()) {
 FFCodecContext::FFCodecContext(const FFCodecContext & codecContext)
 :codecType(codecContext.codecType),
 codecID(codecContext.codecID),
-realCodecID(getAVCodecId()),
+//realCodecID(getAVCodecId()),
 codec(initCodec()),
 codec_ctx(initCodecContext()) {
     
@@ -39,27 +39,13 @@ FFCodecContext::~FFCodecContext() {
     avcodec_free_context(&_codec_ctx);
 }
 
-AVCodecID
-FFCodecContext::getAVCodecId() {
-    AVCodecID codec_id;
-    switch (codecID) {
-        case MSCodecID_None:    codec_id = AV_CODEC_ID_NONE;    break;
-        case MSCodecID_H264:    codec_id = AV_CODEC_ID_H264;    break;
-        case MSCodecID_H265:    codec_id = AV_CODEC_ID_HEVC;    break;
-        case MSCodecID_AAC:     codec_id = AV_CODEC_ID_AAC;     break;
-        case MSCodecID_G711:    codec_id = AV_CODEC_ID_NONE;    break;
-        case MSCodecID_OPUS:    codec_id = AV_CODEC_ID_OPUS;    break;
-    }
-    return codec_id;
-}
-
 AVCodec *
 FFCodecContext::initCodec() {
     AVCodec *codec = nullptr;
     if (codecType == FFCodecDecoder) {
-        codec = avcodec_find_decoder(realCodecID);
+        codec = avcodec_find_decoder(getAVCodecId(codecID));
     } else {
-        codec = avcodec_find_encoder(realCodecID);
+        codec = avcodec_find_encoder(getAVCodecId(codecID));
     }
     return codec;
 }
@@ -84,4 +70,18 @@ AVFormatContext *
 FFCodecContext::initFormatContex() {
     AVFormatContext *fmt_ctx = avformat_alloc_context();
     return fmt_ctx;
+}
+
+AVCodecID
+FFCodecContext::getAVCodecId(const MSCodecID codecID) {
+    AVCodecID codec_id;
+    switch (codecID) {
+        case MSCodecID_None:    codec_id = AV_CODEC_ID_NONE;    break;
+        case MSCodecID_H264:    codec_id = AV_CODEC_ID_H264;    break;
+        case MSCodecID_H265:    codec_id = AV_CODEC_ID_HEVC;    break;
+        case MSCodecID_AAC:     codec_id = AV_CODEC_ID_AAC;     break;
+        case MSCodecID_G711:    codec_id = AV_CODEC_ID_NONE;    break;
+        case MSCodecID_OPUS:    codec_id = AV_CODEC_ID_OPUS;    break;
+    }
+    return codec_id;
 }
