@@ -29,6 +29,8 @@ namespace MS {
             const MSDecoderOutputData * decodeAudio(const MSMediaData<isEncode> &audioData);
             FFDecoder();
             ~FFDecoder();
+            
+            const FFCodecContext * findDecoderContext(MSCodecID codecID);
         };
         
     }   

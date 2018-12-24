@@ -47,7 +47,13 @@ const FFDecoderProtocol::MSDecoderOutputData *
 FFDecoder::decodeData(const MSMediaData<isEncode> &data) {
     const FFCodecContext &decoderContext = getDecoderContext(data.content->codecID);
     AVCodecContext *codec_ctx = decoderContext.codec_ctx;
-    AVPacket packet{0};
+    
+    AVPacket packet{
+        .data = nullptr,
+        .size = 0
+    };
+    av_init_packet(&packet);
+    
     packet.data = data.content->packt;
     packet.size = static_cast<int>(data.content->size);
     
@@ -73,12 +79,20 @@ FFDecoder::decodeData(const MSMediaData<isEncode> &data) {
     if (data.content->codecID <= MSCodecID_HEVC) {
         rate = codec_ctx->framerate.num / codec_ctx->framerate.den;
     } else {
-        rate = codec_ctx->sample_rate;
+        rate = codec_ctx->sample_rate / frame->nb_samples;
     }
     
     MSDecoderOutputContent *content = new MSDecoderOutputContent(frame,
                                                                  intervale(rate),
                                                                  av_frame_free,
                                                                  av_frame_clone);
+    
+    av_packet_unref(&packet);
+    
     return new MSDecoderOutputData(content);
+}
+
+const FFCodecContext * 
+FFDecoder::findDecoderContext(MSCodecID codecID) {
+    return decoderContexts[codecID];
 }

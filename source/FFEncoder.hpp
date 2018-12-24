@@ -23,14 +23,17 @@ namespace MS {
             
             string filePath;
             
-            bool _isEncoding;
+            bool _isEncoding = false;
             
             const MSCodecID videoCodecID;
             const MSCodecID audioCodecID;
 
-            AVFormatContext *outputFormatContext;
-            FFCodecContext  *videoEncoderContext;
-            FFCodecContext  *audioEncoderContext;
+            AVFormatContext *outputFormatContext = nullptr;
+            FFCodecContext  *videoEncoderContext = nullptr;
+            FFCodecContext  *audioEncoderContext = nullptr;
+            
+            AVStream *videoStream = nullptr;
+            AVStream *audioStream = nullptr;
             
             AVFormatContext * configureOutputFormatContext();
             FFCodecContext  * configureVideoEncoderContext(const FFCodecContext &videoDecoderContext);
@@ -38,12 +41,16 @@ namespace MS {
             
             void releaseEncoderConfiguration();
             
+            void encodeData(AVFrame * const frame,
+                            AVStream * const outStream,
+                            AVCodecContext * const encoderContext);
+            
         public:
             void beginEncode();
-            bool isEncoding();
             void encodeVideo(const MSEncoderInputData &pixelData);
             void encodeAudio(const MSEncoderInputData &sampleData);
             void endEncode();
+            bool isEncoding();
             
             FFEncoder(const MSCodecID videoCodecID,
                       const MSCodecID audioCodecID);

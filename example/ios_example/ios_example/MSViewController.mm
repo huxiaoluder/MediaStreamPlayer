@@ -20,7 +20,8 @@ using namespace MS::FFmpeg;
 @interface MSViewController ()<IotlibToolDelegate>
 {
     MSPlayer<AVFrame> *player;
-    BOOL updateData;
+    BOOL updateVideo;
+    BOOL updateAudio;
 }
 
 @end
@@ -28,6 +29,7 @@ using namespace MS::FFmpeg;
 @implementation MSViewController
 
 static int i;
+static int j;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -37,17 +39,31 @@ static int i;
                                    [&](const MSMediaData<isDecode,AVFrame> &data) {
                                        if (data.content) {
                                            cout
-                                           << "播放: "
+                                           << "video 播放: "
                                            << data.content->timeInterval.count()
                                            << "----- "
                                            << i++
                                            << endl;
                                        } else {
                                            cout
-                                           << "播放: ----- 没有资源"
+                                           << "video 播放: ----- 没有资源"
                                            << endl;
                                        }
-                                   },nullptr);
+                                   },
+                                   [&](const MSMediaData<isDecode,AVFrame> &data) {
+                                       if (data.content) {
+                                           cout
+                                           << "audio 播放: "
+                                           << data.content->timeInterval.count()
+                                           << "----- "
+                                           << j++
+                                           << endl;
+                                       } else {
+                                           cout
+                                           << "audio 播放: ----- 没有资源"
+                                           << endl;
+                                       }
+                                   });
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(connectsuccess:)
@@ -84,7 +100,15 @@ static int i;
                                              videoQuality:500
                                                  callback:^(int status)
     {
-        printf("-----------------status: %d", status);
+        printf("video: -----------------status: %d\n", status);
+    }];
+    
+    [[IotlibTool shareIotlibTool] startAudioWithChannelID:connID Callback:^(int status,
+                                                                            uint32_t audio_codec,
+                                                                            uint32_t rate,
+                                                                            uint32_t bit,
+                                                                            uint32_t track) {
+        printf("audio: -----------------status: %d\n", status);
     }];
 }
 
@@ -93,7 +117,7 @@ static int i;
                       dataPtr:(const char *)data_ptr
                       dataLen:(uint32_t)dataLen {
 //    printf("--------------datalen: %d\n",dataLen);
-    if (updateData) {
+    if (updateVideo) {
         if (headerMedia->stream_type == e_stream_type_H264) {
             uint8_t *datap = new uint8_t[dataLen]{0};
             memcpy(datap, data_ptr, dataLen);
@@ -102,33 +126,90 @@ static int i;
             player->pushVideoData(data);
         }
     }
+    
+    if (updateAudio) {
+        if (headerMedia->stream_type == e_stream_type_AAC) {
+            uint8_t *datap = new uint8_t[dataLen]{0};
+            memcpy(datap, data_ptr, dataLen);
+            auto content = new MSContent<isEncode>(datap,dataLen,MSCodecID_AAC);
+            MSMediaData<isEncode> *data = new MSMediaData<isEncode>(content);
+            player->pushAudioData(data);
+        }
+    }
 }
 
-- (IBAction)play:(UIButton *)sender {
+
+
+- (IBAction)playVideo:(UIButton *)sender {
     i = 0;
     player->startPlayVideo();
 }
 
-- (IBAction)pause:(UIButton *)sender {
+- (IBAction)pauseVideo:(UIButton *)sender {
     player->pausePlayVideo();
 }
 
-- (IBAction)_continue:(UIButton *)sender {
+- (IBAction)continueVideo:(UIButton *)sender {
     player->continuePlayVideo();
 }
 
-- (IBAction)stop:(UIButton *)sender {
+- (IBAction)stopVideo:(UIButton *)sender {
     player->stopPlayVideo();
 }
 
-- (IBAction)update:(UIButton *)sender {
-    updateData = !updateData;
+- (IBAction)updateVideo:(UIButton *)sender {
+    updateVideo = !updateVideo;
 }
+
+
+
+- (IBAction)playAudio:(UIButton *)sender {
+    player->startPlayAudio();
+}
+
+- (IBAction)pauseAudio:(UIButton *)sender {
+    player->pausePlayAudio();
+}
+
+- (IBAction)continueAudio:(UIButton *)sender {
+    player->continuePlayAudio();
+}
+
+- (IBAction)stopAudio:(UIButton *)sender {
+    player->stopPlayAudio();
+}
+
+- (IBAction)updateAudio:(UIButton *)sender {
+    updateAudio = !updateAudio;
+}
+
+
+
+- (IBAction)encodeMedia:(UIButton *)sender {
+    FFEncoder &encoder = (FFEncoder &)player->getEncoder();
+    FFDecoder &decoder = (FFDecoder &)player->getDecoder();
+    if (encoder.isEncoding()) {
+        player->stopReEncode();
+    } else {
+        NSString *videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"test.mp4"]];
+        bool ret = encoder.configureEncoder(videoPath.UTF8String,
+                                            decoder.findDecoderContext(MSCodecID_H264),
+                                            decoder.findDecoderContext(MSCodecID_AAC));
+        if (ret) {
+            player->startReEncode();
+        }
+    }
+}
+
+
+
+
 - (IBAction)back:(UIButton *)sender {
     [self dismissViewControllerAnimated:true completion:^{
         
     }];
 }
+
 
 - (void)dealloc {
     printf("----delloc\n");

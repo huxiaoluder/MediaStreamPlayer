@@ -14,6 +14,8 @@ using namespace MS::FFmpeg;
 
 void
 FFEncoder::beginEncode() {
+    assert(outputFormatContext && videoEncoderContext && audioEncoderContext);
+    
     int ret = avio_open(&outputFormatContext->pb, filePath.c_str(), AVIO_FLAG_READ_WRITE);
     if (ret < 0) {
         printf("Encoder error: %s\n",av_err2str(ret));
@@ -37,31 +39,28 @@ FFEncoder::isEncoding() {
 
 void
 FFEncoder::encodeVideo(const MSEncoderInputData &pixelData) {
-    assert(_isEncoding && videoEncoderContext);
-    
-    AVPacket packet{0};
-    
-    int ret = avcodec_send_frame(videoEncoderContext->codec_ctx, pixelData.content->frame);
-    if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
-        return;
+    assert(_isEncoding);
+
+    if (videoEncoderContext) {
+        AVFrame &frame = *pixelData.content->frame;
+        frame.pts = frame.best_effort_timestamp;
+        frame.pict_type = AV_PICTURE_TYPE_NONE;
+        
+        encodeData(&frame, videoStream, videoEncoderContext->codec_ctx);
     }
-    
-    ret = avcodec_receive_packet(videoEncoderContext->codec_ctx, &packet);
-    if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
-        return;
-    }
-    
-    av_interleaved_write_frame(outputFormatContext, &packet);
 }
 
 void
 FFEncoder::encodeAudio(const MSEncoderInputData &sampleData) {
-    assert(_isEncoding && audioEncoderContext);
+    assert(_isEncoding);
 
-    
-    
+    if (audioEncoderContext) {
+        AVFrame &frame = *sampleData.content->frame;
+        frame.pts = frame.best_effort_timestamp;
+        frame.pict_type = AV_PICTURE_TYPE_NONE;
+        
+        encodeData(&frame, audioStream, videoEncoderContext->codec_ctx);
+    }
 }
 
 void
@@ -85,7 +84,9 @@ FFEncoder::FFEncoder(const MSCodecID videoCodecID,
 }
 
 FFEncoder::~FFEncoder() {
-    endEncode();
+    if (_isEncoding) {    
+        endEncode();
+    }
 }
 
 bool
@@ -178,6 +179,8 @@ FFEncoder::configureVideoEncoderContext(const FFCodecContext &videoDecoderContex
     }
     outStream.time_base = encoderContext.time_base;
     
+    videoStream = &outStream;
+    
     return videoEncoderContext;
 }
 
@@ -203,6 +206,7 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     
     int ret = avcodec_open2(&encoderContext, audioEncoderContext->codec, nullptr);
     if (ret < 0) {
+        printf("Encoder Configuration: %s\n",avformat_configuration());
         printf("Encoder error: %s\n",av_err2str(ret));
         return nullptr;
     }
@@ -215,6 +219,8 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
         return nullptr;
     }
     outStream.time_base = encoderContext.time_base;
+    
+    audioStream = &outStream;
     
     return audioEncoderContext;
 }
@@ -235,4 +241,34 @@ FFEncoder::releaseEncoderConfiguration() {
         avformat_free_context(outputFormatContext);
         outputFormatContext = nullptr;
     }
+}
+
+void
+FFEncoder::encodeData(AVFrame * const frame,
+                      AVStream * const outStream,
+                      AVCodecContext * const encoderContext) {
+    AVPacket packet{
+        .data = nullptr,
+        .size = 0
+    };
+    av_init_packet(&packet);
+    
+    int ret = avcodec_send_frame(encoderContext, frame);
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
+        return;
+    }
+    
+    ret = avcodec_receive_packet(encoderContext, &packet);
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
+        return;
+    }
+    
+    packet.stream_index = outStream->index;
+    av_packet_rescale_ts(&packet,
+                         encoderContext->time_base,
+                         videoStream->time_base);
+    
+    av_interleaved_write_frame(outputFormatContext, &packet);
 }

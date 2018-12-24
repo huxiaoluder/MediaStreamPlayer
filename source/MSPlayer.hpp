@@ -81,6 +81,10 @@ namespace MS {
         
         ~MSPlayer();
         
+        MSDecoderProtocol<T> & getDecoder();
+        
+        MSEncoderProtocol<T> & getEncoder();
+        
         void startPlayVideo();
         
         void pausePlayVideo();
@@ -97,7 +101,7 @@ namespace MS {
 
         void stopPlayAudio();
         
-        void startReEncodeToFile(const string filePath);
+        void startReEncode();
         
         void pauseReEncode();
         
@@ -233,6 +237,18 @@ namespace MS {
     }
     
     template <typename T>
+    MSDecoderProtocol<T> &
+    MSPlayer<T>::getDecoder() {
+        return *decoder;
+    }
+    
+    template <typename T>
+    MSEncoderProtocol<T> &
+    MSPlayer<T>::getEncoder() {
+        return *encoder;
+    }
+    
+    template <typename T>
     void MSPlayer<T>::clearAllVideo() {
         const MSMediaData<isEncode> *encodeData = nullptr;
         const MSMediaData<isDecode,T> *decodeData = nullptr;
@@ -319,9 +335,9 @@ namespace MS {
     }
     
     template <typename T>
-    void MSPlayer<T>::startReEncodeToFile(const string filePath) {
+    void MSPlayer<T>::startReEncode() {
         assert(encoder->isEncoding() == false);
-        encoder->beginEncodeToFile(filePath);
+        encoder->beginEncode();
         isEncoding = true;
     }
     
@@ -354,7 +370,7 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::pushAudioData(MSMediaData<isEncode> *audioData) {
-        if (videoTimer->isValid()) {
+        if (audioTimer->isValid()) {
             while (!audioQueueMutex.try_lock());
             audioQueue.push(audioData);
             audioQueueMutex.unlock();
