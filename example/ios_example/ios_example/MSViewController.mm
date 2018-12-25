@@ -37,32 +37,32 @@ static int j;
     auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
     player = new MSPlayer<AVFrame>(decoder,encoder,
                                    [&](const MSMediaData<isDecode,AVFrame> &data) {
-                                       if (data.content) {
-                                           cout
-                                           << "video 播放: "
-                                           << data.content->timeInterval.count()
-                                           << "----- "
-                                           << i++
-                                           << endl;
-                                       } else {
-                                           cout
-                                           << "video 播放: ----- 没有资源"
-                                           << endl;
-                                       }
+//                                       if (data.content) {
+//                                           cout
+//                                           << "video 播放: "
+//                                           << data.content->timeInterval.count()
+//                                           << "----- "
+//                                           << i++
+//                                           << endl;
+//                                       } else {
+//                                           cout
+//                                           << "video 播放: ----- 没有资源"
+//                                           << endl;
+//                                       }
                                    },
                                    [&](const MSMediaData<isDecode,AVFrame> &data) {
-                                       if (data.content) {
-                                           cout
-                                           << "audio 播放: "
-                                           << data.content->timeInterval.count()
-                                           << "----- "
-                                           << j++
-                                           << endl;
-                                       } else {
-                                           cout
-                                           << "audio 播放: ----- 没有资源"
-                                           << endl;
-                                       }
+//                                       if (data.content) {
+//                                           cout
+//                                           << "audio 播放: "
+//                                           << data.content->timeInterval.count()
+//                                           << "----- "
+//                                           << j++
+//                                           << endl;
+//                                       } else {
+//                                           cout
+//                                           << "audio 播放: ----- 没有资源"
+//                                           << endl;
+//                                       }
                                    });
     
     [[NSNotificationCenter defaultCenter] addObserver:self

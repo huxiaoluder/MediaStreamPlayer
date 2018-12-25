@@ -19,16 +19,14 @@ MS::FFmpeg::av_frame_free(AVFrame * const frame) {
 FFCodecContext::FFCodecContext(const FFCodecType codecType, const MSCodecID codecID)
 :codecType(codecType),
 codecID(codecID),
-//realCodecID(getAVCodecId()),
 codec(initCodec()),
 codec_ctx(initCodecContext()) {
-    assert(codecID != MSCodecID_None && codec_ctx != nullptr);
+    assert(codecID != MSCodecID_None && codec_ctx && codec);
 }
 
 FFCodecContext::FFCodecContext(const FFCodecContext & codecContext)
 :codecType(codecContext.codecType),
 codecID(codecContext.codecID),
-//realCodecID(getAVCodecId()),
 codec(initCodec()),
 codec_ctx(initCodecContext()) {
     

@@ -11,6 +11,7 @@
 
 #include <map>
 #include <string>
+#include <mutex>
 #include "MSCodecProtocol.h"
 #include "FFCodecContext.hpp"
 
@@ -21,13 +22,18 @@ namespace MS {
         
         class FFEncoder : public FFEncoderProtocol {
             
+            mutex fileWriteMutex;
+            
             string filePath;
             
             bool _isEncoding = false;
             
             const MSCodecID videoCodecID;
             const MSCodecID audioCodecID;
-
+            
+            long long videoPts = 0;
+            long long audioPts = 0;
+            
             AVFormatContext *outputFormatContext = nullptr;
             FFCodecContext  *videoEncoderContext = nullptr;
             FFCodecContext  *audioEncoderContext = nullptr;

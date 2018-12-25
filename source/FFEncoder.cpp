@@ -7,6 +7,7 @@
 //
 
 #include "FFEncoder.hpp"
+#include <unistd.h>
 
 using namespace std;
 using namespace MS;
@@ -14,7 +15,10 @@ using namespace MS::FFmpeg;
 
 void
 FFEncoder::beginEncode() {
-    assert(outputFormatContext && videoEncoderContext && audioEncoderContext);
+    assert(outputFormatContext && (videoEncoderContext || audioEncoderContext));
+    
+    videoPts = 0;
+    audioPts = 0;
     
     int ret = avio_open(&outputFormatContext->pb, filePath.c_str(), AVIO_FLAG_READ_WRITE);
     if (ret < 0) {
@@ -22,6 +26,8 @@ FFEncoder::beginEncode() {
         releaseEncoderConfiguration();
         return;
     }
+    
+    av_dump_format(outputFormatContext, 0, filePath.c_str(), 1);
     
     ret = avformat_write_header(outputFormatContext, nullptr);
     if (ret < 0) {
@@ -43,9 +49,10 @@ FFEncoder::encodeVideo(const MSEncoderInputData &pixelData) {
 
     if (videoEncoderContext) {
         AVFrame &frame = *pixelData.content->frame;
-        frame.pts = frame.best_effort_timestamp;
+        videoPts += 1;
+        frame.pts = videoPts;
         frame.pict_type = AV_PICTURE_TYPE_NONE;
-        
+    
         encodeData(&frame, videoStream, videoEncoderContext->codec_ctx);
     }
 }
@@ -56,24 +63,25 @@ FFEncoder::encodeAudio(const MSEncoderInputData &sampleData) {
 
     if (audioEncoderContext) {
         AVFrame &frame = *sampleData.content->frame;
-        frame.pts = frame.best_effort_timestamp;
+        audioPts += frame.nb_samples;
+        frame.pts = audioPts;
         frame.pict_type = AV_PICTURE_TYPE_NONE;
         
-        encodeData(&frame, audioStream, videoEncoderContext->codec_ctx);
+        encodeData(&frame, audioStream, audioEncoderContext->codec_ctx);
     }
 }
 
 void
 FFEncoder::endEncode() {
-    _isEncoding = false;
-    
-    avio_flush(outputFormatContext->pb);
+    while (fileWriteMutex.try_lock()) {
+        _isEncoding = false;
+        avio_flush(outputFormatContext->pb);
+    }
     
     int ret = av_write_trailer(outputFormatContext);
     if (ret < 0) {
         printf("Encoder error: %s\n",av_err2str(ret));
     }
-    
     releaseEncoderConfiguration();
 }
 
@@ -149,12 +157,14 @@ FFEncoder::configureVideoEncoderContext(const FFCodecContext &videoDecoderContex
         
         encoderContext.profile  = FF_PROFILE_H264_HIGH;
     }
+    
     encoderContext.pix_fmt      = decoderContext.pix_fmt;
     encoderContext.width        = decoderContext.width;
     encoderContext.height       = decoderContext.height;
     encoderContext.gop_size     = decoderContext.gop_size;
     encoderContext.qmin         = decoderContext.qmin;
     encoderContext.qmax         = decoderContext.qmax;
+    encoderContext.bit_rate     = decoderContext.bit_rate;
     encoderContext.max_b_frames = decoderContext.max_b_frames;
     encoderContext.time_base    = av_inv_q(decoderContext.framerate);
     encoderContext.sample_aspect_ratio = decoderContext.sample_aspect_ratio;
@@ -192,14 +202,18 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     
     // 编码器参数配置
     if (encoderContext.codec_id == AV_CODEC_ID_AAC) {
-        encoderContext.profile = FF_PROFILE_AAC_MAIN;
+        // not allowed set profile
+//        encoderContext.profile = FF_PROFILE_AAC_MAIN;
     }
     
     encoderContext.sample_fmt       = decoderContext.sample_fmt;
+    encoderContext.frame_size       = decoderContext.frame_size;
+    encoderContext.bit_rate         = decoderContext.bit_rate;
     encoderContext.sample_rate      = decoderContext.sample_rate;
     encoderContext.time_base        = (AVRational){1, encoderContext.sample_rate};
     encoderContext.channel_layout   = decoderContext.channel_layout;
     encoderContext.channels         = av_get_channel_layout_nb_channels(encoderContext.channel_layout);
+    encoderContext.strict_std_compliance = FF_COMPLIANCE_EXPERIMENTAL;
     if (outputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
         encoderContext.flags       |= AV_CODEC_FLAG_GLOBAL_HEADER;
     }
@@ -265,10 +279,14 @@ FFEncoder::encodeData(AVFrame * const frame,
         return;
     }
     
+    av_packet_rescale_ts(&packet, encoderContext->time_base, outStream->time_base);
     packet.stream_index = outStream->index;
-    av_packet_rescale_ts(&packet,
-                         encoderContext->time_base,
-                         videoStream->time_base);
     
-    av_interleaved_write_frame(outputFormatContext, &packet);
+    while (fileWriteMutex.try_lock() && _isEncoding) {
+        ret = av_interleaved_write_frame(outputFormatContext, &packet);
+    }
+    
+    if (ret < 0) {
+        printf("Encoder error: %s\n",av_err2str(ret));
+    }
 }
