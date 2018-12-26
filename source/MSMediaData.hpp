@@ -29,7 +29,7 @@ namespace MS {
         /*---audio---*/
         MSCodecID_AAC,
         MSCodecID_OPUS,
-        MSCodecID_G711,
+        MSCodecID_G711A,
     };
     
     enum MSContentType {

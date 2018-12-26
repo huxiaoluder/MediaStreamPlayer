@@ -78,8 +78,8 @@ FFCodecContext::getAVCodecId(const MSCodecID codecID) {
         case MSCodecID_H264:    codec_id = AV_CODEC_ID_H264;        break;
         case MSCodecID_H265:    codec_id = AV_CODEC_ID_HEVC;        break;
         case MSCodecID_AAC:     codec_id = AV_CODEC_ID_AAC;         break;
-        case MSCodecID_G711:    codec_id = AV_CODEC_ID_PCM_ALAW;    break;
         case MSCodecID_OPUS:    codec_id = AV_CODEC_ID_OPUS;        break;
+        case MSCodecID_G711A:   codec_id = AV_CODEC_ID_PCM_ALAW;    break;
     }
     return codec_id;
 }
