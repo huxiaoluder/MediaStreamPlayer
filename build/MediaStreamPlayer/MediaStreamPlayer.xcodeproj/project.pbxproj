@@ -7,11 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F01917821A65812003E1408 /* MSTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F01917621A65812003E1408 /* MSTimer.cpp */; };
-		4F61CC58219BF1D400B4B76E /* FFEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC56219BF1D400B4B76E /* FFEncoder.cpp */; };
-		4F61CC5B219BF1E700B4B76E /* FFDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC59219BF1E700B4B76E /* FFDecoder.cpp */; };
-		4F654E7721A649E800F74803 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC47219BF07F00B4B76E /* main.cpp */; };
-		4F8C6EBC21AE825B00E3443C /* FFCodecContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C6EBA21AE825B00E3443C /* FFCodecContext.cpp */; };
+		4F1706A521D3113C00CE476E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC47219BF07F00B4B76E /* main.cpp */; };
 		4F8C6EC721AE8B2000E3443C /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EBE21AE8B2000E3443C /* libavutil.a */; };
 		4F8C6ECA21AE8B2000E3443C /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC121AE8B2000E3443C /* libavformat.a */; };
 		4F8C6ECC21AE8B2000E3443C /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC321AE8B2000E3443C /* libavcodec.a */; };
@@ -197,11 +193,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F01917821A65812003E1408 /* MSTimer.cpp in Sources */,
-				4F61CC5B219BF1E700B4B76E /* FFDecoder.cpp in Sources */,
-				4F654E7721A649E800F74803 /* main.cpp in Sources */,
-				4F61CC58219BF1D400B4B76E /* FFEncoder.cpp in Sources */,
-				4F8C6EBC21AE825B00E3443C /* FFCodecContext.cpp in Sources */,
+				4F1706A521D3113C00CE476E /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

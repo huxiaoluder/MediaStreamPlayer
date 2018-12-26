@@ -27,8 +27,6 @@ FFEncoder::beginEncode() {
         return;
     }
     
-    av_dump_format(outputFormatContext, 0, filePath.c_str(), 1);
-    
     ret = avformat_write_header(outputFormatContext, nullptr);
     if (ret < 0) {
         printf("Encoder error: %s\n",av_err2str(ret));
@@ -73,12 +71,14 @@ FFEncoder::encodeAudio(const MSEncoderInputData &sampleData) {
 
 void
 FFEncoder::endEncode() {
-    while (fileWriteMutex.try_lock()) {
-        _isEncoding = false;
-        avio_flush(outputFormatContext->pb);
-    }
+    while (!fileWriteMutex.try_lock());
+    
+    _isEncoding = false;
+    
+    avio_flush(outputFormatContext->pb);
     
     int ret = av_write_trailer(outputFormatContext);
+    fileWriteMutex.unlock();
     if (ret < 0) {
         printf("Encoder error: %s\n",av_err2str(ret));
     }
@@ -282,11 +282,12 @@ FFEncoder::encodeData(AVFrame * const frame,
     av_packet_rescale_ts(&packet, encoderContext->time_base, outStream->time_base);
     packet.stream_index = outStream->index;
     
-    while (fileWriteMutex.try_lock() && _isEncoding) {
+    while (!fileWriteMutex.try_lock());
+    if (_isEncoding) {
         ret = av_interleaved_write_frame(outputFormatContext, &packet);
-    }
-    
-    if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        fileWriteMutex.unlock();
+        if (ret < 0) {
+            printf("Encoder error: %s\n",av_err2str(ret));
+        }
     }
 }
