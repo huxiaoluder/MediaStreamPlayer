@@ -11,6 +11,7 @@
 
 #include "MSCodecProtocol.h"
 #include "MSMediaData.hpp"
+#include "MSBinaryData"
 #include "MSTimer.hpp"
 #include "MSPlayer.hpp"
 

@@ -7,7 +7,6 @@
 //
 
 #include "FFEncoder.hpp"
-#include <unistd.h>
 
 using namespace std;
 using namespace MS;
@@ -201,10 +200,10 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     const AVCodecContext &decoderContext = *audioDecoderContext.codec_ctx;
     
     // 编码器参数配置
-    if (encoderContext.codec_id == AV_CODEC_ID_AAC) {
-        // not allowed set profile
+//    if (encoderContext.codec_id == AV_CODEC_ID_AAC) {
+//        // not allowed set profile
 //        encoderContext.profile = FF_PROFILE_AAC_MAIN;
-    }
+//    }
     
     encoderContext.sample_fmt       = decoderContext.sample_fmt;
     encoderContext.frame_size       = decoderContext.frame_size;

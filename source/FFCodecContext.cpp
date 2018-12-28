@@ -21,10 +21,10 @@ FFCodecContext::FFCodecContext(const FFCodecType codecType, const MSCodecID code
 codecID(codecID),
 codec(initCodec()),
 codec_ctx(initCodecContext()) {
-    assert(codecID != MSCodecID_None && codec_ctx && codec);
+    assert(codec_ctx && codec);
 }
 
-FFCodecContext::FFCodecContext(const FFCodecContext & codecContext)
+FFCodecContext::FFCodecContext(const FFCodecContext &codecContext)
 :codecType(codecContext.codecType),
 codecID(codecContext.codecID),
 codec(initCodec()),
@@ -74,12 +74,11 @@ AVCodecID
 FFCodecContext::getAVCodecId(const MSCodecID codecID) {
     AVCodecID codec_id;
     switch (codecID) {
-        case MSCodecID_None:    codec_id = AV_CODEC_ID_NONE;        break;
         case MSCodecID_H264:    codec_id = AV_CODEC_ID_H264;        break;
         case MSCodecID_H265:    codec_id = AV_CODEC_ID_HEVC;        break;
         case MSCodecID_AAC:     codec_id = AV_CODEC_ID_AAC;         break;
         case MSCodecID_OPUS:    codec_id = AV_CODEC_ID_OPUS;        break;
-        case MSCodecID_G711A:   codec_id = AV_CODEC_ID_PCM_ALAW;    break;
+        case MSCodecID_ALAW:    codec_id = AV_CODEC_ID_PCM_ALAW;    break;
     }
     return codec_id;
 }

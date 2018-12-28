@@ -14,6 +14,13 @@
 #include <functional>
 #include <type_traits>
 
+#define ErrorLocationLog \
+        printf( "-----------------------ERROR----------------------\n"\
+        "| filename:    %-s\n"\
+        "| linenumber:  %d,\n"\
+        "| funcname:    %s\n"\
+        "--------------------------------------------------\n",__FILE__,__LINE__,__func__)
+
 namespace MS {
     
     using namespace std;
@@ -21,7 +28,6 @@ namespace MS {
     using namespace chrono;
     
     enum MSCodecID {
-        MSCodecID_None,
         /*---video---*/
         MSCodecID_H264,
         MSCodecID_H265,
@@ -29,7 +35,7 @@ namespace MS {
         /*---audio---*/
         MSCodecID_AAC,
         MSCodecID_OPUS,
-        MSCodecID_G711A,
+        MSCodecID_ALAW,//G711A
     };
     
     enum MSContentType {

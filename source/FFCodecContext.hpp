@@ -22,13 +22,6 @@ extern "C" {
 
 #include "MSMediaData.hpp"
 
-#define ErrorLocationLog \
-        printf( "-----------------------ERROR----------------------\n"\
-                "| filename:    %-s\n"\
-                "| linenumber:  %d,\n"\
-                "| funcname:    %s\n"\
-                "--------------------------------------------------\n",__FILE__,__LINE__,__func__)
-
 namespace MS {
     namespace FFmpeg {
         
@@ -62,10 +55,8 @@ namespace MS {
             // Note: don't allow copy with (FFCodecContext &)obj
             FFCodecContext(const FFCodecContext &codecContext);
             
-            AVCodec * initCodec();
-            
-            AVCodecContext * initCodecContext();
-            
+            AVCodec         * initCodec();
+            AVCodecContext  * initCodecContext();
             AVFormatContext * initFormatContex();
         };
         
