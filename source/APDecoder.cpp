@@ -13,7 +13,7 @@ using namespace MS::APhard;
 
 const APDecoderProtocol::MSDecoderOutputData *
 APDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
-   
+//   VTDecompressionSessionDecodeFrame(<#VTDecompressionSessionRef  _Nonnull session#>, <#CMSampleBufferRef  _Nonnull sampleBuffer#>, <#VTDecodeFrameFlags decodeFlags#>, <#void * _Nullable sourceFrameRefCon#>, <#VTDecodeInfoFlags * _Nullable infoFlagsOut#>)
     return nullptr;
 }
 
@@ -22,7 +22,8 @@ APDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
     return nullptr;
 }
 
-APDecoder::APDecoder() {
+APDecoder::APDecoder(const MSPlayer<__CVBuffer> &player)
+:player(player) {
 
 }
 

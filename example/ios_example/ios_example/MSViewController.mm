@@ -11,11 +11,13 @@
 #import <MSPlayer.hpp>
 #import <FFDecoder.hpp>
 #import <FFEncoder.hpp>
+#import <APDecoder.hpp>
 #import "IotlibTool.h"
 
 using namespace std;
 using namespace MS;
 using namespace MS::FFmpeg;
+using namespace MS::APhard;
 
 @interface MSViewController ()<IotlibToolDelegate>
 {

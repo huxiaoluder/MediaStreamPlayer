@@ -12,6 +12,7 @@
 #include "MSCodecProtocol.h"
 #include "MSMediaData.hpp"
 #include "APCodecContext.hpp"
+#include "MSPlayer.hpp"
 
 namespace MS {
     namespace APhard {
@@ -20,10 +21,12 @@ namespace MS {
         
         class APDecoder : public APDecoderProtocol {
             
+            const MSPlayer<__CVBuffer> &player;
+            
         public:
             const MSDecoderOutputData * decodeVideo(const MSMediaData<isEncode> &videoData);
             const MSDecoderOutputData * decodeAudio(const MSMediaData<isEncode> &audioData);
-            APDecoder();
+            APDecoder(const MSPlayer<__CVBuffer> &player);
             ~APDecoder();
         };
         

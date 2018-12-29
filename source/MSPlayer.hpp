@@ -112,6 +112,10 @@ namespace MS {
         void pushVideoData(MSMediaData<isEncode> *VideoData);
         
         void pushAudioData(MSMediaData<isEncode> *audioData);
+        
+        void asynPushVideoFrameData(const MSMediaData<isDecode, T> * const frameData);
+        
+        void asynPushAudioFrameData(const MSMediaData<isDecode, T> * const frameData);
     };
     
 #pragma mark - MSPlayer<T>(implementation)
@@ -377,6 +381,20 @@ namespace MS {
         } else {
             delete audioData;
         }
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::asynPushVideoFrameData(const MSMediaData<isDecode, T> * const frameData) {
+        while (!pixelQueueMutex.try_lock());
+        pixelQueue.push(frameData);
+        pixelQueueMutex.unlock();
+    }
+    
+    template <typename T>
+    void MSPlayer<T>::asynPushAudioFrameData(const MSMediaData<isDecode, T> * const frameData) {
+        while (!sampleQueueMutex.try_lock());
+        sampleQueue.push(frameData);
+        sampleQueueMutex.unlock();
     }
     
 }

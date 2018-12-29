@@ -18,6 +18,7 @@ extern "C" {
 }
 #pragma clang diagnostic pop
 
+#include "MSPlayer.hpp"
 #include "MSMediaData.hpp"
 #include "MSBinaryData.hpp"
 
@@ -37,17 +38,21 @@ namespace MS {
             const APCodecType codecType;
             const MSCodecID codecID;
             
-            AudioConverterRef           const audioConvert;
-            VTDecompressionSessionRef   const videoDecodeSession;
-            VTCompressionSessionRef     const videoEncodeSession;
+            AudioConverterRef           const _Nullable audioConvert;
+            VTCompressionSessionRef     const _Nullable videoEncodeSession;
+            VTDecompressionSessionRef   const _Nullable videoDecodeSession;
+            
+            MSPlayer<__CVBuffer> &player;
             
             APCodecContext(const APCodecType codecType,
-                           const MSCodecID codecID);
+                           const MSCodecID codecID,
+                           MSPlayer<__CVBuffer> &player);
             
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,
                            const MSBinaryData &spsData,
-                           const MSBinaryData &ppsData);
+                           const MSBinaryData &ppsData,
+                           MSPlayer<__CVBuffer> &player);
             
             ~APCodecContext();
             
@@ -56,9 +61,17 @@ namespace MS {
             // Note: don't allow copy with (APCodecContext &)obj
             APCodecContext(const APCodecContext &codecContext);
             
-            AudioConverterRef           initAudioConvert();
-            VTDecompressionSessionRef   initVideoDecodeSession(const MSBinaryData &spsData, const MSBinaryData &ppsData);
-            VTCompressionSessionRef     initVideoEncodeSession();
+            AudioConverterRef           _Nullable   initAudioConvert();
+            VTCompressionSessionRef     _Nullable   initVideoEncodeSession();
+            VTDecompressionSessionRef   _Nullable   initVideoDecodeSession(const MSBinaryData &spsData, const MSBinaryData &ppsData);
+            
+            static void decompressionOutputCallback(void * _Nullable decompressionOutputRefCon,
+                                                    void * _Nullable sourceFrameRefCon,
+                                                    OSStatus status,
+                                                    VTDecodeInfoFlags infoFlags,
+                                                    CVImageBufferRef _Nullable imageBuffer,
+                                                    CMTime presentationTimeStamp,
+                                                    CMTime presentationDuration);
         };
 
     }
