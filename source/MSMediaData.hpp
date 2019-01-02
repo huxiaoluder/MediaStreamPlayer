@@ -14,6 +14,8 @@
 #include <functional>
 #include <type_traits>
 
+#define intervale(rate) microseconds(1000000LL/rate)
+
 #define ErrorLocationLog \
         printf( "-----------------------ERROR----------------------\n"\
         "| filename:    %-s\n"\
@@ -140,6 +142,12 @@ namespace MS {
     /*---------------------MSMediaData<DT, CT>(declaration)---------------------*/
     template <MSContentType DT, typename CT = uint8_t>
     struct MSMediaData {
+        
+        typedef MSMediaData <isDecode,  CT> MSDecoderOutputData;
+        typedef MSContent   <isDecode,  CT> MSDecoderOutputContent;
+        
+        typedef MSMediaData <isDecode,  CT> MSEncoderInputData;
+        typedef MSContent   <isDecode,  CT> MSEncoderInputContent;
         
         typedef MSMediaData<DT, CT> DefaultNullData;
         

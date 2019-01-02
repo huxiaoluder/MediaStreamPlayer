@@ -18,9 +18,9 @@ extern "C" {
 }
 #pragma clang diagnostic pop
 
-#include "MSPlayer.hpp"
 #include "MSMediaData.hpp"
 #include "MSBinaryData.hpp"
+#include "MSCodecAsynProtocol.h"
 
 namespace MS {
     namespace APhard {
@@ -28,6 +28,7 @@ namespace MS {
         typedef UInt32  APCodecID;
         typedef bool    IsVideoCodec;
         typedef tuple<APCodecID,IsVideoCodec> APCodecInfo;
+        typedef MSAsynDecoderProtocol<__CVBuffer,VTDecompressionOutputCallback> APOutputDataSender;
 
         enum APCodecType {
             APCodecDecoder,
@@ -37,22 +38,21 @@ namespace MS {
         struct APCodecContext {
             const APCodecType codecType;
             const MSCodecID codecID;
+            const APOutputDataSender &asynDataSender;
             
             AudioConverterRef           const _Nullable audioConvert;
             VTCompressionSessionRef     const _Nullable videoEncodeSession;
             VTDecompressionSessionRef   const _Nullable videoDecodeSession;
             
-            MSPlayer<__CVBuffer> &player;
-            
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,
-                           MSPlayer<__CVBuffer> &player);
+                           const APOutputDataSender &asynDataSender);
             
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,
                            const MSBinaryData &spsData,
                            const MSBinaryData &ppsData,
-                           MSPlayer<__CVBuffer> &player);
+                           const APOutputDataSender &asynDataSender);
             
             ~APCodecContext();
             
@@ -64,14 +64,6 @@ namespace MS {
             AudioConverterRef           _Nullable   initAudioConvert();
             VTCompressionSessionRef     _Nullable   initVideoEncodeSession();
             VTDecompressionSessionRef   _Nullable   initVideoDecodeSession(const MSBinaryData &spsData, const MSBinaryData &ppsData);
-            
-            static void decompressionOutputCallback(void * _Nullable decompressionOutputRefCon,
-                                                    void * _Nullable sourceFrameRefCon,
-                                                    OSStatus status,
-                                                    VTDecodeInfoFlags infoFlags,
-                                                    CVImageBufferRef _Nullable imageBuffer,
-                                                    CMTime presentationTimeStamp,
-                                                    CMTime presentationDuration);
         };
 
     }

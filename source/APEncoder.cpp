@@ -17,12 +17,12 @@ APEncoder::beginEncode() {
 }
 
 void
-APEncoder::encodeVideo(const MSEncoderInputData &pixelData) {
+APEncoder::encodeVideo(const APEncoderInputData &pixelData) {
     
 }
 
 void
-APEncoder::encodeAudio(const MSEncoderInputData &sampleData) {
+APEncoder::encodeAudio(const APEncoderInputData &sampleData) {
     
 }
 

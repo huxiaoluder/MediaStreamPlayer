@@ -9,25 +9,32 @@
 #ifndef APDecoder_hpp
 #define APDecoder_hpp
 
-#include "MSCodecProtocol.h"
-#include "MSMediaData.hpp"
+#include "MSCodecAsynProtocol.h"
 #include "APCodecContext.hpp"
-#include "MSPlayer.hpp"
 
 namespace MS {
     namespace APhard {
     
-        typedef MSDecoderProtocol<__CVBuffer> APDecoderProtocol;
+        typedef MSAsynDecoderProtocol<__CVBuffer,VTDecompressionOutputCallback> APDecoderProtocol;
+        typedef MSMediaData<isDecode,__CVBuffer>::MSDecoderOutputData       APDecoderOutputData;
+        typedef MSMediaData<isDecode,__CVBuffer>::MSDecoderOutputContent    APDecoderOutputContent;
         
         class APDecoder : public APDecoderProtocol {
             
-            const MSPlayer<__CVBuffer> &player;
-            
         public:
-            const MSDecoderOutputData * decodeVideo(const MSMediaData<isEncode> &videoData);
-            const MSDecoderOutputData * decodeAudio(const MSMediaData<isEncode> &audioData);
-            APDecoder(const MSPlayer<__CVBuffer> &player);
+            void decodeVideo(const MSMediaData<isEncode> &videoData);
+            void decodeAudio(const MSMediaData<isEncode> &audioData);
+            
+            APDecoder(MSAsynDataProtocol<__CVBuffer> &asynDataHandle);
             ~APDecoder();
+            
+            static void decompressionOutputCallback(void * _Nullable decompressionOutputRefCon,
+                                                    void * _Nullable sourceFrameRefCon,
+                                                    OSStatus status,
+                                                    VTDecodeInfoFlags infoFlags,
+                                                    CVImageBufferRef _Nullable imageBuffer,
+                                                    CMTime presentationTimeStamp,
+                                                    CMTime presentationDuration);
         };
         
     }

@@ -9,20 +9,22 @@
 #ifndef APEncoder_hpp
 #define APEncoder_hpp
 
-#include "MSCodecProtocol.h"
+#include "MSCodecSyncProtocol.h"
 #include "APCodecContext.hpp"
 
 namespace MS {
     namespace APhard {
         
-        typedef MSEncoderProtocol<__CVBuffer> APEncoderProtocol;
+        typedef MSSyncEncoderProtocol<__CVBuffer> APEncoderProtocol;
+        typedef MSMediaData<isDecode,__CVBuffer>::MSEncoderInputData    APEncoderInputData;
+        typedef MSMediaData<isDecode,__CVBuffer>::MSEncoderInputContent APEncoderInputContent;
 
         class APEncoder : public APEncoderProtocol {
     
         public:
             void beginEncode();
-            void encodeVideo(const MSEncoderInputData &pixelData);
-            void encodeAudio(const MSEncoderInputData &sampleData);
+            void encodeVideo(const APEncoderInputData &pixelData);
+            void encodeAudio(const APEncoderInputData &sampleData);
             void endEncode();
             bool isEncoding();
             

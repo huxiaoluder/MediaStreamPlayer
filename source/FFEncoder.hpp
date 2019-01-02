@@ -12,13 +12,15 @@
 #include <map>
 #include <string>
 #include <mutex>
-#include "MSCodecProtocol.h"
+#include "MSCodecSyncProtocol.h"
 #include "FFCodecContext.hpp"
 
 namespace MS {
     namespace FFmpeg {
       
-        typedef MSEncoderProtocol<AVFrame> FFEncoderProtocol;
+        typedef MSSyncEncoderProtocol<AVFrame> FFEncoderProtocol;
+        typedef MSMediaData<isDecode,AVFrame>::MSEncoderInputData       FFEncoderInputData;
+        typedef MSMediaData<isDecode,AVFrame>::MSEncoderInputContent    FFEncoderInputContent;
         
         class FFEncoder : public FFEncoderProtocol {
             
@@ -53,8 +55,8 @@ namespace MS {
             
         public:
             void beginEncode();
-            void encodeVideo(const MSEncoderInputData &pixelData);
-            void encodeAudio(const MSEncoderInputData &sampleData);
+            void encodeVideo(const FFEncoderInputData &pixelData);
+            void encodeAudio(const FFEncoderInputData &sampleData);
             void endEncode();
             bool isEncoding();
             

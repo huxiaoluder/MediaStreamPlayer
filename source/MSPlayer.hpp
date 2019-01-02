@@ -13,7 +13,8 @@
 #include <queue>
 #include <cassert>
 #include "MSTimer.hpp"
-#include "MSCodecProtocol.h"
+#include "MSAsynDataProtocol.h"
+#include "MSCodecSyncProtocol.h"
 
 namespace MS {
     
@@ -23,12 +24,12 @@ namespace MS {
 
 #pragma mark - MSPlayer<T>(declaration)
     template <typename T>
-    class MSPlayer {
+    class MSPlayer : protected MSAsynDataProtocol<T> {
         typedef function<void(const MSMediaData<isDecode,T> &decodeData)> ThrowDecodeData;
         
-        MSDecoderProtocol<T> * const decoder;
+        MSSyncDecoderProtocol<T> * const decoder;
         
-        MSEncoderProtocol<T> * const encoder;
+        MSSyncEncoderProtocol<T> * const encoder;
         
         MSTimer * const videoTimer = new MSTimer(microseconds(0),intervale(1),nullptr);
         
@@ -73,17 +74,21 @@ namespace MS {
         void clearAllVideo();
         
         void clearAllAudio();
+        
+        void asynPushVideoFrameData(const MSMediaData<isDecode, T> * const frameData);
+        
+        void asynPushAudioFrameData(const MSMediaData<isDecode, T> * const frameData);
     public:
-        MSPlayer(MSDecoderProtocol<T> * const decoder,
-                 MSEncoderProtocol<T> * const encoder,
+        MSPlayer(MSSyncDecoderProtocol<T> * const decoder,
+                 MSSyncEncoderProtocol<T> * const encoder,
                  const ThrowDecodeData throwDecodeVideo,
                  const ThrowDecodeData throwDecodeAudio);
         
         ~MSPlayer();
         
-        MSDecoderProtocol<T> & getDecoder();
+        MSSyncDecoderProtocol<T> & getDecoder();
         
-        MSEncoderProtocol<T> & getEncoder();
+        MSSyncEncoderProtocol<T> & getEncoder();
         
         void startPlayVideo();
         
@@ -112,16 +117,12 @@ namespace MS {
         void pushVideoData(MSMediaData<isEncode> *VideoData);
         
         void pushAudioData(MSMediaData<isEncode> *audioData);
-        
-        void asynPushVideoFrameData(const MSMediaData<isDecode, T> * const frameData);
-        
-        void asynPushAudioFrameData(const MSMediaData<isDecode, T> * const frameData);
     };
     
 #pragma mark - MSPlayer<T>(implementation)
     template <typename T>
-    MSPlayer<T>::MSPlayer(MSDecoderProtocol<T> * const decoder,
-                          MSEncoderProtocol<T> * const encoder,
+    MSPlayer<T>::MSPlayer(MSSyncDecoderProtocol<T> * const decoder,
+                          MSSyncEncoderProtocol<T> * const encoder,
                           const ThrowDecodeData throwDecodeVideo,
                           const ThrowDecodeData throwDecodeAudio)
     :decoder(decoder), encoder(encoder),
@@ -241,13 +242,13 @@ namespace MS {
     }
     
     template <typename T>
-    MSDecoderProtocol<T> &
+    MSSyncDecoderProtocol<T> &
     MSPlayer<T>::getDecoder() {
         return *decoder;
     }
     
     template <typename T>
-    MSEncoderProtocol<T> &
+    MSSyncEncoderProtocol<T> &
     MSPlayer<T>::getEncoder() {
         return *encoder;
     }

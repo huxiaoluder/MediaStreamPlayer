@@ -41,7 +41,7 @@ FFEncoder::isEncoding() {
 }
 
 void
-FFEncoder::encodeVideo(const MSEncoderInputData &pixelData) {
+FFEncoder::encodeVideo(const FFEncoderInputData &pixelData) {
     assert(_isEncoding);
 
     if (videoEncoderContext) {
@@ -55,7 +55,7 @@ FFEncoder::encodeVideo(const MSEncoderInputData &pixelData) {
 }
 
 void
-FFEncoder::encodeAudio(const MSEncoderInputData &sampleData) {
+FFEncoder::encodeAudio(const FFEncoderInputData &sampleData) {
     assert(_isEncoding);
 
     if (audioEncoderContext) {

@@ -13,13 +13,13 @@ using namespace MS::APhard;
 
 APCodecContext::APCodecContext(const APCodecType codecType,
                                const MSCodecID codecID,
-                               MSPlayer<__CVBuffer> &player)
+                               const APOutputDataSender &asynDataSender)
 :codecType(codecType),
 codecID(codecID),
+asynDataSender(asynDataSender),
 audioConvert(nullptr),
 videoDecodeSession(nullptr),
-videoEncodeSession(nullptr),
-player(player) {
+videoEncodeSession(nullptr) {
     
 }
 
@@ -27,13 +27,13 @@ APCodecContext::APCodecContext(const APCodecType codecType,
                                const MSCodecID codecID,
                                const MSBinaryData &spsData,
                                const MSBinaryData &ppsData,
-                               MSPlayer<__CVBuffer> &player)
+                               const APOutputDataSender &asynDataSender)
 :codecType(codecType),
 codecID(codecID),
+asynDataSender(asynDataSender),
 audioConvert(initAudioConvert()),
 videoDecodeSession(initVideoDecodeSession(spsData,ppsData)),
-videoEncodeSession(initVideoEncodeSession()),
-player(player) {
+videoEncodeSession(initVideoEncodeSession()) {
     
 }
 
@@ -80,16 +80,17 @@ APCodecContext::initVideoDecodeSession(const MSBinaryData &spsData, const MSBina
          CFDictionaryRef    videoDecoderSpecification,
          CFDictionaryRef    destinationImageBufferAttributes,
          */
-        VTDecompressionOutputCallbackRecord outputCallback;
-        outputCallback.decompressionOutputCallback = &decompressionOutputCallback;
-        outputCallback.decompressionOutputRefCon = this;
         
-        status = VTDecompressionSessionCreate(nullptr,
-                                              formatDescription,
-                                              nullptr,
-                                              nullptr,
-                                              &outputCallback,
-                                              &videoDecodeSession);
+        VTDecompressionOutputCallbackRecord outputCallback;
+//        outputCallback.decompressionOutputCallback = &decompressionOutputCallback;
+        outputCallback.decompressionOutputRefCon = this;
+//
+//        status = VTDecompressionSessionCreate(nullptr,
+//                                              formatDescription,
+//                                              nullptr,
+//                                              nullptr,
+//                                              &outputCallback,
+//                                              &videoDecodeSession);
     }
     return videoDecodeSession;
 }
@@ -107,14 +108,4 @@ APCodecContext::getAPCodecInfo(const MSCodecID codecID) {
     return APCodecInfo(codec_id, codecID <= MSCodecID_H265);
 }
 
-void
-APCodecContext::decompressionOutputCallback(void * _Nullable decompressionOutputRefCon,
-                                            void * _Nullable sourceFrameRefCon,
-                                            OSStatus status,
-                                            VTDecodeInfoFlags infoFlags,
-                                            CVImageBufferRef _Nullable imageBuffer,
-                                            CMTime presentationTimeStamp,
-                                            CMTime presentationDuration) {
-    APCodecContext &codecContext = *(APCodecContext *)decompressionOutputRefCon;
-    codecContext.player.asynPushAudioFrameData(nullptr);
-};
+

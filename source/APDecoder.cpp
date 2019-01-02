@@ -11,19 +11,19 @@
 using namespace MS;
 using namespace MS::APhard;
 
-const APDecoderProtocol::MSDecoderOutputData *
+void
 APDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
 //   VTDecompressionSessionDecodeFrame(<#VTDecompressionSessionRef  _Nonnull session#>, <#CMSampleBufferRef  _Nonnull sampleBuffer#>, <#VTDecodeFrameFlags decodeFlags#>, <#void * _Nullable sourceFrameRefCon#>, <#VTDecodeInfoFlags * _Nullable infoFlagsOut#>)
-    return nullptr;
+    
 }
 
-const APDecoderProtocol::MSDecoderOutputData *
+void
 APDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
-    return nullptr;
+    
 }
 
-APDecoder::APDecoder(const MSPlayer<__CVBuffer> &player)
-:player(player) {
+APDecoder::APDecoder(MSAsynDataProtocol<__CVBuffer> &asynDataHandle)
+:APDecoderProtocol(asynDataHandle, decompressionOutputCallback) {
 
 }
 
@@ -62,4 +62,24 @@ void createDecompressionSession() {
 ////        NSLog(@"Video Decompression Session 创建失败，错误码： %d",(int)status);
 //    }
 }
+
+void
+APDecoder::decompressionOutputCallback(void * _Nullable decompressionOutputRefCon,
+                                       void * _Nullable sourceFrameRefCon,
+                                       OSStatus status,
+                                       VTDecodeInfoFlags infoFlags,
+                                       CVImageBufferRef _Nullable imageBuffer,
+                                       CMTime presentationTimeStamp,
+                                       CMTime presentationDuration) {
+    APOutputDataSender &sender = *(APDecoderProtocol *)decompressionOutputRefCon;
+    CVBufferRetain(imageBuffer);
+    microseconds timeInterval = microseconds(presentationDuration.value * 1000000L / presentationDuration.timescale);
+    
+    APDecoderOutputContent *content = new APDecoderOutputContent(imageBuffer,
+                                                                 timeInterval,
+                                                                 CVBufferRelease,
+                                                                 CVBufferRetain);
+    
+    sender.asynDataReceiver().MSAsynDataProtocol::asynPushAudioFrameData(new APDecoderOutputData(content));
+};
 
