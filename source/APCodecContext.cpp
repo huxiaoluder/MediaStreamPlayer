@@ -54,7 +54,6 @@ APCodecContext::initVideoEncodeSession() {
 VTDecompressionSessionRef
 APCodecContext::initVideoDecodeSession(const MSBinaryData &spsData, const MSBinaryData &ppsData) {
     APCodecInfo codecInfo = getAPCodecInfo(codecID);
-//    CMVideoCodecType codec_type = get<0>(codecInfo);
     IsVideoCodec isVideoCodec   = get<1>(codecInfo);
     
     CMFormatDescriptionRef      formatDescription   = nullptr;
@@ -82,15 +81,15 @@ APCodecContext::initVideoDecodeSession(const MSBinaryData &spsData, const MSBina
          */
         
         VTDecompressionOutputCallbackRecord outputCallback;
-//        outputCallback.decompressionOutputCallback = &decompressionOutputCallback;
-        outputCallback.decompressionOutputRefCon = this;
-//
-//        status = VTDecompressionSessionCreate(nullptr,
-//                                              formatDescription,
-//                                              nullptr,
-//                                              nullptr,
-//                                              &outputCallback,
-//                                              &videoDecodeSession);
+        outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataSender.asynCallBack();
+        outputCallback.decompressionOutputRefCon = &asynDataSender.asynDataReceiver();
+
+        status = VTDecompressionSessionCreate(nullptr,
+                                              formatDescription,
+                                              nullptr,
+                                              nullptr,
+                                              &outputCallback,
+                                              &videoDecodeSession);
     }
     return videoDecodeSession;
 }

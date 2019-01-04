@@ -23,7 +23,7 @@ APDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
 }
 
 APDecoder::APDecoder(MSAsynDataProtocol<__CVBuffer> &asynDataHandle)
-:APDecoderProtocol(asynDataHandle, decompressionOutputCallback) {
+:APDecoderProtocol(asynDataHandle, (void *)decompressionOutputCallback) {
 
 }
 
@@ -71,15 +71,17 @@ APDecoder::decompressionOutputCallback(void * _Nullable decompressionOutputRefCo
                                        CVImageBufferRef _Nullable imageBuffer,
                                        CMTime presentationTimeStamp,
                                        CMTime presentationDuration) {
-    APOutputDataSender &sender = *(APDecoderProtocol *)decompressionOutputRefCon;
-    CVBufferRetain(imageBuffer);
+    CVBufferRef retainBuffer = CVBufferRetain(imageBuffer);
+
+    APAsynDataProtocol &receiver = *(APAsynDataProtocol *)decompressionOutputRefCon;
+
     microseconds timeInterval = microseconds(presentationDuration.value * 1000000L / presentationDuration.timescale);
     
-    APDecoderOutputContent *content = new APDecoderOutputContent(imageBuffer,
+    APDecoderOutputContent *content = new APDecoderOutputContent(retainBuffer,
                                                                  timeInterval,
                                                                  CVBufferRelease,
                                                                  CVBufferRetain);
-    
-    sender.asynDataReceiver().MSAsynDataProtocol::asynPushAudioFrameData(new APDecoderOutputData(content));
+
+    receiver.asynPushVideoFrameData(new APDecoderOutputData(content));
 };
 

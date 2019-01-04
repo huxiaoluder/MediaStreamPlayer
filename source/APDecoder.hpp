@@ -15,7 +15,8 @@
 namespace MS {
     namespace APhard {
     
-        typedef MSAsynDecoderProtocol<__CVBuffer,VTDecompressionOutputCallback> APDecoderProtocol;
+        typedef MSAsynDecoderProtocol<__CVBuffer>   APDecoderProtocol;
+        typedef MSAsynDataProtocol<__CVBuffer>      APAsynDataProtocol;
         typedef MSMediaData<isDecode,__CVBuffer>::MSDecoderOutputData       APDecoderOutputData;
         typedef MSMediaData<isDecode,__CVBuffer>::MSDecoderOutputContent    APDecoderOutputContent;
         

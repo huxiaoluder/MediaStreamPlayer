@@ -16,7 +16,7 @@ namespace MS {
     template <typename T>
     class MSAsynDataProtocol {
     public:
-        ~MSAsynDataProtocol() {};
+        virtual ~MSAsynDataProtocol() {};
         virtual void asynPushVideoFrameData(const MSMediaData<isDecode, T> * const frameData) = 0;
         virtual void asynPushAudioFrameData(const MSMediaData<isDecode, T> * const frameData) = 0;
     };

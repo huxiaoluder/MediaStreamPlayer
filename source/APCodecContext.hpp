@@ -28,7 +28,7 @@ namespace MS {
         typedef UInt32  APCodecID;
         typedef bool    IsVideoCodec;
         typedef tuple<APCodecID,IsVideoCodec> APCodecInfo;
-        typedef MSAsynDecoderProtocol<__CVBuffer,VTDecompressionOutputCallback> APOutputDataSender;
+        typedef MSAsynDecoderProtocol<__CVBuffer> APOutputDataSender;
 
         enum APCodecType {
             APCodecDecoder,

@@ -14,24 +14,26 @@
 
 namespace MS {
     
-    template <typename T, typename AsynCallBack,
+    template <typename T,
     typename = typename enable_if<!is_pointer<T>::value,T>::type>
     class MSAsynDecoderProtocol {
-        const AsynCallBack _asynCallBack;
+        // asyn call back function pointer, please convert to designated type for used
+        const void * const _asynCallBack;
         MSAsynDataProtocol<T> &_asynDataReceiver;
     public:
-        MSAsynDecoderProtocol(MSAsynDataProtocol<T> &asynDataHandle, AsynCallBack asynCallBack)
+        MSAsynDecoderProtocol(MSAsynDataProtocol<T> &asynDataHandle,const void * const asynCallBack)
         :_asynDataReceiver(asynDataHandle), _asynCallBack(asynCallBack) {};
+        
+        const void * asynCallBack() const { return _asynCallBack; };
+        
+        MSAsynDataProtocol<T> & asynDataReceiver() const { return _asynDataReceiver; };
         
         virtual ~MSAsynDecoderProtocol() {};
         virtual void decodeVideo(const MSMediaData<isEncode> &videoData) = 0;
         virtual void decodeAudio(const MSMediaData<isEncode> &audioData) = 0;
-        
-        const AsynCallBack asynCallBack() { return _asynCallBack; };
-        MSAsynDataProtocol<T> & asynDataReceiver() { return _asynDataReceiver; };
     };
     
-    template <typename T, typename AsynCallBack,
+    template <typename T,
     typename = typename enable_if<!is_pointer<T>::value,T>::type>
     class MSAsynEncoderProtocol {
     public:

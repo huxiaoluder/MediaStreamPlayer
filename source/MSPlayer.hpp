@@ -15,6 +15,7 @@
 #include "MSTimer.hpp"
 #include "MSAsynDataProtocol.h"
 #include "MSCodecSyncProtocol.h"
+#include "MSCodecAsynProtocol.h"
 
 namespace MS {
     
@@ -24,12 +25,12 @@ namespace MS {
 
 #pragma mark - MSPlayer<T>(declaration)
     template <typename T>
-    class MSPlayer : protected MSAsynDataProtocol<T> {
+    class MSPlayer : public MSAsynDataProtocol<T> {
         typedef function<void(const MSMediaData<isDecode,T> &decodeData)> ThrowDecodeData;
         
-        MSSyncDecoderProtocol<T> * const decoder;
+        MSSyncDecoderProtocol<T> * const syncDecoder;
         
-        MSSyncEncoderProtocol<T> * const encoder;
+        MSSyncEncoderProtocol<T> * const syncEncoder;
         
         MSTimer * const videoTimer = new MSTimer(microseconds(0),intervale(1),nullptr);
         
@@ -75,12 +76,14 @@ namespace MS {
         
         void clearAllAudio();
         
-        void asynPushVideoFrameData(const MSMediaData<isDecode, T> * const frameData);
-        
-        void asynPushAudioFrameData(const MSMediaData<isDecode, T> * const frameData);
     public:
         MSPlayer(MSSyncDecoderProtocol<T> * const decoder,
                  MSSyncEncoderProtocol<T> * const encoder,
+                 const ThrowDecodeData throwDecodeVideo,
+                 const ThrowDecodeData throwDecodeAudio);
+        
+        MSPlayer(MSAsynDecoderProtocol<T> * const decoder,
+                 MSAsynEncoderProtocol<T> * const encoder,
                  const ThrowDecodeData throwDecodeVideo,
                  const ThrowDecodeData throwDecodeAudio);
         
@@ -114,9 +117,14 @@ namespace MS {
         
         void stopReEncode();
         
-        void pushVideoData(MSMediaData<isEncode> *VideoData);
+        void pushVideoStreamData(MSMediaData<isEncode> *streamData);
         
-        void pushAudioData(MSMediaData<isEncode> *audioData);
+        void pushAudioStreamData(MSMediaData<isEncode> *streamData);
+        
+    private: // 不允许外部主调, 请通过 Protocol 进行多态调用
+        void asynPushVideoFrameData(const MSMediaData<isDecode, T> * const frameData);
+        
+        void asynPushAudioFrameData(const MSMediaData<isDecode, T> * const frameData);
     };
     
 #pragma mark - MSPlayer<T>(implementation)
@@ -125,7 +133,7 @@ namespace MS {
                           MSSyncEncoderProtocol<T> * const encoder,
                           const ThrowDecodeData throwDecodeVideo,
                           const ThrowDecodeData throwDecodeAudio)
-    :decoder(decoder), encoder(encoder),
+    :syncDecoder(decoder), syncEncoder(encoder),
     throwDecodeVideo(throwDecodeVideo),
     throwDecodeAudio(throwDecodeAudio) {
         assert(throwDecodeVideo && throwDecodeAudio);
@@ -144,7 +152,7 @@ namespace MS {
                 while (!videoQueueMutex.try_lock());
                 videoQueue.pop();
                 videoQueueMutex.unlock();
-                frameData = this->decoder->decodeVideo(*sourceData);
+                frameData = syncDecoder->decodeVideo(*sourceData);
                 if (frameData) {
                     while (!pixelQueueMutex.try_lock());
                     pixelQueue.push(frameData);
@@ -168,7 +176,7 @@ namespace MS {
                 while (!audioQueueMutex.try_lock());
                 audioQueue.pop();
                 audioQueueMutex.unlock();
-                frameData = this->decoder->decodeAudio(*sourceData);
+                frameData = syncDecoder->decodeAudio(*sourceData);
                 if (frameData) {
                     while (!sampleQueueMutex.try_lock());
                     sampleQueue.push(frameData);
@@ -191,7 +199,7 @@ namespace MS {
                 videoTimer->updateTimeInterval(frameData->content->timeInterval);
                 this->throwDecodeVideo(*frameData);
                 if (isEncoding) {
-                    this->encoder->encodeVideo(*frameData);
+                    syncEncoder->encodeVideo(*frameData);
                 }
                 delete frameData;
             } else {
@@ -213,7 +221,7 @@ namespace MS {
                 audioTimer->updateTimeInterval(frameData->content->timeInterval);
                 this->throwDecodeAudio(*frameData);
                 if (isEncoding) {
-                    this->encoder->encodeAudio(*frameData);
+                    syncEncoder->encodeAudio(*frameData);
                 }
                 delete frameData;
             } else {
@@ -236,21 +244,21 @@ namespace MS {
         if (audioDecodeThread.joinable()) {
             audioDecodeThread.join();
         }
-        delete decoder;
-        delete encoder;
+        delete syncDecoder;
+        delete syncEncoder;
         delete videoTimer;
     }
     
     template <typename T>
     MSSyncDecoderProtocol<T> &
     MSPlayer<T>::getDecoder() {
-        return *decoder;
+        return *syncDecoder;
     }
     
     template <typename T>
     MSSyncEncoderProtocol<T> &
     MSPlayer<T>::getEncoder() {
-        return *encoder;
+        return *syncEncoder;
     }
     
     template <typename T>
@@ -341,8 +349,8 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::startReEncode() {
-        assert(encoder->isEncoding() == false);
-        encoder->beginEncode();
+        assert(syncEncoder->isEncoding() == false);
+        syncEncoder->beginEncode();
         isEncoding = true;
     }
     
@@ -359,28 +367,28 @@ namespace MS {
     template <typename T>
     void MSPlayer<T>::stopReEncode() {
         isEncoding = false;
-        encoder->endEncode();
+        syncEncoder->endEncode();
     }
     
     template <typename T>
-    void MSPlayer<T>::pushVideoData(MSMediaData<isEncode> *VideoData) {
+    void MSPlayer<T>::pushVideoStreamData(MSMediaData<isEncode> *streamData) {
         if (videoTimer->isValid()) {
             while (!videoQueueMutex.try_lock());
-            videoQueue.push(VideoData);
+            videoQueue.push(streamData);
             videoQueueMutex.unlock();
         } else {
-            delete VideoData;
+            delete streamData;
         }
     }
     
     template <typename T>
-    void MSPlayer<T>::pushAudioData(MSMediaData<isEncode> *audioData) {
+    void MSPlayer<T>::pushAudioStreamData(MSMediaData<isEncode> *streamData) {
         if (audioTimer->isValid()) {
             while (!audioQueueMutex.try_lock());
-            audioQueue.push(audioData);
+            audioQueue.push(streamData);
             audioQueueMutex.unlock();
         } else {
-            delete audioData;
+            delete streamData;
         }
     }
     

@@ -125,7 +125,7 @@ static int j;
             memcpy(datap, data_ptr, dataLen);
             auto content = new MSContent<isEncode>(datap,dataLen,MSCodecID_H264);
             MSMediaData<isEncode> *data = new MSMediaData<isEncode>(content);
-            player->pushVideoData(data);
+            player->pushVideoStreamData(data);
         }
     }
     
@@ -135,7 +135,7 @@ static int j;
             memcpy(datap, data_ptr, dataLen);
             auto content = new MSContent<isEncode>(datap,dataLen,MSCodecID_AAC);
             MSMediaData<isEncode> *data = new MSMediaData<isEncode>(content);
-            player->pushAudioData(data);
+            player->pushAudioStreamData(data);
         }
     }
 }
