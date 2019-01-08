@@ -28,13 +28,17 @@ namespace MS {
     class MSPlayer : public MSAsynDataProtocol<T> {
         typedef function<void(const MSMediaData<isDecode,T> &decodeData)> ThrowDecodeData;
         
-        MSSyncDecoderProtocol<T> * const syncDecoder;
+        MSSyncDecoderProtocol<T> * const _syncDecoder = nullptr;
         
-        MSSyncEncoderProtocol<T> * const syncEncoder;
+        MSSyncEncoderProtocol<T> * const _syncEncoder = nullptr;
         
-        MSTimer * const videoTimer = new MSTimer(microseconds(0),intervale(1),nullptr);
+        MSAsynDecoderProtocol<T> * const _asynDecoder = nullptr;
         
-        MSTimer * const audioTimer = new MSTimer(microseconds(0),intervale(1),nullptr);
+        MSAsynEncoderProtocol<T> * const _asynEncoder = nullptr;
+        
+        MSTimer * const videoTimer = nullptr;
+        
+        MSTimer * const audioTimer = nullptr;
         
         thread videoDecodeThread;
         
@@ -73,8 +77,19 @@ namespace MS {
         const ThrowDecodeData throwDecodeAudio;
         
         void clearAllVideo();
-        
         void clearAllAudio();
+        
+        thread initSyncDataVideoDecodeThread();
+        thread initSyncDataAudioDecodeThread();
+        
+        thread initAsynDataVideoDecodeThread();
+        thread initAsynDataAudioDecodeThread();
+        
+        MSTimer * initSyncDataVideoTimer();
+        MSTimer * initSyncDataAudioTimer();
+        
+        MSTimer * initAsynDataVideoTimer();
+        MSTimer * initAsynDataAudioTimer();
         
     public:
         MSPlayer(MSSyncDecoderProtocol<T> * const decoder,
@@ -89,9 +104,13 @@ namespace MS {
         
         ~MSPlayer();
         
-        MSSyncDecoderProtocol<T> & getDecoder();
+        MSSyncDecoderProtocol<T> & syncDecoder();
         
-        MSSyncEncoderProtocol<T> & getEncoder();
+        MSSyncEncoderProtocol<T> & syncEncoder();
+        
+        MSAsynDecoderProtocol<T> & asynDecoder();
+        
+        MSAsynEncoderProtocol<T> & asynEncoder();
         
         void startPlayVideo();
         
@@ -133,102 +152,29 @@ namespace MS {
                           MSSyncEncoderProtocol<T> * const encoder,
                           const ThrowDecodeData throwDecodeVideo,
                           const ThrowDecodeData throwDecodeAudio)
-    :syncDecoder(decoder), syncEncoder(encoder),
+    :_syncDecoder(decoder), _syncEncoder(encoder),
     throwDecodeVideo(throwDecodeVideo),
-    throwDecodeAudio(throwDecodeAudio) {
-        assert(throwDecodeVideo && throwDecodeAudio);
-        
-        videoDecodeThread = thread([this](){
-            const MSMediaData<isEncode> *sourceData = nullptr;
-            const MSMediaData<isDecode,T> *frameData = nullptr;
-            while (isDecoding) {
-                while (videoQueue.empty() || pixelQueue.size() > 20) {
-                    unique_lock<mutex> lock(videoConditionMutex);
-                    videoThreadCondition.wait(lock);
-                    if (!isDecoding) break;
-                }
-                if (!isDecoding) break;
-                sourceData = videoQueue.front();
-                while (!videoQueueMutex.try_lock());
-                videoQueue.pop();
-                videoQueueMutex.unlock();
-                frameData = syncDecoder->decodeVideo(*sourceData);
-                if (frameData) {
-                    while (!pixelQueueMutex.try_lock());
-                    pixelQueue.push(frameData);
-                    pixelQueueMutex.unlock();
-                }
-                delete sourceData;
-            }
-        });
-        
-        audioDecodeThread = thread([this](){
-            const MSMediaData<isEncode> *sourceData = nullptr;
-            const MSMediaData<isDecode,T> *frameData = nullptr;
-            while (isDecoding) {
-                while (audioQueue.empty() || sampleQueue.size() > 20) {
-                    unique_lock<mutex> lock(audioConditionMutex);
-                    audioThreadCondition.wait(lock);
-                    if (!isDecoding) break;
-                }
-                if (!isDecoding) break;
-                sourceData = audioQueue.front();
-                while (!audioQueueMutex.try_lock());
-                audioQueue.pop();
-                audioQueueMutex.unlock();
-                frameData = syncDecoder->decodeAudio(*sourceData);
-                if (frameData) {
-                    while (!sampleQueueMutex.try_lock());
-                    sampleQueue.push(frameData);
-                    sampleQueueMutex.unlock();
-                }
-                delete sourceData;
-            }
-        });
-        
-        videoTimer->updateTask([this](){
-            if (!pixelQueue.empty()) {
-                const MSMediaData<isDecode,T> *frameData = nullptr;
-                frameData = pixelQueue.front();
-                while (!pixelQueueMutex.try_lock());
-                pixelQueue.pop();
-                pixelQueueMutex.unlock();
-                if (pixelQueue.size() < 5) {
-                    videoThreadCondition.notify_one();
-                }
-                videoTimer->updateTimeInterval(frameData->content->timeInterval);
-                this->throwDecodeVideo(*frameData);
-                if (isEncoding) {
-                    syncEncoder->encodeVideo(*frameData);
-                }
-                delete frameData;
-            } else {
-                this->throwDecodeVideo(MSMediaData<isDecode,T>::defaultNullData);
-                videoThreadCondition.notify_one();
-            }
-        });
-        
-        audioTimer->updateTask([this](){
-            if (!sampleQueue.empty()) {
-                const MSMediaData<isDecode,T> *frameData = nullptr;
-                frameData = sampleQueue.front();
-                while (!sampleQueueMutex.try_lock());
-                sampleQueue.pop();
-                sampleQueueMutex.unlock();
-                if (sampleQueue.size() < 5) {
-                    audioThreadCondition.notify_one();
-                }
-                audioTimer->updateTimeInterval(frameData->content->timeInterval);
-                this->throwDecodeAudio(*frameData);
-                if (isEncoding) {
-                    syncEncoder->encodeAudio(*frameData);
-                }
-                delete frameData;
-            } else {
-                this->throwDecodeAudio(MSMediaData<isDecode,T>::defaultNullData);
-                audioThreadCondition.notify_one();
-            }
-        });
+    throwDecodeAudio(throwDecodeAudio),
+    videoTimer(initSyncDataVideoTimer()),
+    audioTimer(initSyncDataAudioTimer()),
+    videoDecodeThread(initSyncDataVideoDecodeThread()),
+    audioDecodeThread(initSyncDataAudioDecodeThread()) {
+        assert(_syncDecoder && throwDecodeVideo && throwDecodeAudio);
+    }
+    
+    template <typename T>
+    MSPlayer<T>::MSPlayer(MSAsynDecoderProtocol<T> * const decoder,
+                          MSAsynEncoderProtocol<T> * const encoder,
+                          const ThrowDecodeData throwDecodeVideo,
+                          const ThrowDecodeData throwDecodeAudio)
+    :_asynDecoder(decoder), _asynEncoder(encoder),
+    throwDecodeVideo(throwDecodeVideo),
+    throwDecodeAudio(throwDecodeAudio),
+    videoTimer(initAsynDataVideoTimer()),
+    audioTimer(initAsynDataAudioTimer()),
+    videoDecodeThread(initAsynDataVideoDecodeThread()),
+    audioDecodeThread(initAsynDataAudioDecodeThread()) {
+        assert(_asynDecoder && throwDecodeVideo && throwDecodeAudio);
     }
     
     template <typename T>
@@ -244,21 +190,44 @@ namespace MS {
         if (audioDecodeThread.joinable()) {
             audioDecodeThread.join();
         }
-        delete syncDecoder;
-        delete syncEncoder;
+        if (_syncDecoder) {
+            delete _syncDecoder;
+        }
+        if (_syncEncoder) {
+            delete _syncEncoder;
+        }
+        if (_asynDecoder) {
+            delete _asynDecoder;
+        }
+        if (_asynEncoder) {
+            delete _asynEncoder;
+        }
         delete videoTimer;
+        delete audioTimer;
     }
     
     template <typename T>
     MSSyncDecoderProtocol<T> &
-    MSPlayer<T>::getDecoder() {
-        return *syncDecoder;
+    MSPlayer<T>::syncDecoder() {
+        return *_syncDecoder;
     }
     
     template <typename T>
     MSSyncEncoderProtocol<T> &
-    MSPlayer<T>::getEncoder() {
-        return *syncEncoder;
+    MSPlayer<T>::syncEncoder() {
+        return *_syncEncoder;
+    }
+    
+    template <typename T>
+    MSAsynDecoderProtocol<T> &
+    MSPlayer<T>::asynDecoder() {
+        return *_asynDecoder;
+    }
+    
+    template <typename T>
+    MSAsynEncoderProtocol<T> &
+    MSPlayer<T>::asynEncoder() {
+        return *_asynEncoder;
     }
     
     template <typename T>
@@ -349,8 +318,8 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::startReEncode() {
-        assert(syncEncoder->isEncoding() == false);
-        syncEncoder->beginEncode();
+        assert(_syncEncoder->isEncoding() == false);
+        _syncEncoder->beginEncode();
         isEncoding = true;
     }
     
@@ -367,7 +336,7 @@ namespace MS {
     template <typename T>
     void MSPlayer<T>::stopReEncode() {
         isEncoding = false;
-        syncEncoder->endEncode();
+        _syncEncoder->endEncode();
     }
     
     template <typename T>
@@ -390,6 +359,204 @@ namespace MS {
         } else {
             delete streamData;
         }
+    }
+    
+    template <typename T>
+    thread MSPlayer<T>::initSyncDataVideoDecodeThread() {
+        return thread([this](){
+            const MSMediaData<isEncode> *sourceData = nullptr;
+            const MSMediaData<isDecode,T> *frameData = nullptr;
+            while (isDecoding) {
+                while (videoQueue.empty() || pixelQueue.size() > 20) {
+                    unique_lock<mutex> lock(videoConditionMutex);
+                    videoThreadCondition.wait(lock);
+                    if (!isDecoding) break;
+                }
+                if (!isDecoding) break;
+                sourceData = videoQueue.front();
+                while (!videoQueueMutex.try_lock());
+                videoQueue.pop();
+                videoQueueMutex.unlock();
+                frameData = _syncDecoder->decodeVideo(*sourceData);
+                if (frameData) {
+                    while (!pixelQueueMutex.try_lock());
+                    pixelQueue.push(frameData);
+                    pixelQueueMutex.unlock();
+                }
+                delete sourceData;
+            }
+        });
+    }
+    
+    template <typename T>
+    thread MSPlayer<T>::initSyncDataAudioDecodeThread() {
+        return thread([this](){
+            const MSMediaData<isEncode> *sourceData = nullptr;
+            const MSMediaData<isDecode,T> *frameData = nullptr;
+            while (isDecoding) {
+                while (audioQueue.empty() || sampleQueue.size() > 20) {
+                    unique_lock<mutex> lock(audioConditionMutex);
+                    audioThreadCondition.wait(lock);
+                    if (!isDecoding) break;
+                }
+                if (!isDecoding) break;
+                sourceData = audioQueue.front();
+                while (!audioQueueMutex.try_lock());
+                audioQueue.pop();
+                audioQueueMutex.unlock();
+                frameData = _syncDecoder->decodeAudio(*sourceData);
+                if (frameData) {
+                    while (!sampleQueueMutex.try_lock());
+                    sampleQueue.push(frameData);
+                    sampleQueueMutex.unlock();
+                }
+                delete sourceData;
+            }
+        });
+    }
+    
+    template <typename T>
+    thread MSPlayer<T>::initAsynDataVideoDecodeThread() {
+        return thread([this](){
+            const MSMediaData<isEncode> *sourceData = nullptr;
+            const MSMediaData<isDecode,T> *frameData = nullptr;
+            while (isDecoding) {
+                while (videoQueue.empty() || pixelQueue.size() > 20) {
+                    unique_lock<mutex> lock(videoConditionMutex);
+                    videoThreadCondition.wait(lock);
+                    if (!isDecoding) break;
+                }
+                if (!isDecoding) break;
+                sourceData = videoQueue.front();
+                while (!videoQueueMutex.try_lock());
+                videoQueue.pop();
+                videoQueueMutex.unlock();
+                _asynDecoder->decodeVideo(*sourceData);
+                delete sourceData;
+            }
+        });
+    }
+    
+    template <typename T>
+    thread MSPlayer<T>::initAsynDataAudioDecodeThread() {
+        return thread([this](){
+            const MSMediaData<isEncode> *sourceData = nullptr;
+            const MSMediaData<isDecode,T> *frameData = nullptr;
+            while (isDecoding) {
+                while (audioQueue.empty() || sampleQueue.size() > 20) {
+                    unique_lock<mutex> lock(audioConditionMutex);
+                    audioThreadCondition.wait(lock);
+                    if (!isDecoding) break;
+                }
+                if (!isDecoding) break;
+                sourceData = audioQueue.front();
+                while (!audioQueueMutex.try_lock());
+                audioQueue.pop();
+                audioQueueMutex.unlock();
+                _asynDecoder->decodeAudio(*sourceData);
+                delete sourceData;
+            }
+        });
+    }
+    
+    template <typename T>
+    MSTimer * MSPlayer<T>::initSyncDataVideoTimer() {
+        return new MSTimer(microseconds(0),intervale(1),[this](){
+            if (!pixelQueue.empty()) {
+                const MSMediaData<isDecode,T> *frameData = nullptr;
+                frameData = pixelQueue.front();
+                while (!pixelQueueMutex.try_lock());
+                pixelQueue.pop();
+                pixelQueueMutex.unlock();
+                if (pixelQueue.size() < 5) {
+                    videoThreadCondition.notify_one();
+                }
+                videoTimer->updateTimeInterval(frameData->content->timeInterval);
+                this->throwDecodeVideo(*frameData);
+                if (isEncoding) {
+                    _syncEncoder->encodeVideo(*frameData);
+                }
+                delete frameData;
+            } else {
+                this->throwDecodeVideo(MSMediaData<isDecode,T>::defaultNullData);
+                videoThreadCondition.notify_one();
+            }
+        });
+    }
+    
+    template <typename T>
+    MSTimer * MSPlayer<T>::initSyncDataAudioTimer() {
+        return new MSTimer(microseconds(0),intervale(1),[this](){
+            if (!sampleQueue.empty()) {
+                const MSMediaData<isDecode,T> *frameData = nullptr;
+                frameData = sampleQueue.front();
+                while (!sampleQueueMutex.try_lock());
+                sampleQueue.pop();
+                sampleQueueMutex.unlock();
+                if (sampleQueue.size() < 5) {
+                    audioThreadCondition.notify_one();
+                }
+                audioTimer->updateTimeInterval(frameData->content->timeInterval);
+                this->throwDecodeAudio(*frameData);
+                if (isEncoding) {
+                    _syncEncoder->encodeAudio(*frameData);
+                }
+                delete frameData;
+            } else {
+                this->throwDecodeAudio(MSMediaData<isDecode,T>::defaultNullData);
+                audioThreadCondition.notify_one();
+            }
+        });
+    }
+    
+    template <typename T>
+    MSTimer * MSPlayer<T>::initAsynDataVideoTimer() {
+        return new MSTimer(microseconds(0),intervale(1),[this](){
+            if (!pixelQueue.empty()) {
+                const MSMediaData<isDecode,T> *frameData = nullptr;
+                frameData = pixelQueue.front();
+                while (!pixelQueueMutex.try_lock());
+                pixelQueue.pop();
+                pixelQueueMutex.unlock();
+                if (pixelQueue.size() < 5) {
+                    videoThreadCondition.notify_one();
+                }
+                videoTimer->updateTimeInterval(frameData->content->timeInterval);
+                this->throwDecodeVideo(*frameData);
+                if (isEncoding) {
+                    _asynEncoder->encodeVideo(*frameData);
+                }
+                delete frameData;
+            } else {
+                this->throwDecodeVideo(MSMediaData<isDecode,T>::defaultNullData);
+                videoThreadCondition.notify_one();
+            }
+        });
+    }
+    
+    template <typename T>
+    MSTimer * MSPlayer<T>::initAsynDataAudioTimer() {
+        return new MSTimer(microseconds(0),intervale(1),[this](){
+            if (!sampleQueue.empty()) {
+                const MSMediaData<isDecode,T> *frameData = nullptr;
+                frameData = sampleQueue.front();
+                while (!sampleQueueMutex.try_lock());
+                sampleQueue.pop();
+                sampleQueueMutex.unlock();
+                if (sampleQueue.size() < 5) {
+                    audioThreadCondition.notify_one();
+                }
+                audioTimer->updateTimeInterval(frameData->content->timeInterval);
+                this->throwDecodeAudio(*frameData);
+                if (isEncoding) {
+                    _asynEncoder->encodeAudio(*frameData);
+                }
+                delete frameData;
+            } else {
+                this->throwDecodeAudio(MSMediaData<isDecode,T>::defaultNullData);
+                audioThreadCondition.notify_one();
+            }
+        });
     }
     
     template <typename T>
