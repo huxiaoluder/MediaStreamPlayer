@@ -12,7 +12,7 @@
 //#include <MSPlayer.hpp>
 //#include <FFDecoder.hpp>
 //#include <FFEncoder.hpp>
-
+#include <VideoToolbox/VideoToolbox.h>
 
 //using namespace MS;
 //using namespace MS::FFmpeg;
@@ -48,11 +48,27 @@
 //    delete player;
 //}
 
+typedef void(^Test)(int a);
+
 int main(int argc, const char * argv[]) {
     
-//    test();
+    Test test;
     
-    auto timestamp = std::chrono::system_clock::now().time_since_epoch().count();
+    test(10);
+    
+    OSStatus status = VTDecompressionSessionDecodeFrameWithOutputHandler((VTDecompressionSessionRef)0x11,
+                                                                         (CMSampleBufferRef)0x12,
+                                                                         NULL,
+                                                                         nullptr,
+                                                                         ^(OSStatus status,
+                                                                           VTDecodeInfoFlags infoFlags,
+                                                                           CVImageBufferRef  _Nullable imageBuffer,
+                                                                           CMTime presentationTimeStamp,
+                                                                           CMTime presentationDuration)
+                                                                         {
+                                                                             printf("");
+                                                                             
+                                                                         });
     
     
 

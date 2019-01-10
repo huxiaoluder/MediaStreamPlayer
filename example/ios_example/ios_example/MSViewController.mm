@@ -121,9 +121,7 @@ static int j;
 //    printf("--------------datalen: %d\n",dataLen);
     if (updateVideo) {
         if (headerMedia->stream_type == e_stream_type_H264) {
-            uint8_t *datap = new uint8_t[dataLen]{0};
-            memcpy(datap, data_ptr, dataLen);
-            auto content = new MSContent<isEncode>(datap,dataLen,MSCodecID_H264);
+            auto content = new MSContent<isEncode>((uint8_t *)data_ptr,dataLen,MSCodecID_H264);
             MSMediaData<isEncode> *data = new MSMediaData<isEncode>(content);
             player->pushVideoStreamData(data);
         }
@@ -131,9 +129,7 @@ static int j;
     
     if (updateAudio) {
         if (headerMedia->stream_type == e_stream_type_AAC) {
-            uint8_t *datap = new uint8_t[dataLen]{0};
-            memcpy(datap, data_ptr, dataLen);
-            auto content = new MSContent<isEncode>(datap,dataLen,MSCodecID_AAC);
+            auto content = new MSContent<isEncode>((uint8_t *)data_ptr,dataLen,MSCodecID_AAC);
             MSMediaData<isEncode> *data = new MSMediaData<isEncode>(content);
             player->pushAudioStreamData(data);
         }

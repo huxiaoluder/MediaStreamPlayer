@@ -7,42 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F1706A521D3113C00CE476E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC47219BF07F00B4B76E /* main.cpp */; };
-		4F8C6EC721AE8B2000E3443C /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EBE21AE8B2000E3443C /* libavutil.a */; };
-		4F8C6ECA21AE8B2000E3443C /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC121AE8B2000E3443C /* libavformat.a */; };
-		4F8C6ECC21AE8B2000E3443C /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC321AE8B2000E3443C /* libavcodec.a */; };
-		4F8C6ECD21AE8B2000E3443C /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC421AE8B2000E3443C /* libswresample.a */; };
-		4F8C6ECE21AE8B2000E3443C /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C6EC521AE8B2000E3443C /* libswscale.a */; };
+		4F0539D621E5F4D300D0AAD0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC47219BF07F00B4B76E /* main.cpp */; };
+		4F0539D821E5F55D00D0AAD0 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0539D721E5F55D00D0AAD0 /* VideoToolbox.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		4F61CC42219BF07F00B4B76E /* CopyFiles */ = {
+		4F61CC42219BF07F00B4B76E /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4F01917621A65812003E1408 /* MSTimer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSTimer.cpp; sourceTree = "<group>"; };
-		4F01917721A65812003E1408 /* MSTimer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSTimer.hpp; sourceTree = "<group>"; };
+		4F0539D721E5F55D00D0AAD0 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		4F5F6F9F219D47B300FF46D8 /* libdispatch.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libdispatch.tbd; path = usr/lib/system/introspection/libdispatch.tbd; sourceTree = SDKROOT; };
 		4F61CC44219BF07F00B4B76E /* MediaStreamPlayer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MediaStreamPlayer; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F61CC47219BF07F00B4B76E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		4F61CC56219BF1D400B4B76E /* FFEncoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FFEncoder.cpp; sourceTree = "<group>"; };
-		4F61CC57219BF1D400B4B76E /* FFEncoder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FFEncoder.hpp; sourceTree = "<group>"; };
-		4F61CC59219BF1E700B4B76E /* FFDecoder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FFDecoder.cpp; sourceTree = "<group>"; };
-		4F61CC5A219BF1E700B4B76E /* FFDecoder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FFDecoder.hpp; sourceTree = "<group>"; };
-		4F61CC5C219BF2ED00B4B76E /* MediaStreamPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaStreamPlayer.h; sourceTree = "<group>"; };
-		4F61CC5E219C140100B4B76E /* MSCodecProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSCodecProtocol.h; sourceTree = "<group>"; };
 		4F61CC60219C16DB00B4B76E /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		4F654E7421A643D600F74803 /* test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test.cpp; sourceTree = "<group>"; };
-		4F8C6EBA21AE825B00E3443C /* FFCodecContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FFCodecContext.cpp; sourceTree = "<group>"; };
-		4F8C6EBB21AE825B00E3443C /* FFCodecContext.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FFCodecContext.hpp; sourceTree = "<group>"; };
 		4F8C6EBD21AE8B2000E3443C /* libavresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavresample.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavresample.a; sourceTree = "<group>"; };
 		4F8C6EBE21AE8B2000E3443C /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavutil.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavutil.a; sourceTree = "<group>"; };
 		4F8C6EBF21AE8B2000E3443C /* libavfilter.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavfilter.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavfilter.a; sourceTree = "<group>"; };
@@ -52,8 +40,6 @@
 		4F8C6EC321AE8B2000E3443C /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavcodec.a; sourceTree = "<group>"; };
 		4F8C6EC421AE8B2000E3443C /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswresample.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libswresample.a; sourceTree = "<group>"; };
 		4F8C6EC521AE8B2000E3443C /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswscale.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libswscale.a; sourceTree = "<group>"; };
-		4F9ADF1721B8ED5700862770 /* MSMediaData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSMediaData.hpp; sourceTree = "<group>"; };
-		4F9ADF1821B8ED5700862770 /* MSPlayer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSPlayer.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,11 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F8C6EC721AE8B2000E3443C /* libavutil.a in Frameworks */,
-				4F8C6ECA21AE8B2000E3443C /* libavformat.a in Frameworks */,
-				4F8C6ECC21AE8B2000E3443C /* libavcodec.a in Frameworks */,
-				4F8C6ECD21AE8B2000E3443C /* libswresample.a in Frameworks */,
-				4F8C6ECE21AE8B2000E3443C /* libswscale.a in Frameworks */,
+				4F0539D821E5F55D00D0AAD0 /* VideoToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,36 +74,16 @@
 		4F61CC46219BF07F00B4B76E /* MediaStreamPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				4F61CC4F219BF0EB00B4B76E /* source */,
 				4F61CC47219BF07F00B4B76E /* main.cpp */,
 				4F654E7421A643D600F74803 /* test.cpp */,
 			);
 			path = MediaStreamPlayer;
 			sourceTree = "<group>";
 		};
-		4F61CC4F219BF0EB00B4B76E /* source */ = {
-			isa = PBXGroup;
-			children = (
-				4F61CC5C219BF2ED00B4B76E /* MediaStreamPlayer.h */,
-				4F61CC5E219C140100B4B76E /* MSCodecProtocol.h */,
-				4F01917721A65812003E1408 /* MSTimer.hpp */,
-				4F01917621A65812003E1408 /* MSTimer.cpp */,
-				4F9ADF1721B8ED5700862770 /* MSMediaData.hpp */,
-				4F9ADF1821B8ED5700862770 /* MSPlayer.hpp */,
-				4F8C6EBB21AE825B00E3443C /* FFCodecContext.hpp */,
-				4F8C6EBA21AE825B00E3443C /* FFCodecContext.cpp */,
-				4F61CC5A219BF1E700B4B76E /* FFDecoder.hpp */,
-				4F61CC59219BF1E700B4B76E /* FFDecoder.cpp */,
-				4F61CC57219BF1D400B4B76E /* FFEncoder.hpp */,
-				4F61CC56219BF1D400B4B76E /* FFEncoder.cpp */,
-			);
-			name = source;
-			path = ../../../source;
-			sourceTree = "<group>";
-		};
 		4F61CC5F219C16DB00B4B76E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F0539D721E5F55D00D0AAD0 /* VideoToolbox.framework */,
 				4F8C6EC321AE8B2000E3443C /* libavcodec.a */,
 				4F8C6EC221AE8B2000E3443C /* libavdevice.a */,
 				4F8C6EBF21AE8B2000E3443C /* libavfilter.a */,
@@ -146,7 +108,7 @@
 			buildPhases = (
 				4F61CC40219BF07F00B4B76E /* Sources */,
 				4F61CC41219BF07F00B4B76E /* Frameworks */,
-				4F61CC42219BF07F00B4B76E /* CopyFiles */,
+				4F61CC42219BF07F00B4B76E /* Copy Files */,
 			);
 			buildRules = (
 			);
@@ -193,7 +155,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F1706A521D3113C00CE476E /* main.cpp in Sources */,
+				4F0539D621E5F4D300D0AAD0 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

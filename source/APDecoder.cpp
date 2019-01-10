@@ -13,7 +13,33 @@ using namespace MS::APhard;
 
 void
 APDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
-//   VTDecompressionSessionDecodeFrame(<#VTDecompressionSessionRef  _Nonnull session#>, <#CMSampleBufferRef  _Nonnull sampleBuffer#>, <#VTDecodeFrameFlags decodeFlags#>, <#void * _Nullable sourceFrameRefCon#>, <#VTDecodeInfoFlags * _Nullable infoFlagsOut#>)
+    MSBinaryData spsData(nullptr,0);
+    MSBinaryData ppsData(nullptr,0);
+
+    const APCodecContext &decoderContext = getDecoderContext(videoData.content->codecID,spsData,ppsData);
+    
+    CMSampleBufferRef sampleBuffer = nullptr;
+    
+    size_t sampleSizeArray[] = {videoData.content->size};
+    
+//    CMSampleBufferCreate(nullptr,
+//                         CMBlockBufferRef,
+//                         true,
+//                         <#CMSampleBufferMakeDataReadyCallback  _Nullable makeDataReadyCallback#>,
+//                         <#void * _Nullable makeDataReadyRefcon#>,
+//                         <#CMFormatDescriptionRef  _Nullable formatDescription#>,
+//                         <#CMItemCount numSamples#>,
+//                         <#CMItemCount numSampleTimingEntries#>,
+//                         <#const CMSampleTimingInfo * _Nullable sampleTimingArray#>,
+//                         CMItemCount numSampleSizeEntries,
+//                         sampleSizeArray,
+//                         &sampleBuffer);
+    
+   VTDecompressionSessionDecodeFrame(decoderContext.videoDecodeSession,
+                                     sampleBuffer,
+                                     kVTDecodeFrame_EnableAsynchronousDecompression,
+                                     nullptr,
+                                     nullptr);
     
 }
 
@@ -31,36 +57,17 @@ APDecoder::~APDecoder() {
     
 }
 
-void createDecompressionSession() {
-    //创建VTDecompressionSession
-//    VTDecompressionSessionRef _decompressionSession = NULL;
-//    VTDecompressionOutputCallbackRecord callBackRecord;
-//    callBackRecord.decompressionOutputCallback = decompressionSessionDecodeFrameCallback;
-//    
-//    callBackRecord.decompressionOutputRefCon = (__bridge void *)self;
-//    
-//    NSDictionary* destinationPixelBufferAttributes = @{
-//        (id)kCVPixelBufferPixelFormatTypeKey : [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange],
-//        //硬解必须是 kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
-//        //或者是kCVPixelFormatType_420YpCbCr8Planar
-//        //因为iOS是  nv12  其他是nv21
-//        (id)kCVPixelBufferWidthKey : [NSNumber numberWithInt:h264outputHeight*2],
-//        (id)kCVPixelBufferHeightKey : [NSNumber numberWithInt:h264outputWidth*2],
-//        //这里宽高和编码反的
-//        (id)kCVPixelBufferOpenGLCompatibilityKey : [NSNumber numberWithBool:YES]
-//    };
-//    OSStatus status = VTDecompressionSessionCreate(kCFAllocatorDefault,
-//                                                   _formatDesc,
-//                                                   NULL,
-//                                                   (__bridge CFDictionaryRef)destinationPixelBufferAttributes,
-//                                                   &callBackRecord,
-//                                                   &_decompressionSession);
-//    
-//    if (status == noErr) {
-////        NSLog(@"Video Decompression Session 创建成功!");
-//    }else{
-////        NSLog(@"Video Decompression Session 创建失败，错误码： %d",(int)status);
-//    }
+const APCodecContext &
+APDecoder::getDecoderContext(const MSCodecID codecID,
+                             const MSBinaryData &spsData,
+                             const MSBinaryData &ppsData) {
+    APCodecContext *decoderContext = decoderContexts[codecID];
+    if (!decoderContext) {
+        decoderContext = new APCodecContext(APCodecDecoder, codecID,
+                                            spsData, ppsData, *this);
+        decoderContexts[codecID] = decoderContext;
+    }
+    return *decoderContext;
 }
 
 void

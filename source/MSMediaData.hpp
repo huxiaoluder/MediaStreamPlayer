@@ -71,8 +71,8 @@ namespace MS {
     template <MSContentType DT, typename CT>
     MSContent<DT,CT>::MSContent(typename enable_if<is_same<CT, uint8_t>::value,CT>::type * const packt,
                                 const size_t size, const MSCodecID codecID)
-    :packt(packt), size(size), codecID(codecID) {
-        
+    :packt(new CT[size]), size(size), codecID(codecID) {
+        memcpy(this->packt, packt, size);
     }
     
     template <MSContentType DT, typename CT>

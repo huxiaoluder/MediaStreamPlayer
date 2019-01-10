@@ -9,6 +9,7 @@
 #ifndef APDecoder_hpp
 #define APDecoder_hpp
 
+#include <map>
 #include "MSCodecAsynProtocol.h"
 #include "APCodecContext.hpp"
 
@@ -21,6 +22,11 @@ namespace MS {
         typedef MSMediaData<isDecode,__CVBuffer>::MSDecoderOutputContent    APDecoderOutputContent;
         
         class APDecoder : public APDecoderProtocol {
+            std::map<MSCodecID,APCodecContext *> decoderContexts;
+            
+            const APCodecContext & getDecoderContext(const MSCodecID codecID,
+                                                     const MSBinaryData &spsData,
+                                                     const MSBinaryData &ppsData);
             
         public:
             void decodeVideo(const MSMediaData<isEncode> &videoData);

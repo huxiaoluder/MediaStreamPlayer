@@ -23,7 +23,7 @@ namespace MS {
         class FFDecoder : public FFDecoderProtocol {
             std::map<MSCodecID,FFCodecContext *> decoderContexts;
             
-            const FFCodecContext & getDecoderContext(MSCodecID codecID);
+            const FFCodecContext & getDecoderContext(const MSCodecID codecID);
             
             const FFDecoderOutputData * decodeData(const MSMediaData<isEncode> &data);
         public:

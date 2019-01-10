@@ -34,7 +34,7 @@ FFDecoder::~FFDecoder() {
 }
 
 const FFCodecContext &
-FFDecoder::getDecoderContext(MSCodecID codecID) {
+FFDecoder::getDecoderContext(const MSCodecID codecID) {
     FFCodecContext *decoderContext = decoderContexts[codecID];
     if (!decoderContext) {
         decoderContext = new FFCodecContext(FFCodecDecoder, codecID);

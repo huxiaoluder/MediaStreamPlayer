@@ -57,28 +57,30 @@ APCodecContext::initVideoDecodeSession(const MSBinaryData &spsData, const MSBina
     IsVideoCodec isVideoCodec   = get<1>(codecInfo);
     
     CMFormatDescriptionRef      formatDescription   = nullptr;
-    VTDecompressionSessionRef   videoDecodeSession  = nullptr;
+    VTDecompressionSessionRef   videoDecoderSession = nullptr;
     
     if (codecType == APCodecDecoder && isVideoCodec) {
         OSStatus status;
         
-        uint8_t *datas[2] = {spsData.bytes, ppsData.bytes};
-        size_t lengths[2] = {spsData.size,  ppsData.size};
+        uint8_t *datas[] = {spsData.bytes, ppsData.bytes};
+        size_t lengths[] = {spsData.size,  ppsData.size};
         
         if (codecID == MSCodecID_H264) {
-            status = CMVideoFormatDescriptionCreateFromH264ParameterSets(nullptr, sizeof(datas), datas, lengths, 1, &formatDescription);
+            status = CMVideoFormatDescriptionCreateFromH264ParameterSets(nullptr, sizeof(datas)/sizeof(uint8_t *),
+                                                                         datas, lengths, 1, &formatDescription);
         } else {
             if (__builtin_available(iOS 11.0, *)) {
-                status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(nullptr, sizeof(datas), datas, lengths, 1, nullptr, &formatDescription);
+                status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(nullptr, sizeof(datas)/sizeof(size_t),
+                                                                             datas, lengths, 1, nullptr, &formatDescription);
             } else {
                 return nullptr;
             }
         }
     
-        /*
-         CFDictionaryRef    videoDecoderSpecification,
-         CFDictionaryRef    destinationImageBufferAttributes,
-         */
+        if (status != noErr) {
+            printf("fail to instance CMFormatDescriptionRef, error code: %d\n", (int)status);
+            return nullptr;
+        }
         
         VTDecompressionOutputCallbackRecord outputCallback;
         outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataSender.asynCallBack();
@@ -89,9 +91,14 @@ APCodecContext::initVideoDecodeSession(const MSBinaryData &spsData, const MSBina
                                               nullptr,
                                               nullptr,
                                               &outputCallback,
-                                              &videoDecodeSession);
+                                              &videoDecoderSession);
+        
+        if (status != noErr) {
+            printf("fail to instance VTDecompressionSessionRef, error code: %d\n", (int)status);
+            return nullptr;
+        }
     }
-    return videoDecodeSession;
+    return videoDecoderSession;
 }
 
 APCodecInfo

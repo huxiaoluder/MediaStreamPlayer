@@ -945,6 +945,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T9QG4DCF4Y;
 				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/ios_example/thirdlibs/ffmpeg/include\"",
 					"\"$(SRCROOT)/../../source\"",
@@ -978,6 +979,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T9QG4DCF4Y;
 				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/ios_example/thirdlibs/ffmpeg/include\"",
 					"\"$(SRCROOT)/../../source\"",
