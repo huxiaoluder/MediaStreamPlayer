@@ -66,12 +66,16 @@ APCodecContext::initVideoDecodeSession(const MSBinaryData &spsData, const MSBina
         size_t lengths[] = {spsData.size,  ppsData.size};
         
         if (codecID == MSCodecID_H264) {
-            status = CMVideoFormatDescriptionCreateFromH264ParameterSets(nullptr, sizeof(datas)/sizeof(uint8_t *),
-                                                                         datas, lengths, 1, &formatDescription);
+            status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
+                                                                         sizeof(datas) / sizeof(uint8_t *),
+                                                                         datas, lengths, 1,
+                                                                         &formatDescription);
         } else {
             if (__builtin_available(iOS 11.0, *)) {
-                status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(nullptr, sizeof(datas)/sizeof(size_t),
-                                                                             datas, lengths, 1, nullptr, &formatDescription);
+                status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(kCFAllocatorDefault,
+                                                                             sizeof(datas) / sizeof(uint8_t *),
+                                                                             datas, lengths, 1, nullptr,
+                                                                             &formatDescription);
             } else {
                 return nullptr;
             }
@@ -86,7 +90,7 @@ APCodecContext::initVideoDecodeSession(const MSBinaryData &spsData, const MSBina
         outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataSender.asynCallBack();
         outputCallback.decompressionOutputRefCon = &asynDataSender.asynDataReceiver();
 
-        status = VTDecompressionSessionCreate(nullptr,
+        status = VTDecompressionSessionCreate(kCFAllocatorDefault,
                                               formatDescription,
                                               nullptr,
                                               nullptr,

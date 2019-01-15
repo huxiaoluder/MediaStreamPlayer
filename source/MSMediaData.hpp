@@ -55,11 +55,14 @@ namespace MS {
         // packt data size
         const size_t size;
         
+        // frame type
+        const bool isKeyFrame;
+        
         // packt data's encode ID
         const MSCodecID codecID;
         
         MSContent(typename enable_if<is_same<CT, uint8_t>::value,CT>::type * const packt,
-                  const size_t size, const MSCodecID codecID);
+                  const size_t size, const bool isKeyFrame, const MSCodecID codecID);
         
         MSContent(const MSContent &content);
         
@@ -70,14 +73,16 @@ namespace MS {
     /*-------------------MSContent<isEncode, CT>(implementation)-------------------*/
     template <MSContentType DT, typename CT>
     MSContent<DT,CT>::MSContent(typename enable_if<is_same<CT, uint8_t>::value,CT>::type * const packt,
-                                const size_t size, const MSCodecID codecID)
-    :packt(new CT[size]), size(size), codecID(codecID) {
+                                const size_t size, const bool isKeyFrame, const MSCodecID codecID)
+    :packt(new CT[size]), size(size),
+    isKeyFrame(isKeyFrame), codecID(codecID) {
         memcpy(this->packt, packt, size);
     }
     
     template <MSContentType DT, typename CT>
     MSContent<DT,CT>::MSContent(const MSContent &content)
-    :packt(new CT[content.size]), size(content.size), codecID(content.codecID) {
+    :packt(new CT[content.size]), size(content.size),
+    isKeyFrame(content.isKeyFrame), codecID(content.codecID) {
         memcpy(packt, content.packt, size);
     }
     

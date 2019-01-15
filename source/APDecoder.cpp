@@ -13,34 +13,39 @@ using namespace MS::APhard;
 
 void
 APDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
-    MSBinaryData spsData(nullptr,0);
-    MSBinaryData ppsData(nullptr,0);
-
-    const APCodecContext &decoderContext = getDecoderContext(videoData.content->codecID,spsData,ppsData);
+    APCodecContext * const decoderContext = getDecoderContext(videoData.content->codecID,videoData);
     
-    CMSampleBufferRef sampleBuffer = nullptr;
-    
-    size_t sampleSizeArray[] = {videoData.content->size};
-    
-//    CMSampleBufferCreate(nullptr,
-//                         CMBlockBufferRef,
-//                         true,
-//                         <#CMSampleBufferMakeDataReadyCallback  _Nullable makeDataReadyCallback#>,
-//                         <#void * _Nullable makeDataReadyRefcon#>,
-//                         <#CMFormatDescriptionRef  _Nullable formatDescription#>,
-//                         <#CMItemCount numSamples#>,
-//                         <#CMItemCount numSampleTimingEntries#>,
-//                         <#const CMSampleTimingInfo * _Nullable sampleTimingArray#>,
-//                         CMItemCount numSampleSizeEntries,
-//                         sampleSizeArray,
-//                         &sampleBuffer);
-    
-   VTDecompressionSessionDecodeFrame(decoderContext.videoDecodeSession,
-                                     sampleBuffer,
-                                     kVTDecodeFrame_EnableAsynchronousDecompression,
-                                     nullptr,
-                                     nullptr);
-    
+    if (decoderContext) {
+        CMBlockBufferRef blockBuffer = nullptr;
+        CMSampleBufferRef sampleBuffer = nullptr;
+        
+        size_t sampleSizeArray[] = {videoData.content->size};
+        
+#warning 每次 CMBlockBuffer 自动生成了流数据副本,不影响外界释放(反复拷贝、释放, 会损耗性能, 待优化策略: 创建内存缓冲池)
+        CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
+                                           videoData.content->packt,
+                                           videoData.content->size,
+                                           kCFAllocatorDefault,
+                                           nullptr, 0,
+                                           videoData.content->size,
+                                           kCMBlockBufferAssureMemoryNowFlag,
+                                           &blockBuffer);
+        
+        CMSampleBufferCreateReady(kCFAllocatorDefault,
+                                  blockBuffer,
+                                  nullptr, 1, 0, nullptr,
+                                  sizeof(sampleSizeArray) / sizeof(size_t),
+                                  sampleSizeArray,
+                                  &sampleBuffer);
+        
+        VTDecodeInfoFlags infoFlagsOut = NULL;
+        
+        VTDecompressionSessionDecodeFrame(decoderContext->videoDecodeSession,
+                                          sampleBuffer,
+                                          kVTDecodeFrame_EnableAsynchronousDecompression,
+                                          nullptr,
+                                          &infoFlagsOut);
+    }
 }
 
 void
@@ -57,17 +62,21 @@ APDecoder::~APDecoder() {
     
 }
 
-const APCodecContext &
+APCodecContext *
 APDecoder::getDecoderContext(const MSCodecID codecID,
-                             const MSBinaryData &spsData,
-                             const MSBinaryData &ppsData) {
+                             const MSMediaData<isEncode> &sourceData) {
     APCodecContext *decoderContext = decoderContexts[codecID];
-    if (!decoderContext) {
+    if (!decoderContext && sourceData.content->isKeyFrame) {
+        
+        
+        
+        MSBinaryData spsData(nullptr,0);
+        MSBinaryData ppsData(nullptr,0);
         decoderContext = new APCodecContext(APCodecDecoder, codecID,
                                             spsData, ppsData, *this);
         decoderContexts[codecID] = decoderContext;
     }
-    return *decoderContext;
+    return decoderContext;
 }
 
 void

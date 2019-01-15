@@ -24,9 +24,8 @@ namespace MS {
         class APDecoder : public APDecoderProtocol {
             std::map<MSCodecID,APCodecContext *> decoderContexts;
             
-            const APCodecContext & getDecoderContext(const MSCodecID codecID,
-                                                     const MSBinaryData &spsData,
-                                                     const MSBinaryData &ppsData);
+            APCodecContext * _Nullable getDecoderContext(const MSCodecID codecID,
+                                                     const MSMediaData<isEncode> &sourceData);
             
         public:
             void decodeVideo(const MSMediaData<isEncode> &videoData);
