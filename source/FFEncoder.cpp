@@ -41,11 +41,11 @@ FFEncoder::isEncoding() {
 }
 
 void
-FFEncoder::encodeVideo(const FFEncoderInputData &pixelData) {
+FFEncoder::encodeVideo(const FFEncoderInputMedia &pixelData) {
     assert(_isEncoding);
 
     if (videoEncoderContext) {
-        AVFrame &frame = *pixelData.content->frame;
+        AVFrame &frame = *pixelData.frame;
         videoPts += 1;
         frame.pts = videoPts;
         frame.pict_type = AV_PICTURE_TYPE_NONE;
@@ -55,11 +55,11 @@ FFEncoder::encodeVideo(const FFEncoderInputData &pixelData) {
 }
 
 void
-FFEncoder::encodeAudio(const FFEncoderInputData &sampleData) {
+FFEncoder::encodeAudio(const FFEncoderInputMedia &sampleData) {
     assert(_isEncoding);
 
     if (audioEncoderContext) {
-        AVFrame &frame = *sampleData.content->frame;
+        AVFrame &frame = *sampleData.frame;
         audioPts += frame.nb_samples;
         frame.pts = audioPts;
         frame.pict_type = AV_PICTURE_TYPE_NONE;

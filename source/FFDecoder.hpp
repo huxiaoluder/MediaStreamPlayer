@@ -17,22 +17,21 @@ namespace MS {
     namespace FFmpeg {
        
         typedef MSSyncDecoderProtocol<AVFrame> FFDecoderProtocol;
-        typedef MSMediaData<isDecode,AVFrame>::MSDecoderOutputData      FFDecoderOutputData;
-        typedef MSMediaData<isDecode,AVFrame>::MSDecoderOutputContent   FFDecoderOutputContent;
+        typedef MSMedia<isDecode,AVFrame>::MSDecoderOutputMedia FFDecoderOutputMedia;
         
         class FFDecoder : public FFDecoderProtocol {
             std::map<MSCodecID,FFCodecContext *> decoderContexts;
             
             const FFCodecContext & getDecoderContext(const MSCodecID codecID);
             
-            const FFDecoderOutputData * decodeData(const MSMediaData<isEncode> &data);
+            const FFDecoderOutputMedia * MSNullable decodeData(const MSMedia<isEncode> * MSNonnull const mediaData);
         public:
-            const FFDecoderOutputData * decodeVideo(const MSMediaData<isEncode> &videoData);
-            const FFDecoderOutputData * decodeAudio(const MSMediaData<isEncode> &audioData);
+            const FFDecoderOutputMedia * MSNullable decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData);
+            const FFDecoderOutputMedia * MSNullable decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData);
             FFDecoder();
             ~FFDecoder();
             
-            const FFCodecContext * findDecoderContext(MSCodecID codecID);
+            const FFCodecContext * MSNullable findDecoderContext(MSCodecID codecID);
         };
         
     }   

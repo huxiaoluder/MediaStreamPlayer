@@ -19,8 +19,7 @@ namespace MS {
     namespace FFmpeg {
       
         typedef MSSyncEncoderProtocol<AVFrame> FFEncoderProtocol;
-        typedef MSMediaData<isDecode,AVFrame>::MSEncoderInputData       FFEncoderInputData;
-        typedef MSMediaData<isDecode,AVFrame>::MSEncoderInputContent    FFEncoderInputContent;
+        typedef MSMedia<isDecode,AVFrame>::MSEncoderInputMedia FFEncoderInputMedia;
         
         class FFEncoder : public FFEncoderProtocol {
             
@@ -55,8 +54,8 @@ namespace MS {
             
         public:
             void beginEncode();
-            void encodeVideo(const FFEncoderInputData &pixelData);
-            void encodeAudio(const FFEncoderInputData &sampleData);
+            void encodeVideo(const FFEncoderInputMedia &pixelData);
+            void encodeAudio(const FFEncoderInputMedia &sampleData);
             void endEncode();
             bool isEncoding();
             

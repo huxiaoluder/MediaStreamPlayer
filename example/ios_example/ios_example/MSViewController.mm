@@ -31,14 +31,14 @@ using namespace MS::APhard;
 @implementation MSViewController
 
 static int i;
-static int j;
+//static int j;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     auto decoder = new FFDecoder();
     auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
     player = new MSPlayer<AVFrame>(decoder,encoder,
-                                   [&](const MSMediaData<isDecode,AVFrame> &data) {
+                                   [&](const MSMedia<isDecode,AVFrame> &data) {
 //                                       if (data.content) {
 //                                           cout
 //                                           << "video 播放: "
@@ -52,7 +52,7 @@ static int j;
 //                                           << endl;
 //                                       }
                                    },
-                                   [&](const MSMediaData<isDecode,AVFrame> &data) {
+                                   [&](const MSMedia<isDecode,AVFrame> &data) {
 //                                       if (data.content) {
 //                                           cout
 //                                           << "audio 播放: "
@@ -121,16 +121,14 @@ static int j;
 //    printf("--------------datalen: %d\n",dataLen);
     if (updateVideo) {
         if (headerMedia->stream_type == e_stream_type_H264) {
-            auto content = new MSContent<isEncode>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H264);
-            MSMediaData<isEncode> *data = new MSMediaData<isEncode>(content);
+            auto data = new MSMedia<isEncode>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H264);
             player->pushVideoStreamData(data);
         }
     }
     
     if (updateAudio) {
         if (headerMedia->stream_type == e_stream_type_AAC) {
-            auto content = new MSContent<isEncode>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
-            MSMediaData<isEncode> *data = new MSMediaData<isEncode>(content);
+            auto data = new MSMedia<isEncode>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
             player->pushAudioStreamData(data);
         }
     }

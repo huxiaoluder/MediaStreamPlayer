@@ -15,7 +15,7 @@
 		4F0A735721B7B3C6000E0E31 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A735621B7B3C6000E0E31 /* main.m */; };
 		4F0A736A21B7B462000E0E31 /* FFDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A736121B7B462000E0E31 /* FFDecoder.cpp */; };
 		4F0A736B21B7B462000E0E31 /* MSPlayer.hpp in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A736221B7B462000E0E31 /* MSPlayer.hpp */; };
-		4F0A736C21B7B462000E0E31 /* MSMediaData.hpp in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A736321B7B462000E0E31 /* MSMediaData.hpp */; };
+		4F0A736C21B7B462000E0E31 /* MSMedia.hpp in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A736321B7B462000E0E31 /* MSMedia.hpp */; };
 		4F0A736D21B7B462000E0E31 /* MSTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A736421B7B462000E0E31 /* MSTimer.cpp */; };
 		4F0A736E21B7B462000E0E31 /* FFEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A736521B7B462000E0E31 /* FFEncoder.cpp */; };
 		4F0A736F21B7B462000E0E31 /* FFCodecContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A736721B7B462000E0E31 /* FFCodecContext.cpp */; };
@@ -35,7 +35,7 @@
 		4F1707BA21D4B6C000CE476E /* APEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1707B021D3632300CE476E /* APEncoder.cpp */; };
 		4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085A21D5FC6400CE476E /* CoreMedia.framework */; };
 		4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085621D5FC3F00CE476E /* VideoToolbox.framework */; };
-		4F17085F21D6065D00CE476E /* MSBinaryData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F17085D21D6065D00CE476E /* MSBinaryData.cpp */; };
+		4F17085F21D6065D00CE476E /* MSBinary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F17085D21D6065D00CE476E /* MSBinary.cpp */; };
 		4F9ADF0321B7D02900862770 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEEF21B7D02900862770 /* libcrypto.a */; };
 		4F9ADF0421B7D02900862770 /* libpjlib-util.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF121B7D02900862770 /* libpjlib-util.a */; };
 		4F9ADF0521B7D02900862770 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF221B7D02900862770 /* libmxml.a */; };
@@ -71,7 +71,7 @@
 		4F0A736021B7B462000E0E31 /* MediaStreamPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MediaStreamPlayer.h; sourceTree = "<group>"; };
 		4F0A736121B7B462000E0E31 /* FFDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFDecoder.cpp; sourceTree = "<group>"; };
 		4F0A736221B7B462000E0E31 /* MSPlayer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MSPlayer.hpp; sourceTree = "<group>"; };
-		4F0A736321B7B462000E0E31 /* MSMediaData.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MSMediaData.hpp; sourceTree = "<group>"; };
+		4F0A736321B7B462000E0E31 /* MSMedia.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MSMedia.hpp; sourceTree = "<group>"; };
 		4F0A736421B7B462000E0E31 /* MSTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MSTimer.cpp; sourceTree = "<group>"; };
 		4F0A736521B7B462000E0E31 /* FFEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFEncoder.cpp; sourceTree = "<group>"; };
 		4F0A736621B7B462000E0E31 /* FFEncoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FFEncoder.hpp; sourceTree = "<group>"; };
@@ -88,6 +88,7 @@
 		4F0A740721B7BC4C000E0E31 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		4F0A740921B7C4A0000E0E31 /* MSViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSViewController.h; sourceTree = "<group>"; };
 		4F0A740A21B7C4A0000E0E31 /* MSViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MSViewController.mm; sourceTree = "<group>"; };
+		4F0E550221EF255900302D45 /* MSUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSUtils.h; sourceTree = "<group>"; };
 		4F17069A21D207BA00CE476E /* opus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opus.h; sourceTree = "<group>"; };
 		4F17069B21D207BA00CE476E /* opus_multistream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opus_multistream.h; sourceTree = "<group>"; };
 		4F17069C21D207BA00CE476E /* opus_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opus_types.h; sourceTree = "<group>"; };
@@ -212,8 +213,8 @@
 		4F17085621D5FC3F00CE476E /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		4F17085821D5FC5300CE476E /* MediaToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaToolbox.framework; path = System/Library/Frameworks/MediaToolbox.framework; sourceTree = SDKROOT; };
 		4F17085A21D5FC6400CE476E /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		4F17085D21D6065D00CE476E /* MSBinaryData.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSBinaryData.cpp; sourceTree = "<group>"; };
-		4F17085E21D6065D00CE476E /* MSBinaryData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSBinaryData.hpp; sourceTree = "<group>"; };
+		4F17085D21D6065D00CE476E /* MSBinary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSBinary.cpp; sourceTree = "<group>"; };
+		4F17085E21D6065D00CE476E /* MSBinary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSBinary.hpp; sourceTree = "<group>"; };
 		4F1DA55E21CCE5D6000EFE53 /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transcoding.c; sourceTree = "<group>"; };
 		4F9ADEEF21B7D02900862770 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		4F9ADEF021B7D02900862770 /* iot_comm.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iot_comm.pb.h; sourceTree = "<group>"; };
@@ -244,7 +245,7 @@
 		4FB2AA7F21D0E8C500FE6A07 /* aacenc_lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aacenc_lib.h; sourceTree = "<group>"; };
 		4FB2AA8021D0E8C500FE6A07 /* genericStds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = genericStds.h; sourceTree = "<group>"; };
 		4FB2AA8121D0E8C500FE6A07 /* FDK_audio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDK_audio.h; sourceTree = "<group>"; };
-		4FF055DD21DC53AD00339CDF /* MSAsynDataProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSAsynDataProtocol.h; sourceTree = "<group>"; };
+		4FF055DD21DC53AD00339CDF /* MSAsynDataReceiver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSAsynDataReceiver.h; sourceTree = "<group>"; };
 		4FF055DF21DC936700339CDF /* MSCodecAsynProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSCodecAsynProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -331,13 +332,14 @@
 			isa = PBXGroup;
 			children = (
 				4F0A736021B7B462000E0E31 /* MediaStreamPlayer.h */,
+				4F0E550221EF255900302D45 /* MSUtils.h */,
 				4F0A735E21B7B462000E0E31 /* MSCodecSyncProtocol.h */,
 				4FF055DF21DC936700339CDF /* MSCodecAsynProtocol.h */,
-				4FF055DD21DC53AD00339CDF /* MSAsynDataProtocol.h */,
+				4FF055DD21DC53AD00339CDF /* MSAsynDataReceiver.h */,
 				4F0A736221B7B462000E0E31 /* MSPlayer.hpp */,
-				4F0A736321B7B462000E0E31 /* MSMediaData.hpp */,
-				4F17085E21D6065D00CE476E /* MSBinaryData.hpp */,
-				4F17085D21D6065D00CE476E /* MSBinaryData.cpp */,
+				4F0A736321B7B462000E0E31 /* MSMedia.hpp */,
+				4F17085E21D6065D00CE476E /* MSBinary.hpp */,
+				4F17085D21D6065D00CE476E /* MSBinary.cpp */,
 				4F0A736921B7B462000E0E31 /* MSTimer.hpp */,
 				4F0A736421B7B462000E0E31 /* MSTimer.cpp */,
 				4F0A735F21B7B462000E0E31 /* FFCodecContext.hpp */,
@@ -774,7 +776,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F0A735421B7B3C6000E0E31 /* LaunchScreen.storyboard in Resources */,
-				4F0A736C21B7B462000E0E31 /* MSMediaData.hpp in Resources */,
+				4F0A736C21B7B462000E0E31 /* MSMedia.hpp in Resources */,
 				4F0A736B21B7B462000E0E31 /* MSPlayer.hpp in Resources */,
 				4F0A735121B7B3C6000E0E31 /* Assets.xcassets in Resources */,
 				4F0A734F21B7B3C4000E0E31 /* Main.storyboard in Resources */,
@@ -798,7 +800,7 @@
 				4F0A735721B7B3C6000E0E31 /* main.m in Sources */,
 				4F9ADF1621B7D12F00862770 /* IotlibTool.m in Sources */,
 				4F0A734921B7B3C4000E0E31 /* AppDelegate.m in Sources */,
-				4F17085F21D6065D00CE476E /* MSBinaryData.cpp in Sources */,
+				4F17085F21D6065D00CE476E /* MSBinary.cpp in Sources */,
 				4F1707B821D3785800CE476E /* APCodecContext.cpp in Sources */,
 				4F1707BA21D4B6C000CE476E /* APEncoder.cpp in Sources */,
 			);

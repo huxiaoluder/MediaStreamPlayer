@@ -18,8 +18,8 @@ extern "C" {
 }
 #pragma clang diagnostic pop
 
-#include "MSMediaData.hpp"
-#include "MSBinaryData.hpp"
+#include "MSMedia.hpp"
+#include "MSBinary.hpp"
 #include "MSCodecAsynProtocol.h"
 
 namespace MS {
@@ -28,7 +28,7 @@ namespace MS {
         typedef UInt32  APCodecID;
         typedef bool    IsVideoCodec;
         typedef tuple<APCodecID,IsVideoCodec> APCodecInfo;
-        typedef MSAsynDecoderProtocol<__CVBuffer> APOutputDataSender;
+        typedef MSAsynDecoderProtocol<__CVBuffer> APAsynDataSender;
 
         enum APCodecType {
             APCodecDecoder,
@@ -38,7 +38,7 @@ namespace MS {
         struct APCodecContext {
             const APCodecType codecType;
             const MSCodecID codecID;
-            const APOutputDataSender &asynDataSender;
+            const APAsynDataSender &asynDataSender;
             
             AudioConverterRef           const _Nullable audioConvert;
             VTCompressionSessionRef     const _Nullable videoEncodeSession;
@@ -46,13 +46,13 @@ namespace MS {
             
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,
-                           const APOutputDataSender &asynDataSender);
+                           const APAsynDataSender &asynDataSender);
             
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,
-                           const MSBinaryData &spsData,
-                           const MSBinaryData &ppsData,
-                           const APOutputDataSender &asynDataSender);
+                           const MSBinary &spsData,
+                           const MSBinary &ppsData,
+                           const APAsynDataSender &asynDataSender);
             
             ~APCodecContext();
             
@@ -63,7 +63,7 @@ namespace MS {
             
             AudioConverterRef           _Nullable   initAudioConvert();
             VTCompressionSessionRef     _Nullable   initVideoEncodeSession();
-            VTDecompressionSessionRef   _Nullable   initVideoDecodeSession(const MSBinaryData &spsData, const MSBinaryData &ppsData);
+            VTDecompressionSessionRef   _Nullable   initVideoDecodeSession(const MSBinary &spsData, const MSBinary &ppsData);
         };
 
     }

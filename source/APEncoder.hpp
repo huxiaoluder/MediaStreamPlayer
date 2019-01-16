@@ -16,15 +16,14 @@ namespace MS {
     namespace APhard {
         
         typedef MSSyncEncoderProtocol<__CVBuffer> APEncoderProtocol;
-        typedef MSMediaData<isDecode,__CVBuffer>::MSEncoderInputData    APEncoderInputData;
-        typedef MSMediaData<isDecode,__CVBuffer>::MSEncoderInputContent APEncoderInputContent;
+        typedef MSMedia<isDecode,__CVBuffer>::MSEncoderInputMedia APEncoderInputMedia;
 
         class APEncoder : public APEncoderProtocol {
     
         public:
             void beginEncode();
-            void encodeVideo(const APEncoderInputData &pixelData);
-            void encodeAudio(const APEncoderInputData &sampleData);
+            void encodeVideo(const APEncoderInputMedia &pixelData);
+            void encodeAudio(const APEncoderInputMedia &sampleData);
             void endEncode();
             bool isEncoding();
             

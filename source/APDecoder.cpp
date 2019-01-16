@@ -12,23 +12,24 @@ using namespace MS;
 using namespace MS::APhard;
 
 void
-APDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
-    APCodecContext * const decoderContext = getDecoderContext(videoData.content->codecID,videoData);
+APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
+    const MSMedia<isEncode> &data = *videoData;
+    APCodecContext * const decoderContext = getDecoderContext(data.codecID, data);
     
     if (decoderContext) {
         CMBlockBufferRef blockBuffer = nullptr;
         CMSampleBufferRef sampleBuffer = nullptr;
         
-        size_t sampleSizeArray[] = {videoData.content->size};
+        size_t sampleSizeArray[] = {data.size};
         
-#warning 每次 CMBlockBuffer 自动生成了流数据副本,不影响外界释放(反复拷贝、释放, 会损耗性能, 待优化策略: 创建内存缓冲池)
         CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
-                                           videoData.content->packt,
-                                           videoData.content->size,
-                                           kCFAllocatorDefault,
-                                           nullptr, 0,
-                                           videoData.content->size,
-                                           kCMBlockBufferAssureMemoryNowFlag,
+                                           data.content,
+                                           data.size,
+                                           blockAllocator, // 传入 nullptr, 将使用默认分配器 kCFAllocatorDefault.
+                                           nullptr, // 该结构参数将自定义内存分配和释放, 如果不为 nullptr, blockAllocator 参数将被忽略
+                                           0,
+                                           data.size,
+                                           bufferFlags,// 传入 NULL 则该函数不会对传入数据重新分配空间.
                                            &blockBuffer);
         
         CMSampleBufferCreateReady(kCFAllocatorDefault,
@@ -42,19 +43,24 @@ APDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
         
         VTDecompressionSessionDecodeFrame(decoderContext->videoDecodeSession,
                                           sampleBuffer,
-                                          kVTDecodeFrame_EnableAsynchronousDecompression,
-                                          nullptr,
+                                          decodeFlags,// 传入 NULL 则该函数会阻塞到回调函数返回后才返回.
+                                          (void *)videoData,// 附带参数, 会透传到回调函数
                                           &infoFlagsOut);
+    } else {
+        ErrorLocationLog("not surport The codec");
+        delete videoData;
     }
 }
 
 void
-APDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
+APDecoder::decodeAudio(const MSMedia<isEncode> * const audioData) {
     
 }
 
-APDecoder::APDecoder(MSAsynDataProtocol<__CVBuffer> &asynDataHandle)
-:APDecoderProtocol(asynDataHandle, (void *)decompressionOutputCallback) {
+APDecoder::APDecoder(const MSAsynDataReceiver<__CVBuffer> &asynDataHandle,
+                     const VTDecodeFrameFlags decodeFlags)
+:APDecoderProtocol(asynDataHandle, (void *)decompressionOutputCallback),
+decodeFlags(decodeFlags), bufferFlags(initBufferFlags()), blockAllocator(initBlockAllocator()) {
 
 }
 
@@ -62,16 +68,32 @@ APDecoder::~APDecoder() {
     
 }
 
+CMBlockBufferFlags
+APDecoder::initBufferFlags() {
+    if (decodeFlags) {
+        return kCMBlockBufferAssureMemoryNowFlag;
+    }
+    return NULL;
+}
+
+CFAllocatorRef
+APDecoder::initBlockAllocator() {
+    if (bufferFlags) {
+        return kCFAllocatorDefault;
+    }
+    return kCFAllocatorNull;
+}
+
 APCodecContext *
 APDecoder::getDecoderContext(const MSCodecID codecID,
-                             const MSMediaData<isEncode> &sourceData) {
+                             const MSMedia<isEncode> &sourceData) {
     APCodecContext *decoderContext = decoderContexts[codecID];
-    if (!decoderContext && sourceData.content->isKeyFrame) {
+    if (!decoderContext && sourceData.isKeyFrame) {
         
         
         
-        MSBinaryData spsData(nullptr,0);
-        MSBinaryData ppsData(nullptr,0);
+        MSBinary spsData(nullptr,0);
+        MSBinary ppsData(nullptr,0);
         decoderContext = new APCodecContext(APCodecDecoder, codecID,
                                             spsData, ppsData, *this);
         decoderContexts[codecID] = decoderContext;
@@ -87,17 +109,20 @@ APDecoder::decompressionOutputCallback(void * _Nullable decompressionOutputRefCo
                                        CVImageBufferRef _Nullable imageBuffer,
                                        CMTime presentationTimeStamp,
                                        CMTime presentationDuration) {
-    CVBufferRef retainBuffer = CVBufferRetain(imageBuffer);
-
-    APAsynDataProtocol &receiver = *(APAsynDataProtocol *)decompressionOutputRefCon;
-
-    microseconds timeInterval = microseconds(presentationDuration.value * 1000000L / presentationDuration.timescale);
-    
-    APDecoderOutputContent *content = new APDecoderOutputContent(retainBuffer,
+    if (status == noErr && imageBuffer) {
+        CVBufferRef retainBuffer = CVBufferRetain(imageBuffer);
+        
+        APAsynDataReceiver &receiver = *(APAsynDataReceiver *)decompressionOutputRefCon;
+        
+        microseconds timeInterval = microseconds(presentationDuration.value * 1000000L / presentationDuration.timescale);
+        
+        receiver.asynPushVideoFrameData(new APDecoderOutputMeida(retainBuffer,
                                                                  timeInterval,
+                                                                 (MSMedia<isEncode> *)sourceFrameRefCon,
                                                                  CVBufferRelease,
-                                                                 CVBufferRetain);
-
-    receiver.asynPushVideoFrameData(new APDecoderOutputData(content));
+                                                                 CVBufferRetain));
+    } else {
+        delete (MSMedia<isEncode> *)sourceFrameRefCon;
+    }
 };
 

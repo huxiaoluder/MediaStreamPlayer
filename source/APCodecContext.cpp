@@ -13,7 +13,7 @@ using namespace MS::APhard;
 
 APCodecContext::APCodecContext(const APCodecType codecType,
                                const MSCodecID codecID,
-                               const APOutputDataSender &asynDataSender)
+                               const APAsynDataSender &asynDataSender)
 :codecType(codecType),
 codecID(codecID),
 asynDataSender(asynDataSender),
@@ -25,9 +25,9 @@ videoEncodeSession(nullptr) {
 
 APCodecContext::APCodecContext(const APCodecType codecType,
                                const MSCodecID codecID,
-                               const MSBinaryData &spsData,
-                               const MSBinaryData &ppsData,
-                               const APOutputDataSender &asynDataSender)
+                               const MSBinary &spsData,
+                               const MSBinary &ppsData,
+                               const APAsynDataSender &asynDataSender)
 :codecType(codecType),
 codecID(codecID),
 asynDataSender(asynDataSender),
@@ -52,7 +52,7 @@ APCodecContext::initVideoEncodeSession() {
 }
 
 VTDecompressionSessionRef
-APCodecContext::initVideoDecodeSession(const MSBinaryData &spsData, const MSBinaryData &ppsData) {
+APCodecContext::initVideoDecodeSession(const MSBinary &spsData, const MSBinary &ppsData) {
     APCodecInfo codecInfo = getAPCodecInfo(codecID);
     IsVideoCodec isVideoCodec   = get<1>(codecInfo);
     
@@ -88,7 +88,7 @@ APCodecContext::initVideoDecodeSession(const MSBinaryData &spsData, const MSBina
         
         VTDecompressionOutputCallbackRecord outputCallback;
         outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataSender.asynCallBack();
-        outputCallback.decompressionOutputRefCon = &asynDataSender.asynDataReceiver();
+        outputCallback.decompressionOutputRefCon = (void *)&asynDataSender.asynDataReceiver();
 
         status = VTDecompressionSessionCreate(kCFAllocatorDefault,
                                               formatDescription,

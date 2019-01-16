@@ -20,7 +20,7 @@ extern "C" {
 }
 #pragma clang diagnostic pop
 
-#include "MSMediaData.hpp"
+#include "MSMedia.hpp"
 
 namespace MS {
     namespace FFmpeg {

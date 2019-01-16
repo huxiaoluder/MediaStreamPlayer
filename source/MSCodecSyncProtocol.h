@@ -9,7 +9,7 @@
 #ifndef MSCodecSyncProtocol_h
 #define MSCodecSyncProtocol_h
 
-#include "MSMediaData.hpp"
+#include "MSMedia.hpp"
 
 namespace MS {
     
@@ -18,8 +18,8 @@ namespace MS {
     class MSSyncDecoderProtocol {
     public:
         virtual ~MSSyncDecoderProtocol() {};
-        virtual const typename MSMediaData<isDecode,T>::MSDecoderOutputData * decodeVideo(const MSMediaData<isEncode> &videoData) = 0;
-        virtual const typename MSMediaData<isDecode,T>::MSDecoderOutputData * decodeAudio(const MSMediaData<isEncode> &audioData) = 0;
+        virtual const typename MSMedia<isDecode,T>::MSDecoderOutputMedia * MSNullable decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData) = 0;
+        virtual const typename MSMedia<isDecode,T>::MSDecoderOutputMedia * MSNullable decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData) = 0;
     };
     
     template <typename T,
@@ -28,8 +28,8 @@ namespace MS {
     public:
         virtual ~MSSyncEncoderProtocol() {};
         virtual void beginEncode() = 0;
-        virtual void encodeVideo(const typename MSMediaData<isDecode,T>::MSEncoderInputData &pixelData) = 0;
-        virtual void encodeAudio(const typename MSMediaData<isDecode,T>::MSEncoderInputData &sampleData) = 0;
+        virtual void encodeVideo(const typename MSMedia<isDecode,T>::MSEncoderInputMedia &pixelData) = 0;
+        virtual void encodeAudio(const typename MSMedia<isDecode,T>::MSEncoderInputMedia &sampleData) = 0;
         virtual void endEncode() = 0;
         virtual bool isEncoding() = 0;
     };

@@ -11,13 +11,13 @@
 using namespace std;
 using namespace MS::FFmpeg;
 
-const FFDecoderOutputData *
-FFDecoder::decodeVideo(const MSMediaData<isEncode> &videoData) {
+const FFDecoderOutputMedia *
+FFDecoder::decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData) {
     return decodeData(videoData);
 }
 
-const FFDecoderOutputData *
-FFDecoder::decodeAudio(const MSMediaData<isEncode> &audioData) {
+const FFDecoderOutputMedia *
+FFDecoder::decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData) {
     return decodeData(audioData);
 }
 
@@ -43,9 +43,10 @@ FFDecoder::getDecoderContext(const MSCodecID codecID) {
     return *decoderContext;
 }
 
-const FFDecoderOutputData *
-FFDecoder::decodeData(const MSMediaData<isEncode> &data) {
-    const FFCodecContext &decoderContext = getDecoderContext(data.content->codecID);
+const FFDecoderOutputMedia *
+FFDecoder::decodeData(const MSMedia<isEncode> * const mediaData) {
+    const MSMedia<isEncode> &data = *mediaData;
+    const FFCodecContext &decoderContext = getDecoderContext(data.codecID);
     AVCodecContext *codec_ctx = decoderContext.codec_ctx;
     
     AVPacket packet{
@@ -54,42 +55,41 @@ FFDecoder::decodeData(const MSMediaData<isEncode> &data) {
     };
     av_init_packet(&packet);
     
-    packet.data = data.content->packt;
-    packet.size = static_cast<int>(data.content->size);
+    packet.data = data.content;
+    packet.size = static_cast<int>(data.size);
     
     AVFrame * const frame = av_frame_alloc();
     
     int ret = avcodec_send_packet(codec_ctx, &packet);
     if (ret < 0) {
-        printf("error: %s\n",av_err2str(ret));
-        ErrorLocationLog;
+        ErrorLocationLog(av_err2str(ret));
         av_packet_unref(&packet);
+        delete mediaData;
         return nullptr;
     }
     ret = avcodec_receive_frame(codec_ctx, frame);
     if (ret < 0) {
-        printf("error: %s\n",av_err2str(ret));
-        ErrorLocationLog;
+        ErrorLocationLog(av_err2str(ret));
         av_packet_unref(&packet);
+        delete mediaData;
         return nullptr;
     }
     
     int rate = 0;
     
-    if (data.content->codecID <= MSCodecID_HEVC) {
+    if (data.codecID <= MSCodecID_HEVC) {
         rate = codec_ctx->framerate.num / codec_ctx->framerate.den;
     } else {
         rate = codec_ctx->sample_rate / frame->nb_samples;
     }
     
-    FFDecoderOutputContent *content = new FFDecoderOutputContent(frame,
-                                                                 intervale(rate),
-                                                                 av_frame_free,
-                                                                 av_frame_clone);
-    
     av_packet_unref(&packet);
     
-    return new FFDecoderOutputData(content);
+    return new FFDecoderOutputMedia(frame,
+                                    intervale(rate),
+                                    mediaData,
+                                    av_frame_free,
+                                    av_frame_clone);
 }
 
 const FFCodecContext * 
