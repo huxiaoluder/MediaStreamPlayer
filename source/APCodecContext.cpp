@@ -25,14 +25,13 @@ videoEncodeSession(nullptr) {
 
 APCodecContext::APCodecContext(const APCodecType codecType,
                                const MSCodecID codecID,
-                               const MSBinary &spsData,
-                               const MSBinary &ppsData,
+                               const MSNaluParts &naluParts,
                                const APAsynDataSender &asynDataSender)
 :codecType(codecType),
 codecID(codecID),
 asynDataSender(asynDataSender),
 audioConvert(initAudioConvert()),
-videoDecodeSession(initVideoDecodeSession(spsData,ppsData)),
+videoDecodeSession(initVideoDecodeSession(naluParts)),
 videoEncodeSession(initVideoEncodeSession()) {
     
 }
@@ -52,7 +51,7 @@ APCodecContext::initVideoEncodeSession() {
 }
 
 VTDecompressionSessionRef
-APCodecContext::initVideoDecodeSession(const MSBinary &spsData, const MSBinary &ppsData) {
+APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
     APCodecInfo codecInfo = getAPCodecInfo(codecID);
     IsVideoCodec isVideoCodec   = get<1>(codecInfo);
     
@@ -62,8 +61,9 @@ APCodecContext::initVideoDecodeSession(const MSBinary &spsData, const MSBinary &
     if (codecType == APCodecDecoder && isVideoCodec) {
         OSStatus status;
         
-        uint8_t *datas[] = {spsData.bytes, ppsData.bytes};
-        size_t lengths[] = {spsData.size,  ppsData.size};
+        // MSBinary, 此处直接使用 sps, pps 内存引用, 未替换 标志符为 length.(待测试)
+        const uint8_t *datas[] = {naluParts.spsRef(),  naluParts.ppsRef()};
+        const size_t lengths[] = {naluParts.spsSize(), naluParts.ppsSize()};
         
         if (codecID == MSCodecID_H264) {
             status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
@@ -82,7 +82,7 @@ APCodecContext::initVideoDecodeSession(const MSBinary &spsData, const MSBinary &
         }
     
         if (status != noErr) {
-            printf("fail to instance CMFormatDescriptionRef, error code: %d\n", (int)status);
+            ErrorLocationLog("fail to instance CMFormatDescriptionRef");
             return nullptr;
         }
         
@@ -98,7 +98,7 @@ APCodecContext::initVideoDecodeSession(const MSBinary &spsData, const MSBinary &
                                               &videoDecoderSession);
         
         if (status != noErr) {
-            printf("fail to instance VTDecompressionSessionRef, error code: %d\n", (int)status);
+            ErrorLocationLog("fail to instance VTDecompressionSessionRef");
             return nullptr;
         }
     }

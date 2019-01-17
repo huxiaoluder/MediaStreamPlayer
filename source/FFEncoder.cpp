@@ -21,14 +21,14 @@ FFEncoder::beginEncode() {
     
     int ret = avio_open(&outputFormatContext->pb, filePath.c_str(), AVIO_FLAG_READ_WRITE);
     if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
         releaseEncoderConfiguration();
         return;
     }
     
     ret = avformat_write_header(outputFormatContext, nullptr);
     if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
         releaseEncoderConfiguration();
         return;
     }
@@ -79,7 +79,7 @@ FFEncoder::endEncode() {
     int ret = av_write_trailer(outputFormatContext);
     fileWriteMutex.unlock();
     if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
     }
     releaseEncoderConfiguration();
 }
@@ -132,7 +132,7 @@ FFEncoder::configureOutputFormatContext() {
     AVFormatContext *outputFormatContext = nullptr;
     int ret = avformat_alloc_output_context2(&outputFormatContext, nullptr, nullptr, filePath.c_str());
     if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
         return nullptr;
     }
     
@@ -173,7 +173,7 @@ FFEncoder::configureVideoEncoderContext(const FFCodecContext &videoDecoderContex
     
     int ret = avcodec_open2(&encoderContext, videoEncoderContext->codec, &dict);
     if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
         return nullptr;
     }
     
@@ -183,7 +183,7 @@ FFEncoder::configureVideoEncoderContext(const FFCodecContext &videoDecoderContex
     
     ret = avcodec_parameters_from_context(outStream.codecpar, &encoderContext);
     if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
         return nullptr;
     }
     outStream.time_base = encoderContext.time_base;
@@ -219,8 +219,7 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     
     int ret = avcodec_open2(&encoderContext, audioEncoderContext->codec, nullptr);
     if (ret < 0) {
-        printf("Encoder Configuration: %s\n",avformat_configuration());
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
         return nullptr;
     }
     
@@ -228,7 +227,7 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     
     ret = avcodec_parameters_from_context(outStream.codecpar, &encoderContext);
     if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
         return nullptr;
     }
     outStream.time_base = encoderContext.time_base;
@@ -268,13 +267,13 @@ FFEncoder::encodeData(AVFrame * const frame,
     
     int ret = avcodec_send_frame(encoderContext, frame);
     if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
         return;
     }
     
     ret = avcodec_receive_packet(encoderContext, &packet);
     if (ret < 0) {
-        printf("Encoder error: %s\n",av_err2str(ret));
+        ErrorLocationLog(av_err2str(ret));
         return;
     }
     
@@ -286,7 +285,7 @@ FFEncoder::encodeData(AVFrame * const frame,
         ret = av_interleaved_write_frame(outputFormatContext, &packet);
         fileWriteMutex.unlock();
         if (ret < 0) {
-            printf("Encoder error: %s\n",av_err2str(ret));
+            ErrorLocationLog(av_err2str(ret));
         }
     }
 }

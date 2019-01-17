@@ -26,17 +26,17 @@
 #if DEBUG
 
 #define ErrorLocationLog(reson) \
-printf( "-----------------------ERROR----------------------\n"\
-"| filename:    %s\n"\
+printf("-----------------------ERROR-----------------------\n"\
+"| filepath:    %s\n"\
 "| linenumber:  %d\n"\
 "| funcname:    %s\n"\
 "| reson:       %s\n"\
-"--------------------------------------------------\n",__FILE__,__LINE__,__func__,reson)
+"---------------------------------------------------\n",__FILE__,__LINE__,__func__,reson)
 
 #endif
 
 namespace MS {
-    
+ 
 }
 
 #endif /* MSUtils_h */

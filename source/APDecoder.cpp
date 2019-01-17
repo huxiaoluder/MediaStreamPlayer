@@ -20,16 +20,16 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         CMBlockBufferRef blockBuffer = nullptr;
         CMSampleBufferRef sampleBuffer = nullptr;
         
-        size_t sampleSizeArray[] = {data.size};
+        size_t sampleSizeArray[] = {data.naluSize};
         
         CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
-                                           data.content,
-                                           data.size,
+                                           data.nalUnit,
+                                           data.naluSize,
                                            blockAllocator, // 传入 nullptr, 将使用默认分配器 kCFAllocatorDefault.
                                            nullptr, // 该结构参数将自定义内存分配和释放, 如果不为 nullptr, blockAllocator 参数将被忽略
                                            0,
-                                           data.size,
-                                           bufferFlags,// 传入 NULL 则该函数不会对传入数据重新分配空间.
+                                           data.naluSize,
+                                           bufferFlags, // 传入 NULL 则该函数不会对传入数据重新分配空间.
                                            &blockBuffer);
         
         CMSampleBufferCreateReady(kCFAllocatorDefault,
@@ -43,8 +43,8 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         
         VTDecompressionSessionDecodeFrame(decoderContext->videoDecodeSession,
                                           sampleBuffer,
-                                          decodeFlags,// 传入 NULL 则该函数会阻塞到回调函数返回后才返回.
-                                          (void *)videoData,// 附带参数, 会透传到回调函数
+                                          decodeFlags, // 传入 NULL 则该函数会阻塞到回调函数返回后才返回.
+                                          (void *)videoData, // 附带参数, 会透传到回调函数
                                           &infoFlagsOut);
     } else {
         ErrorLocationLog("not surport The codec");
@@ -90,23 +90,19 @@ APDecoder::getDecoderContext(const MSCodecID codecID,
     APCodecContext *decoderContext = decoderContexts[codecID];
     if (!decoderContext && sourceData.isKeyFrame) {
         
-        
-        
-        MSBinary spsData(nullptr,0);
-        MSBinary ppsData(nullptr,0);
         decoderContext = new APCodecContext(APCodecDecoder, codecID,
-                                            spsData, ppsData, *this);
+                                            *sourceData.naluParts(), *this);
         decoderContexts[codecID] = decoderContext;
     }
     return decoderContext;
 }
 
 void
-APDecoder::decompressionOutputCallback(void * _Nullable decompressionOutputRefCon,
-                                       void * _Nullable sourceFrameRefCon,
+APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefCon,
+                                       void * MSNullable sourceFrameRefCon,
                                        OSStatus status,
                                        VTDecodeInfoFlags infoFlags,
-                                       CVImageBufferRef _Nullable imageBuffer,
+                                       CVImageBufferRef MSNullable imageBuffer,
                                        CMTime presentationTimeStamp,
                                        CMTime presentationDuration) {
     if (status == noErr && imageBuffer) {

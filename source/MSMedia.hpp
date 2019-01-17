@@ -13,7 +13,8 @@
 #include <cstring>
 #include <functional>
 #include <type_traits>
-#include "MSUtils.h"
+#include "MSNaluParts.hpp"
+#include "MSBinary.hpp"
 
 namespace MS {
     
@@ -44,44 +45,59 @@ namespace MS {
 #pragma mark - typeTraits: MSMedia<isEncode,uint8_t>
     template <>
     struct MSMedia<isEncode, uint8_t> {
-        // content data by encoder or from network source, free by player
-        uint8_t * MSNonnull const content;
+        // nalUnit data by encoder or from network source, free by player
+        uint8_t * MSNonnull const nalUnit;
         
-        // content data size
-        const size_t size;
+        // nalUnit data size
+        const size_t naluSize;
         
-        // frame type
+        // nalUnit picture type
         const bool isKeyFrame;
         
-        // packt data's encode ID
+        // pictrue's encoder ID
         const MSCodecID codecID;
         
-        MSMedia(uint8_t * MSNonnull const packt,
+        MSMedia(uint8_t * MSNonnull const nalUnit,
                 const size_t size,
                 const bool isKeyFrame,
                 const MSCodecID codecID)
-        :content(new uint8_t[size]),
-        size(size),
+        :nalUnit(new uint8_t[size]),
+        naluSize(size),
         isKeyFrame(isKeyFrame),
         codecID(codecID) {
-            memcpy(this->content, packt, size);
+            memcpy(this->nalUnit, nalUnit, size);
         }
         
         MSMedia(const MSMedia &media)
-        :content(new uint8_t[media.size]),
-        size(media.size),
+        :nalUnit(new uint8_t[media.naluSize]),
+        naluSize(media.naluSize),
         isKeyFrame(media.isKeyFrame),
         codecID(media.codecID) {
-            memcpy(content, media.content, size);
+            memcpy(nalUnit, media.nalUnit, naluSize);
         }
         
         ~MSMedia() {
-            delete[] content;
+            if (_naluParts) {
+                delete _naluParts;
+            }
+            delete[] nalUnit;
         }
         
         MSMedia * MSNonnull clone() {
             return new MSMedia(*this);
         }
+        
+        // Note: only I frame can return naluParts and enforce changed naluParts value
+        const MSNaluParts * MSNullable naluParts() const {
+            if (isKeyFrame) {
+                auto naluParts = const_cast<MSNaluParts **>(&_naluParts);
+                *naluParts = new MSNaluParts(nalUnit, naluSize);
+            }
+            return _naluParts;
+        }
+        
+    private:
+        const MSNaluParts * MSNullable _naluParts = nullptr;
     };
     
 #pragma mark - typeTraits: MSMedia<isDecode, CT>

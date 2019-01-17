@@ -56,9 +56,9 @@ FFCodecContext::initCodecContext() {
         int ret = avcodec_open2(codec_ctx, codec, nullptr);
         
         if (ret < 0) {
-            printf("error: %s\n",av_err2str(ret));
-            assert(ret == 0);
+            ErrorLocationLog(av_err2str(ret));
         }
+        assert(ret == 0);
     }
     
     return codec_ctx;
