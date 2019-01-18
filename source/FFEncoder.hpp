@@ -18,8 +18,8 @@
 namespace MS {
     namespace FFmpeg {
       
-        typedef MSSyncEncoderProtocol<AVFrame> FFEncoderProtocol;
-        typedef MSMedia<isDecode,AVFrame>::MSEncoderInputMedia FFEncoderInputMedia;
+        typedef MSSyncEncoderProtocol<AVFrame>  FFEncoderProtocol;
+        typedef MSMedia<isDecode,AVFrame>       FFEncoderInputMedia;
         
         class FFEncoder : public FFEncoderProtocol {
             

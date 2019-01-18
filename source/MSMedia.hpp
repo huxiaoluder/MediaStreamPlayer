@@ -103,9 +103,6 @@ namespace MS {
 #pragma mark - typeTraits: MSMedia<isDecode, CT>
     template <typename CT>
     struct MSMedia<isDecode, CT> {
-        typedef MSMedia<isDecode,CT> MSDecoderOutputMedia;
-        typedef MSMedia<isDecode,CT> MSEncoderInputMedia;
-        
         // frame data by user's decoder decoded, free by player
         CT * MSNonnull const frame;
         

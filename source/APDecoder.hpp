@@ -15,10 +15,10 @@
 
 namespace MS {
     namespace APhard {
-    
+        
         typedef MSAsynDecoderProtocol<__CVBuffer>   APDecoderProtocol;
         typedef MSAsynDataReceiver<__CVBuffer>      APAsynDataReceiver;
-        typedef MSMedia<isDecode,__CVBuffer>::MSDecoderOutputMedia APDecoderOutputMeida;
+        typedef MSMedia<isDecode,__CVBuffer>        APDecoderOutputMeida;
         
         class APDecoder : public APDecoderProtocol {
             std::map<MSCodecID,APCodecContext *> decoderContexts;
@@ -27,7 +27,7 @@ namespace MS {
             
             const CMBlockBufferFlags bufferFlags;
             
-            const CFAllocatorRef _Nonnull blockAllocator;
+            const CFAllocatorRef MSNonnull blockAllocator;
             
             /**
              be related by decodeFlags,
@@ -42,28 +42,28 @@ namespace MS {
              be related by bufferFlags,
              if bufferFlags == NULL, decoder do not realloc memery for source data, so needn't the allocator.
              */
-            CFAllocatorRef _Nonnull initBlockAllocator();
+            CFAllocatorRef MSNonnull initBlockAllocator();
             
-            APCodecContext * _Nullable getDecoderContext(const MSCodecID codecID,
-                                                         const MSMedia<isEncode> &sourceData);
+            APCodecContext * MSNullable getDecoderContext(const MSCodecID codecID,
+                                                          const MSMedia<isEncode> &sourceData);
             
         public:
-            void decodeVideo(const MSMedia<isEncode> * _Nonnull const videoData);
-            void decodeAudio(const MSMedia<isEncode> * _Nonnull const audioData);
+            void decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData);
+            void decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData);
             
             /**
              if decodeFlags == NULL, the decoder still decode source data synchronously.
              if decodeFlags != NULL, the decoder will decode source data asynchronously.
              */
-            APDecoder(const MSAsynDataReceiver<__CVBuffer> &asynDataHandle,
+            APDecoder(const APAsynDataReceiver &asynDataReceiver,
                       const VTDecodeFrameFlags decodeFlags = NULL);
             ~APDecoder();
             
-            static void decompressionOutputCallback(void * _Nullable decompressionOutputRefCon,
-                                                    void * _Nullable sourceFrameRefCon,
+            static void decompressionOutputCallback(void * MSNullable decompressionOutputRefCon,
+                                                    void * MSNullable sourceFrameRefCon,
                                                     OSStatus status,
                                                     VTDecodeInfoFlags infoFlags,
-                                                    CVImageBufferRef _Nullable imageBuffer,
+                                                    CVImageBufferRef MSNullable imageBuffer,
                                                     CMTime presentationTimeStamp,
                                                     CMTime presentationDuration);
         };

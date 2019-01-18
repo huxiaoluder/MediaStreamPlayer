@@ -526,7 +526,6 @@ namespace MS {
                 }
                 delete frameData;
             } else {
-                this->throwDecodeVideo(MSMedia<isDecode,T>::defaultNullData);
                 videoThreadCondition.notify_one();
             }
         });
@@ -552,7 +551,6 @@ namespace MS {
                 }
                 delete frameData;
             } else {
-                this->throwDecodeAudio(MSMedia<isDecode,T>::defaultNullData);
                 audioThreadCondition.notify_one();
             }
         });

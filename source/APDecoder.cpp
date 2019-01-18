@@ -57,9 +57,9 @@ APDecoder::decodeAudio(const MSMedia<isEncode> * const audioData) {
     
 }
 
-APDecoder::APDecoder(const MSAsynDataReceiver<__CVBuffer> &asynDataHandle,
+APDecoder::APDecoder(const APAsynDataReceiver &asynDataReceiver,
                      const VTDecodeFrameFlags decodeFlags)
-:APDecoderProtocol(asynDataHandle, (void *)decompressionOutputCallback),
+:APDecoderProtocol(asynDataReceiver, (void *)decompressionOutputCallback),
 decodeFlags(decodeFlags), bufferFlags(initBufferFlags()), blockAllocator(initBlockAllocator()) {
 
 }
@@ -108,15 +108,15 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
     if (status == noErr && imageBuffer) {
         CVBufferRef retainBuffer = CVBufferRetain(imageBuffer);
         
-        APAsynDataReceiver &receiver = *(APAsynDataReceiver *)decompressionOutputRefCon;
+        APAsynDataSender &sender = *(APAsynDataSender *)decompressionOutputRefCon;
         
         microseconds timeInterval = microseconds(presentationDuration.value * 1000000L / presentationDuration.timescale);
         
-        receiver.asynPushVideoFrameData(new APDecoderOutputMeida(retainBuffer,
-                                                                 timeInterval,
-                                                                 (MSMedia<isEncode> *)sourceFrameRefCon,
-                                                                 CVBufferRelease,
-                                                                 CVBufferRetain));
+        sender.launchVideoFrameData(new APDecoderOutputMeida(retainBuffer,
+                                                             timeInterval,
+                                                             (MSMedia<isEncode> *)sourceFrameRefCon,
+                                                             CVBufferRelease,
+                                                             CVBufferRetain));
     } else {
         delete (MSMedia<isEncode> *)sourceFrameRefCon;
     }

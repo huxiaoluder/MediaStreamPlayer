@@ -61,20 +61,20 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
     if (codecType == APCodecDecoder && isVideoCodec) {
         OSStatus status;
         
-        // MSBinary, 此处直接使用 sps, pps 内存引用, 未替换 标志符为 length.(待测试)
+        // MSBinary, 此处直接使用 sps, pps 内存引用, 未拼接 NALUnitHeaderLength.(待测试)
         const uint8_t *datas[] = {naluParts.spsRef(),  naluParts.ppsRef()};
         const size_t lengths[] = {naluParts.spsSize(), naluParts.ppsSize()};
         
         if (codecID == MSCodecID_H264) {
             status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
                                                                          sizeof(datas) / sizeof(uint8_t *),
-                                                                         datas, lengths, 1,
+                                                                         datas, lengths, 0,
                                                                          &formatDescription);
         } else {
             if (__builtin_available(iOS 11.0, *)) {
                 status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(kCFAllocatorDefault,
                                                                              sizeof(datas) / sizeof(uint8_t *),
-                                                                             datas, lengths, 1, nullptr,
+                                                                             datas, lengths, 0, nullptr,
                                                                              &formatDescription);
             } else {
                 return nullptr;
@@ -88,7 +88,7 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
         
         VTDecompressionOutputCallbackRecord outputCallback;
         outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataSender.asynCallBack();
-        outputCallback.decompressionOutputRefCon = (void *)&asynDataSender.asynDataReceiver();
+        outputCallback.decompressionOutputRefCon = (void *)&asynDataSender;
 
         status = VTDecompressionSessionCreate(kCFAllocatorDefault,
                                               formatDescription,
@@ -117,5 +117,3 @@ APCodecContext::getAPCodecInfo(const MSCodecID codecID) {
     }
     return APCodecInfo(codec_id, codecID <= MSCodecID_H265);
 }
-
-

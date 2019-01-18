@@ -16,8 +16,8 @@
 namespace MS {
     namespace FFmpeg {
        
-        typedef MSSyncDecoderProtocol<AVFrame> FFDecoderProtocol;
-        typedef MSMedia<isDecode,AVFrame>::MSDecoderOutputMedia FFDecoderOutputMedia;
+        typedef MSSyncDecoderProtocol<AVFrame>  FFDecoderProtocol;
+        typedef MSMedia<isDecode,AVFrame>       FFDecoderOutputMedia;
         
         class FFDecoder : public FFDecoderProtocol {
             std::map<MSCodecID,FFCodecContext *> decoderContexts;

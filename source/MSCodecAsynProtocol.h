@@ -19,17 +19,28 @@ namespace MS {
     class MSAsynDecoderProtocol {
         // asyn call back function pointer, please convert to designated type for used
         const void * MSNonnull const _asynCallBack;
-        const MSAsynDataReceiver<T> &_asynDataReceiver;
+        const MSAsynDataReceiver<T> &asynDataReceiver;
     public:
-        MSAsynDecoderProtocol(const MSAsynDataReceiver<T> &asynDataReceiver,const void * MSNonnull const asynCallBack)
-        :_asynDataReceiver(asynDataReceiver), _asynCallBack(asynCallBack) {};
+        MSAsynDecoderProtocol(const MSAsynDataReceiver<T> &asynDataReceiver,
+                              const void * MSNonnull const asynCallBack)
+        :asynDataReceiver(asynDataReceiver), _asynCallBack(asynCallBack) {};
         
         const void * MSNonnull asynCallBack() const { return _asynCallBack; };
         
-        const MSAsynDataReceiver<T> & asynDataReceiver() const { return _asynDataReceiver; };
+        void launchVideoFrameData(const MSMedia<isDecode,T> * const MSNonnull frameData) const {
+            MSAsynDataReceiver<T> &receiver = const_cast<MSAsynDataReceiver<T> &>(asynDataReceiver);
+            receiver.asynPushVideoFrameData(frameData);
+        }
+        
+        void launchAudioFrameData(const MSMedia<isDecode,T> * const MSNonnull frameData) const {
+            MSAsynDataReceiver<T> &receiver = const_cast<MSAsynDataReceiver<T> &>(asynDataReceiver);
+            receiver.asynPushAudioFrameData(frameData);
+        }
         
         virtual ~MSAsynDecoderProtocol() {};
+        // videoData free by user
         virtual void decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData) = 0;
+        // audioData free by user
         virtual void decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData) = 0;
     };
     
@@ -39,8 +50,8 @@ namespace MS {
     public:
         virtual ~MSAsynEncoderProtocol() {};
         virtual void beginEncode() = 0;
-        virtual void encodeVideo(const typename MSMedia<isDecode,T>::MSEncoderInputMedia &pixelData) = 0;
-        virtual void encodeAudio(const typename MSMedia<isDecode,T>::MSEncoderInputMedia &sampleData) = 0;
+        virtual void encodeVideo(const MSMedia<isDecode,T> &pixelData) = 0;
+        virtual void encodeAudio(const MSMedia<isDecode,T> &sampleData) = 0;
         virtual void endEncode() = 0;
         virtual bool isEncoding() = 0;
     };

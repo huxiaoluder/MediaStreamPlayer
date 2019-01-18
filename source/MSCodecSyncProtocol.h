@@ -18,8 +18,10 @@ namespace MS {
     class MSSyncDecoderProtocol {
     public:
         virtual ~MSSyncDecoderProtocol() {};
-        virtual const typename MSMedia<isDecode,T>::MSDecoderOutputMedia * MSNullable decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData) = 0;
-        virtual const typename MSMedia<isDecode,T>::MSDecoderOutputMedia * MSNullable decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData) = 0;
+        // videoData free by user
+        virtual const MSMedia<isDecode,T> * MSNullable decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData) = 0;
+        // audioData free by user
+        virtual const MSMedia<isDecode,T> * MSNullable decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData) = 0;
     };
     
     template <typename T,
@@ -28,8 +30,8 @@ namespace MS {
     public:
         virtual ~MSSyncEncoderProtocol() {};
         virtual void beginEncode() = 0;
-        virtual void encodeVideo(const typename MSMedia<isDecode,T>::MSEncoderInputMedia &pixelData) = 0;
-        virtual void encodeAudio(const typename MSMedia<isDecode,T>::MSEncoderInputMedia &sampleData) = 0;
+        virtual void encodeVideo(const MSMedia<isDecode,T> &pixelData) = 0;
+        virtual void encodeAudio(const MSMedia<isDecode,T> &sampleData) = 0;
         virtual void endEncode() = 0;
         virtual bool isEncoding() = 0;
     };
