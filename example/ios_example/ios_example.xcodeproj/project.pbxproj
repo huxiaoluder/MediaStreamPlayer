@@ -53,6 +53,7 @@
 		4F9ADF1121B7D02900862770 /* libcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADF0221B7D02900862770 /* libcommon.a */; };
 		4F9ADF1621B7D12F00862770 /* IotlibTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9ADF1521B7D12F00862770 /* IotlibTool.m */; };
 		4FB2AA8221D0E8C500FE6A07 /* libfdk-aac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB2AA7921D0E8C500FE6A07 /* libfdk-aac.a */; };
+		4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */; };
 		4FCF481221F05DFD0030E739 /* MSNaluParts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCF481021F05DFD0030E739 /* MSNaluParts.cpp */; };
 /* End PBXBuildFile section */
 
@@ -246,6 +247,7 @@
 		4FB2AA7F21D0E8C500FE6A07 /* aacenc_lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aacenc_lib.h; sourceTree = "<group>"; };
 		4FB2AA8021D0E8C500FE6A07 /* genericStds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = genericStds.h; sourceTree = "<group>"; };
 		4FB2AA8121D0E8C500FE6A07 /* FDK_audio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDK_audio.h; sourceTree = "<group>"; };
+		4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		4FCF481021F05DFD0030E739 /* MSNaluParts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSNaluParts.cpp; sourceTree = "<group>"; };
 		4FCF481121F05DFD0030E739 /* MSNaluParts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSNaluParts.hpp; sourceTree = "<group>"; };
 		4FF055DD21DC53AD00339CDF /* MSAsynDataReceiver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSAsynDataReceiver.h; sourceTree = "<group>"; };
@@ -257,6 +259,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */,
 				4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */,
 				4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */,
 				4F9ADF1121B7D02900862770 /* libcommon.a in Frameworks */,
@@ -450,6 +453,7 @@
 		4F0A740421B7BC09000E0E31 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */,
 				4F17085A21D5FC6400CE476E /* CoreMedia.framework */,
 				4F17085821D5FC5300CE476E /* MediaToolbox.framework */,
 				4F17085621D5FC3F00CE476E /* VideoToolbox.framework */,

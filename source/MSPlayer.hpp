@@ -176,6 +176,7 @@ namespace MS {
     videoDecodeThread(initAsynDataVideoDecodeThread()),
     audioDecodeThread(initAsynDataAudioDecodeThread()) {
         assert(_asynDecoder && throwDecodeVideo && throwDecodeAudio);
+        _asynDecoder->setDataReceiver(this);
     }
     
     template <typename T>
@@ -418,7 +419,6 @@ namespace MS {
     thread MSPlayer<T>::initAsynDataVideoDecodeThread() {
         return thread([this](){
             const MSMedia<isEncode> *sourceData = nullptr;
-            const MSMedia<isDecode,T> *frameData = nullptr;
             while (isDecoding) {
                 while (videoQueue.empty() || pixelQueue.size() > 20) {
                     unique_lock<mutex> lock(videoConditionMutex);
@@ -439,7 +439,6 @@ namespace MS {
     thread MSPlayer<T>::initAsynDataAudioDecodeThread() {
         return thread([this](){
             const MSMedia<isEncode> *sourceData = nullptr;
-            const MSMedia<isDecode,T> *frameData = nullptr;
             while (isDecoding) {
                 while (audioQueue.empty() || sampleQueue.size() > 20) {
                     unique_lock<mutex> lock(audioConditionMutex);
@@ -519,7 +518,7 @@ namespace MS {
                 if (pixelQueue.size() < 5) {
                     videoThreadCondition.notify_one();
                 }
-                videoTimer->updateTimeInterval(frameData->content->timeInterval);
+                videoTimer->updateTimeInterval(frameData->timeInterval);
                 this->throwDecodeVideo(*frameData);
                 if (isEncoding) {
                     _asynEncoder->encodeVideo(*frameData);
@@ -544,7 +543,7 @@ namespace MS {
                 if (sampleQueue.size() < 5) {
                     audioThreadCondition.notify_one();
                 }
-                audioTimer->updateTimeInterval(frameData->content->timeInterval);
+                audioTimer->updateTimeInterval(frameData->timeInterval);
                 this->throwDecodeAudio(*frameData);
                 if (isEncoding) {
                     _asynEncoder->encodeAudio(*frameData);

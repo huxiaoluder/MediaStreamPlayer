@@ -12,6 +12,8 @@
 #import <FFDecoder.hpp>
 #import <FFEncoder.hpp>
 #import <APDecoder.hpp>
+#import <APEncoder.hpp>
+
 #import "IotlibTool.h"
 
 using namespace std;
@@ -21,7 +23,7 @@ using namespace MS::APhard;
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
-    MSPlayer<AVFrame> *player;
+    MSPlayer<__CVBuffer> *player;
     BOOL updateVideo;
     BOOL updateAudio;
 }
@@ -35,37 +37,25 @@ static int i;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    auto decoder = new FFDecoder();
-    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
-    player = new MSPlayer<AVFrame>(decoder,encoder,
-                                   [&](const MSMedia<isDecode,AVFrame> &data) {
-//                                       if (data.content) {
-//                                           cout
-//                                           << "video 播放: "
-//                                           << data.content->timeInterval.count()
-//                                           << "----- "
-//                                           << i++
-//                                           << endl;
-//                                       } else {
-//                                           cout
-//                                           << "video 播放: ----- 没有资源"
-//                                           << endl;
-//                                       }
-                                   },
-                                   [&](const MSMedia<isDecode,AVFrame> &data) {
-//                                       if (data.content) {
-//                                           cout
-//                                           << "audio 播放: "
-//                                           << data.content->timeInterval.count()
-//                                           << "----- "
-//                                           << j++
-//                                           << endl;
-//                                       } else {
-//                                           cout
-//                                           << "audio 播放: ----- 没有资源"
-//                                           << endl;
-//                                       }
-                                   });
+//    auto decoder = new FFDecoder();
+//    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
+//    player = new MSPlayer<AVFrame>(decoder,encoder,
+//                                   [&](const MSMedia<isDecode,AVFrame> &data) {
+//
+//                                   },
+//                                   [&](const MSMedia<isDecode,AVFrame> &data) {
+//
+//                                   });
+    
+    auto decoder = new APDecoder();
+    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
+    player = new MSPlayer<__CVBuffer>(decoder,encoder,
+                                      [&](const MSMedia<isDecode,__CVBuffer> &data) {
+                                          
+                                      },
+                                      [&](const MSMedia<isDecode,__CVBuffer> &data) {
+                                          
+                                      });
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(connectsuccess:)

@@ -19,22 +19,32 @@ namespace MS {
     class MSAsynDecoderProtocol {
         // asyn call back function pointer, please convert to designated type for used
         const void * MSNonnull const _asynCallBack;
-        const MSAsynDataReceiver<T> &asynDataReceiver;
-    public:
-        MSAsynDecoderProtocol(const MSAsynDataReceiver<T> &asynDataReceiver,
-                              const void * MSNonnull const asynCallBack)
-        :asynDataReceiver(asynDataReceiver), _asynCallBack(asynCallBack) {};
         
-        const void * MSNonnull asynCallBack() const { return _asynCallBack; };
+        // asyn data receiver
+        // the default value set by MSAsynDataReceiver(player) when MSAsynDecoderProtocol(decoder) pass for MSAsynDataReceiver(player)
+        MSAsynDataReceiver<T> * MSNonnull _dataReceiver;
+    public:
+        MSAsynDecoderProtocol(const void * MSNonnull const asynCallBack)
+        :_asynCallBack(asynCallBack) {};
+        
+        const void * MSNonnull asynCallBack() const {
+            return _asynCallBack;
+        };
+        
+        // if unnecessary, not allow be called bu user 
+        // default be called by MSAsynDataReceiver(player) inner when MSAsynDecoderProtocol(decoder) pass for MSAsynDataReceiver(player)
+        void setDataReceiver(MSAsynDataReceiver<T> * MSNonnull dataReceiver) {
+            _dataReceiver = dataReceiver;
+        };
         
         void launchVideoFrameData(const MSMedia<isDecode,T> * const MSNonnull frameData) const {
-            MSAsynDataReceiver<T> &receiver = const_cast<MSAsynDataReceiver<T> &>(asynDataReceiver);
-            receiver.asynPushVideoFrameData(frameData);
+            assert(_dataReceiver);
+            _dataReceiver->asynPushVideoFrameData(frameData);
         }
         
         void launchAudioFrameData(const MSMedia<isDecode,T> * const MSNonnull frameData) const {
-            MSAsynDataReceiver<T> &receiver = const_cast<MSAsynDataReceiver<T> &>(asynDataReceiver);
-            receiver.asynPushAudioFrameData(frameData);
+            assert(_dataReceiver);
+            _dataReceiver->asynPushAudioFrameData(frameData);
         }
         
         virtual ~MSAsynDecoderProtocol() {};

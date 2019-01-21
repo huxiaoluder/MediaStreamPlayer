@@ -9,13 +9,13 @@
 #ifndef APEncoder_hpp
 #define APEncoder_hpp
 
-#include "MSCodecSyncProtocol.h"
+#include "MSCodecAsynProtocol.h"
 #include "APCodecContext.hpp"
 
 namespace MS {
     namespace APhard {
         
-        typedef MSSyncEncoderProtocol<__CVBuffer>   APEncoderProtocol;
+        typedef MSAsynEncoderProtocol<__CVBuffer>   APEncoderProtocol;
         typedef MSMedia<isDecode,__CVBuffer>        APEncoderInputMedia;
 
         class APEncoder : public APEncoderProtocol {

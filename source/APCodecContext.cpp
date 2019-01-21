@@ -13,10 +13,10 @@ using namespace MS::APhard;
 
 APCodecContext::APCodecContext(const APCodecType codecType,
                                const MSCodecID codecID,
-                               const APAsynDataSender &asynDataSender)
+                               const APAsynDataProvider &asynDataProvider)
 :codecType(codecType),
 codecID(codecID),
-asynDataSender(asynDataSender),
+asynDataProvider(asynDataProvider),
 audioConvert(nullptr),
 videoDecodeSession(nullptr),
 videoEncodeSession(nullptr) {
@@ -26,10 +26,10 @@ videoEncodeSession(nullptr) {
 APCodecContext::APCodecContext(const APCodecType codecType,
                                const MSCodecID codecID,
                                const MSNaluParts &naluParts,
-                               const APAsynDataSender &asynDataSender)
+                               const APAsynDataProvider &asynDataProvider)
 :codecType(codecType),
 codecID(codecID),
-asynDataSender(asynDataSender),
+asynDataProvider(asynDataProvider),
 audioConvert(initAudioConvert()),
 videoDecodeSession(initVideoDecodeSession(naluParts)),
 videoEncodeSession(initVideoEncodeSession()) {
@@ -37,7 +37,15 @@ videoEncodeSession(initVideoEncodeSession()) {
 }
 
 APCodecContext::~APCodecContext() {
-    
+    if (videoDecodeSession) {
+        VTDecompressionSessionInvalidate(videoDecodeSession);
+    }
+    if (videoEncodeSession) {
+        VTCompressionSessionInvalidate(videoEncodeSession);
+    }
+    if (audioConvert) {
+        AudioConverterDispose(audioConvert);
+    }
 }
 
 AudioConverterRef
@@ -53,32 +61,36 @@ APCodecContext::initVideoEncodeSession() {
 VTDecompressionSessionRef
 APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
     APCodecInfo codecInfo = getAPCodecInfo(codecID);
-    IsVideoCodec isVideoCodec   = get<1>(codecInfo);
+    IsVideoCodec isVideoCodec = get<1>(codecInfo);
     
-    CMFormatDescriptionRef      formatDescription   = nullptr;
+    CMVideoFormatDescriptionRef videoFmtDescription = nullptr;
     VTDecompressionSessionRef   videoDecoderSession = nullptr;
     
     if (codecType == APCodecDecoder && isVideoCodec) {
         OSStatus status;
         
-        // MSBinary, 此处直接使用 sps, pps 内存引用, 未拼接 NALUnitHeaderLength.(待测试)
+        // MSNaluParts, 此处直接使用 sps, pps 内存引用, 未拼接 NALUnitHeaderLength.(待测试)
         const uint8_t *datas[] = {naluParts.spsRef(),  naluParts.ppsRef()};
         const size_t lengths[] = {naluParts.spsSize(), naluParts.ppsSize()};
         
         if (codecID == MSCodecID_H264) {
             status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
-                                                                         sizeof(datas) / sizeof(uint8_t *),
+                                                                         sizeof(datas)/sizeof(uint8_t *),
                                                                          datas, lengths, 0,
-                                                                         &formatDescription);
-        } else {
+                                                                         &videoFmtDescription);
+        } else if (codecID == MSCodecID_HEVC) {
             if (__builtin_available(iOS 11.0, *)) {
                 status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(kCFAllocatorDefault,
-                                                                             sizeof(datas) / sizeof(uint8_t *),
+                                                                             sizeof(datas)/sizeof(uint8_t *),
                                                                              datas, lengths, 0, nullptr,
-                                                                             &formatDescription);
+                                                                             &videoFmtDescription);
             } else {
+                ErrorLocationLog("current iOS version is not 11.0+, not support the hevc");
                 return nullptr;
             }
+        } else {
+            ErrorLocationLog("not support the codecID");
+            return nullptr;
         }
     
         if (status != noErr) {
@@ -87,15 +99,30 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
         }
         
         VTDecompressionOutputCallbackRecord outputCallback;
-        outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataSender.asynCallBack();
-        outputCallback.decompressionOutputRefCon = (void *)&asynDataSender;
+        outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataProvider.asynCallBack();
+        outputCallback.decompressionOutputRefCon = (void *)&asynDataProvider;
 
+        int pixFmtNum = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
+        CFNumberRef pixFmtType = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &pixFmtNum);
+        
+        const void * keys[] = {(void *)kCVPixelBufferPixelFormatTypeKey};
+        const void * values[] = {(void *)pixFmtType};
+        
+        CFDictionaryKeyCallBacks keyCallBacks{NULL};
+        CFDictionaryValueCallBacks valueCallBacks{NULL};
+        CFDictionaryRef dstBufferAttr = CFDictionaryCreate(kCFAllocatorDefault,
+                                                           keys, values, sizeof(keyCallBacks)/sizeof(void *),
+                                                           &keyCallBacks, &valueCallBacks);
+        
         status = VTDecompressionSessionCreate(kCFAllocatorDefault,
-                                              formatDescription,
+                                              videoFmtDescription,
                                               nullptr,
-                                              nullptr,
+                                              dstBufferAttr,
                                               &outputCallback,
                                               &videoDecoderSession);
+        CFRelease(videoFmtDescription);
+        CFRelease(dstBufferAttr);
+        CFRelease(pixFmtType);
         
         if (status != noErr) {
             ErrorLocationLog("fail to instance VTDecompressionSessionRef");

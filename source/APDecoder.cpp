@@ -47,7 +47,6 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
                                           (void *)videoData, // 附带参数, 会透传到回调函数
                                           &infoFlagsOut);
     } else {
-        ErrorLocationLog("not surport The codec");
         delete videoData;
     }
 }
@@ -57,10 +56,11 @@ APDecoder::decodeAudio(const MSMedia<isEncode> * const audioData) {
     
 }
 
-APDecoder::APDecoder(const APAsynDataReceiver &asynDataReceiver,
-                     const VTDecodeFrameFlags decodeFlags)
-:APDecoderProtocol(asynDataReceiver, (void *)decompressionOutputCallback),
-decodeFlags(decodeFlags), bufferFlags(initBufferFlags()), blockAllocator(initBlockAllocator()) {
+APDecoder::APDecoder(const VTDecodeFrameFlags decodeFlags)
+:APDecoderProtocol((void *)decompressionOutputCallback),
+decodeFlags(decodeFlags),
+bufferFlags(initBufferFlags()),
+blockAllocator(initBlockAllocator()) {
 
 }
 
@@ -89,7 +89,6 @@ APDecoder::getDecoderContext(const MSCodecID codecID,
                              const MSMedia<isEncode> &sourceData) {
     APCodecContext *decoderContext = decoderContexts[codecID];
     if (!decoderContext && sourceData.isKeyFrame) {
-        
         decoderContext = new APCodecContext(APCodecDecoder, codecID,
                                             *sourceData.naluParts(), *this);
         decoderContexts[codecID] = decoderContext;
@@ -108,15 +107,15 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
     if (status == noErr && imageBuffer) {
         CVBufferRef retainBuffer = CVBufferRetain(imageBuffer);
         
-        APAsynDataSender &sender = *(APAsynDataSender *)decompressionOutputRefCon;
+        const APAsynDataProvider &dataProvider = *(APAsynDataProvider *)decompressionOutputRefCon;
         
         microseconds timeInterval = microseconds(presentationDuration.value * 1000000L / presentationDuration.timescale);
         
-        sender.launchVideoFrameData(new APDecoderOutputMeida(retainBuffer,
-                                                             timeInterval,
-                                                             (MSMedia<isEncode> *)sourceFrameRefCon,
-                                                             CVBufferRelease,
-                                                             CVBufferRetain));
+        dataProvider.launchVideoFrameData(new APDecoderOutputMeida(retainBuffer,
+                                                                   timeInterval,
+                                                                   (MSMedia<isEncode> *)sourceFrameRefCon,
+                                                                   CVBufferRelease,
+                                                                   CVBufferRetain));
     } else {
         delete (MSMedia<isEncode> *)sourceFrameRefCon;
     }

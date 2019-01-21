@@ -55,8 +55,7 @@ namespace MS {
              if decodeFlags == NULL, the decoder still decode source data synchronously.
              if decodeFlags != NULL, the decoder will decode source data asynchronously.
              */
-            APDecoder(const APAsynDataReceiver &asynDataReceiver,
-                      const VTDecodeFrameFlags decodeFlags = NULL);
+            APDecoder(const VTDecodeFrameFlags decodeFlags = NULL);
             ~APDecoder();
             
             static void decompressionOutputCallback(void * MSNullable decompressionOutputRefCon,

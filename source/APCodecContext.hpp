@@ -28,7 +28,7 @@ namespace MS {
         typedef UInt32  APCodecID;
         typedef bool    IsVideoCodec;
         typedef tuple<APCodecID,IsVideoCodec> APCodecInfo;
-        typedef MSAsynDecoderProtocol<__CVBuffer> APAsynDataSender;
+        typedef MSAsynDecoderProtocol<__CVBuffer> APAsynDataProvider;
 
         enum APCodecType {
             APCodecDecoder,
@@ -38,7 +38,7 @@ namespace MS {
         struct APCodecContext {
             const APCodecType codecType;
             const MSCodecID codecID;
-            const APAsynDataSender &asynDataSender;
+            const APAsynDataProvider &asynDataProvider;
             
             AudioConverterRef           const MSNullable audioConvert;
             VTCompressionSessionRef     const MSNullable videoEncodeSession;
@@ -46,12 +46,12 @@ namespace MS {
             
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,
-                           const APAsynDataSender &asynDataSender);
+                           const APAsynDataProvider &asynDataProvider);
             
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,
                            const MSNaluParts &naluParts,
-                           const APAsynDataSender &asynDataSender);
+                           const APAsynDataProvider &asynDataProvider);
             
             ~APCodecContext();
             
