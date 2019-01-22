@@ -17,35 +17,60 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
     APCodecContext * const decoderContext = getDecoderContext(data.codecID, data);
     
     if (decoderContext) {
+        OSStatus status;
+        
+        assert(*(uint32_t *)data.naluData == 0x01000000);
+        uint32_t *tempRef = (uint32_t *)data.naluData;
+        // 替换开始码为数据长度(小端存储)
+        *tempRef &= 0;
+        *tempRef |= (data.naluSize << 24);
+        *tempRef |= (data.naluSize >> 24);
+        *tempRef |= (data.naluSize & 0x0000FF00) << 8;
+        *tempRef |= (data.naluSize & 0x00FF0000) >> 8;
+        
         CMBlockBufferRef blockBuffer = nullptr;
+        status = CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
+                                                    data.naluData,
+                                                    data.naluSize,
+                                                    blockAllocator, // 传入 nullptr, 将使用默认分配器 kCFAllocatorDefault.
+                                                    nullptr, // 该结构参数将自定义内存分配和释放, 如果不为 nullptr, blockAllocator 参数将被忽略
+                                                    0,
+                                                    data.naluSize,
+                                                    bufferFlags, // 传入 NULL 则该函数不会对传入数据重新分配空间.
+                                                    &blockBuffer);
+        if (status != noErr) {
+            ErrorLocationLog("call CMBlockBufferCreateWithMemoryBlock fail");
+            delete videoData;
+            return;
+        }
+        
         CMSampleBufferRef sampleBuffer = nullptr;
-        
         size_t sampleSizeArray[] = {data.naluSize};
+        status = CMSampleBufferCreateReady(kCFAllocatorDefault,
+                                           blockBuffer,
+                                           nullptr, 1, 0, nullptr,
+                                           sizeof(sampleSizeArray) / sizeof(size_t),
+                                           sampleSizeArray,
+                                           &sampleBuffer);
+        if (status != noErr) {
+            ErrorLocationLog("call CMSampleBufferCreateReady fail");
+            CFRelease(blockBuffer);
+            delete videoData;
+            return;
+        }
         
-        CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
-                                           data.nalUnit,
-                                           data.naluSize,
-                                           blockAllocator, // 传入 nullptr, 将使用默认分配器 kCFAllocatorDefault.
-                                           nullptr, // 该结构参数将自定义内存分配和释放, 如果不为 nullptr, blockAllocator 参数将被忽略
-                                           0,
-                                           data.naluSize,
-                                           bufferFlags, // 传入 NULL 则该函数不会对传入数据重新分配空间.
-                                           &blockBuffer);
-        
-        CMSampleBufferCreateReady(kCFAllocatorDefault,
-                                  blockBuffer,
-                                  nullptr, 1, 0, nullptr,
-                                  sizeof(sampleSizeArray) / sizeof(size_t),
-                                  sampleSizeArray,
-                                  &sampleBuffer);
-        
-        VTDecodeInfoFlags infoFlagsOut = NULL;
-        
-        VTDecompressionSessionDecodeFrame(decoderContext->videoDecodeSession,
-                                          sampleBuffer,
-                                          decodeFlags, // 传入 NULL 则该函数会阻塞到回调函数返回后才返回.
-                                          (void *)videoData, // 附带参数, 会透传到回调函数
-                                          &infoFlagsOut);
+        // VTDecodeInfoFlags infoFlagsOut = NULL;
+        status = VTDecompressionSessionDecodeFrame(decoderContext->videoDecodeSession,
+                                                   sampleBuffer,
+                                                   decodeFlags, // 传入 NULL 则该函数会阻塞到回调函数返回后才返回.
+                                                   (void *)videoData, // 附带参数, 会透传到回调函数
+                                                   nullptr);
+        if (status != noErr) {
+            ErrorLocationLog("call VTDecompressionSessionDecodeFrame fail");
+            delete videoData;
+        }
+        CFRelease(sampleBuffer);
+        CFRelease(blockBuffer);
     } else {
         delete videoData;
     }
@@ -116,8 +141,10 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
                                                                    (MSMedia<isEncode> *)sourceFrameRefCon,
                                                                    CVBufferRelease,
                                                                    CVBufferRetain));
+        printf("=================解码成功=================\n");
     } else {
         delete (MSMedia<isEncode> *)sourceFrameRefCon;
+        printf("=================解码失败=================\n");
     }
 };
 

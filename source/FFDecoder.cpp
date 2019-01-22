@@ -55,7 +55,7 @@ FFDecoder::decodeData(const MSMedia<isEncode> * const mediaData) {
     };
     av_init_packet(&packet);
     
-    packet.data = data.nalUnit;
+    packet.data = data.naluData;
     packet.size = static_cast<int>(data.naluSize);
     
     AVFrame * const frame = av_frame_alloc();

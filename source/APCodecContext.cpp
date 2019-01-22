@@ -76,13 +76,13 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
         if (codecID == MSCodecID_H264) {
             status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
                                                                          sizeof(datas)/sizeof(uint8_t *),
-                                                                         datas, lengths, 0,
+                                                                         datas, lengths, 1,
                                                                          &videoFmtDescription);
         } else if (codecID == MSCodecID_HEVC) {
             if (__builtin_available(iOS 11.0, *)) {
                 status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(kCFAllocatorDefault,
                                                                              sizeof(datas)/sizeof(uint8_t *),
-                                                                             datas, lengths, 0, nullptr,
+                                                                             datas, lengths, 1, nullptr,
                                                                              &videoFmtDescription);
             } else {
                 ErrorLocationLog("current iOS version is not 11.0+, not support the hevc");
@@ -102,17 +102,15 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
         outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataProvider.asynCallBack();
         outputCallback.decompressionOutputRefCon = (void *)&asynDataProvider;
 
-        int pixFmtNum = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
-        CFNumberRef pixFmtType = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &pixFmtNum);
+        SInt32 pixFmtNum = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
+        CFNumberRef pixFmtType = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &pixFmtNum);
         
         const void * keys[] = {(void *)kCVPixelBufferPixelFormatTypeKey};
         const void * values[] = {(void *)pixFmtType};
         
-        CFDictionaryKeyCallBacks keyCallBacks{NULL};
-        CFDictionaryValueCallBacks valueCallBacks{NULL};
         CFDictionaryRef dstBufferAttr = CFDictionaryCreate(kCFAllocatorDefault,
-                                                           keys, values, sizeof(keyCallBacks)/sizeof(void *),
-                                                           &keyCallBacks, &valueCallBacks);
+                                                           keys, values, sizeof(keys)/sizeof(void *),
+                                                           &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
         
         status = VTDecompressionSessionCreate(kCFAllocatorDefault,
                                               videoFmtDescription,

@@ -48,8 +48,8 @@ static int i;
 //                                   });
     
     auto decoder = new APDecoder();
-    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
-    player = new MSPlayer<__CVBuffer>(decoder,encoder,
+//    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
+    player = new MSPlayer<__CVBuffer>(decoder,nullptr,
                                       [&](const MSMedia<isDecode,__CVBuffer> &data) {
                                           
                                       },

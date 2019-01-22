@@ -46,7 +46,7 @@ namespace MS {
     template <>
     struct MSMedia<isEncode, uint8_t> {
         // nalUnit data by encoder or from network source, free by player
-        uint8_t * MSNonnull const nalUnit;
+        uint8_t * MSNonnull const naluData;
         
         // nalUnit data size
         const size_t naluSize;
@@ -57,30 +57,30 @@ namespace MS {
         // pictrue's encoder ID
         const MSCodecID codecID;
         
-        MSMedia(uint8_t * MSNonnull const nalUnit,
-                const size_t size,
+        MSMedia(uint8_t * MSNonnull const naluData,
+                const size_t naluSize,
                 const bool isKeyFrame,
                 const MSCodecID codecID)
-        :nalUnit(new uint8_t[size]),
-        naluSize(size),
+        :naluData(new uint8_t[naluSize]),
+        naluSize(naluSize),
         isKeyFrame(isKeyFrame),
         codecID(codecID) {
-            memcpy(this->nalUnit, nalUnit, size);
+            memcpy(this->naluData, naluData, naluSize);
         }
         
         MSMedia(const MSMedia &media)
-        :nalUnit(new uint8_t[media.naluSize]),
+        :naluData(new uint8_t[media.naluSize]),
         naluSize(media.naluSize),
         isKeyFrame(media.isKeyFrame),
         codecID(media.codecID) {
-            memcpy(nalUnit, media.nalUnit, naluSize);
+            memcpy(naluData, media.naluData, naluSize);
         }
         
         ~MSMedia() {
             if (_naluParts) {
                 delete _naluParts;
             }
-            delete[] nalUnit;
+            delete[] naluData;
         }
         
         MSMedia * MSNonnull clone() {
@@ -91,7 +91,7 @@ namespace MS {
         const MSNaluParts * MSNullable naluParts() const {
             if (isKeyFrame) {
                 auto naluParts = const_cast<MSNaluParts **>(&_naluParts);
-                *naluParts = new MSNaluParts(nalUnit, naluSize);
+                *naluParts = new MSNaluParts(naluData, naluSize);
             }
             return _naluParts;
         }

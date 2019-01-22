@@ -12,12 +12,14 @@ using namespace MS;
 
 static size_t nextSeparatorOffset(const uint8_t * MSNonnull const lastPtr) {
     const uint8_t *nextPtr = lastPtr;
-    while ((*nextPtr++ ^ 0x01) == 0) {
-        if ((*(uint32_t *)(nextPtr - 4) ^ 0x01000000) == 0) {
-            return nextPtr - lastPtr - 4;
-        }
-        if ((*(uint32_t *)(nextPtr - 3) << 8 ^ 0x01000000) == 0) {
-            return nextPtr - lastPtr - 3;
+    while (true) {
+        if (*nextPtr++ == 0x01) {
+            if (*(uint32_t *)((uint64_t)nextPtr - 4) == 0x01000000) {
+                return (uint64_t)nextPtr - (uint64_t)lastPtr - 4;
+            }
+            if (*(uint32_t *)((uint64_t)nextPtr - 3) << 8 == 0x01000000) {
+                return (uint64_t)nextPtr - (uint64_t)lastPtr - 3;
+            }
         }
     }
     return 0;
@@ -27,7 +29,7 @@ MSNaluParts::MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t n
 :_seiRef(nullptr), _seiSize(0) {
     const uint8_t *ptr = nalUnit;
     while (true) {
-        if ((*ptr++ ^ 0x01) == 0) {
+        if (*ptr++ == 0x01) {
             switch (*ptr & 0x1F) {
                 case 0x05: { // 关键帧数据 (IDR)
                     _idrRef = ptr;

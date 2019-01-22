@@ -4,28 +4,18 @@
    version = "2.0">
    <Breakpoints>
       <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.ExceptionBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            scope = "0"
-            stopOnStyle = "0">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../../source/APCodecContext.cpp"
-            timestampString = "569757588.713721"
+            filePath = "../../source/APDecoder.cpp"
+            timestampString = "569834358.192885"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "63"
-            endingLineNumber = "63"
-            landmarkName = "APCodecContext::initVideoDecodeSession(const MSNaluParts &amp;naluParts)"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
+            landmarkName = "APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefCon, void * MSNullable sourceFrameRefCon, OSStatus status, VTDecodeInfoFlags infoFlags, CVImageBufferRef MSNullable imageBuffer, CMTime presentationTimeStamp, CMTime presentationDuration)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -36,11 +26,27 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../source/APDecoder.cpp"
-            timestampString = "569757588.714011"
+            timestampString = "569834358.1932549"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "19"
-            endingLineNumber = "19"
+            startingLineNumber = "144"
+            endingLineNumber = "144"
+            landmarkName = "APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefCon, void * MSNullable sourceFrameRefCon, OSStatus status, VTDecodeInfoFlags infoFlags, CVImageBufferRef MSNullable imageBuffer, CMTime presentationTimeStamp, CMTime presentationDuration)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../source/APDecoder.cpp"
+            timestampString = "569834358.193808"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "72"
+            endingLineNumber = "72"
             landmarkName = "APDecoder::decodeVideo(const MSMedia&lt;isEncode&gt; * const videoData)"
             landmarkType = "7">
          </BreakpointContent>
