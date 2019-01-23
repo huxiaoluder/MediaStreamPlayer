@@ -19,23 +19,23 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
     if (decoderContext) {
         OSStatus status;
         
-        assert(*(uint32_t *)data.naluData == 0x01000000);
-        uint32_t *tempRef = (uint32_t *)data.naluData;
+//        assert(*(uint32_t *)data.naluData == 0x01000000);
+        uint32_t *tempRef = (uint32_t *)data.naluParts().idrRef() - 1;
         // 替换开始码为数据长度(小端存储)
         *tempRef &= 0;
-        *tempRef |= (data.naluSize << 24);
-        *tempRef |= (data.naluSize >> 24);
-        *tempRef |= (data.naluSize & 0x0000FF00) << 8;
-        *tempRef |= (data.naluSize & 0x00FF0000) >> 8;
+        *tempRef |= (data.naluParts().idrSize() << 24);
+        *tempRef |= (data.naluParts().idrSize() >> 24);
+        *tempRef |= (data.naluParts().idrSize() & 0x0000FF00) << 8;
+        *tempRef |= (data.naluParts().idrSize() & 0x00FF0000) >> 8;
         
         CMBlockBufferRef blockBuffer = nullptr;
         status = CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
-                                                    data.naluData,
-                                                    data.naluSize,
+                                                    tempRef,
+                                                    data.naluParts().idrSize(),
                                                     blockAllocator, // 传入 nullptr, 将使用默认分配器 kCFAllocatorDefault.
                                                     nullptr, // 该结构参数将自定义内存分配和释放, 如果不为 nullptr, blockAllocator 参数将被忽略
                                                     0,
-                                                    data.naluSize,
+                                                    data.naluParts().idrSize(),
                                                     bufferFlags, // 传入 NULL 则该函数不会对传入数据重新分配空间.
                                                     &blockBuffer);
         if (status != noErr) {
@@ -45,7 +45,7 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         }
         
         CMSampleBufferRef sampleBuffer = nullptr;
-        size_t sampleSizeArray[] = {data.naluSize};
+        size_t sampleSizeArray[] = {data.naluParts().idrSize()};
         status = CMSampleBufferCreateReady(kCFAllocatorDefault,
                                            blockBuffer,
                                            nullptr, 1, 0, nullptr,
@@ -115,7 +115,7 @@ APDecoder::getDecoderContext(const MSCodecID codecID,
     APCodecContext *decoderContext = decoderContexts[codecID];
     if (!decoderContext && sourceData.isKeyFrame) {
         decoderContext = new APCodecContext(APCodecDecoder, codecID,
-                                            *sourceData.naluParts(), *this);
+                                            sourceData.naluParts(), *this);
         decoderContexts[codecID] = decoderContext;
     }
     return decoderContext;

@@ -17,28 +17,45 @@ namespace MS {
     
     class MSNaluParts {
         
-        const uint8_t * MSNonnull   _spsRef;
-        const uint8_t * MSNonnull   _ppsRef;
-        const uint8_t * MSNullable  _seiRef;
-        const uint8_t * MSNonnull   _idrRef;
+        const uint8_t * MSNullable _slcRef = nullptr;
+        const uint8_t * MSNullable _dpaRef = nullptr;
+        const uint8_t * MSNullable _dpbRef = nullptr;
+        const uint8_t * MSNullable _dpcRef = nullptr;
+        const uint8_t * MSNullable _idrRef = nullptr;
+        const uint8_t * MSNullable _seiRef = nullptr;
+        const uint8_t * MSNullable _spsRef = nullptr;
+        const uint8_t * MSNullable _ppsRef = nullptr;
         
-        size_t _spsSize;
-        size_t _ppsSize;
-        size_t _seiSize;
-        size_t _idrSize;
+        size_t _slcSize = 0;
+        size_t _dpaSize = 0;
+        size_t _dpbSize = 0;
+        size_t _dpcSize = 0;
+        size_t _idrSize = 0;
+        size_t _seiSize = 0;
+        size_t _spsSize = 0;
+        size_t _ppsSize = 0;
     
     public:
         MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize);
         
+        // slice refference
+        const uint8_t * MSNullable slcRef() const;
+        const uint8_t * MSNullable dpaRef() const;
+        const uint8_t * MSNullable dpbRef() const;
+        const uint8_t * MSNullable dpcRef() const;
+        const uint8_t * MSNullable idrRef() const;
+        const uint8_t * MSNullable seiRef() const;
         const uint8_t * MSNullable spsRef() const;
         const uint8_t * MSNullable ppsRef() const;
-        const uint8_t * MSNullable seiRef() const;
-        const uint8_t * MSNullable idrRef() const;
         
+        size_t slcSize() const;
+        size_t dpaSize() const;
+        size_t dpbSize() const;
+        size_t dpcSize() const;
+        size_t idrSize() const;
+        size_t seiSize() const;
         size_t spsSize() const;
         size_t ppsSize() const;
-        size_t seiSize() const;
-        size_t idrSize() const;
     };
     
 }

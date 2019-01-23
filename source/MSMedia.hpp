@@ -88,12 +88,12 @@ namespace MS {
         }
         
         // Note: only I frame can return naluParts and enforce changed naluParts value
-        const MSNaluParts * MSNullable naluParts() const {
-            if (isKeyFrame) {
+        const MSNaluParts & naluParts() const {
+            if (!_naluParts) {
                 auto naluParts = const_cast<MSNaluParts **>(&_naluParts);
                 *naluParts = new MSNaluParts(naluData, naluSize);
             }
-            return _naluParts;
+            return *_naluParts;
         }
         
     private:

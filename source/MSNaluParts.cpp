@@ -10,7 +10,8 @@
 
 using namespace MS;
 
-static size_t nextSeparatorOffset(const uint8_t * MSNonnull const lastPtr) {
+static size_t
+nextSeparatorOffset(const uint8_t * MSNonnull const lastPtr) {
     const uint8_t *nextPtr = lastPtr;
     while (true) {
         if (*nextPtr++ == 0x01) {
@@ -25,17 +26,34 @@ static size_t nextSeparatorOffset(const uint8_t * MSNonnull const lastPtr) {
     return 0;
 }
 
-MSNaluParts::MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize)
-:_seiRef(nullptr), _seiSize(0) {
+MSNaluParts::MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize) {
     const uint8_t *ptr = nalUnit;
     while (true) {
         if (*ptr++ == 0x01) {
             switch (*ptr & 0x1F) {
+                case 0x01: { // 非关键帧数据,不划分片段 (SLICE)
+                    _slcRef = ptr;
+                    _slcSize = naluSize - (ptr - nalUnit);
+                }   return;
+                case 0x02: { // 非关键帧数据划分片段A部分 (DPA)
+                    _dpaRef = ptr;
+                    _dpaSize = nextSeparatorOffset(ptr);
+                    ptr += _dpaSize;
+                }   break;
+                case 0x03: { // 非关键帧数据划分片段B部分 (DPB)
+                    _dpbRef = ptr;
+                    _dpbSize = nextSeparatorOffset(ptr);
+                    ptr += _dpbSize;
+                }   break;
+                case 0x04: { // 非关键帧数据划分片段C部分 (DPC)
+                    _dpbRef = ptr;
+                    _dpbSize = nextSeparatorOffset(ptr);
+                    ptr += _dpbSize;
+                }   break;
                 case 0x05: { // 关键帧数据 (IDR)
                     _idrRef = ptr;
                     _idrSize = naluSize - (ptr - nalUnit);
-                    return;
-                }   break;
+                }   return;
                 case 0x06: { // 补充增强信息（SEI）
                     _seiRef = ptr;
                     _seiSize = nextSeparatorOffset(ptr);
@@ -57,7 +75,37 @@ MSNaluParts::MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t n
     }
 }
 
-const uint8_t * 
+const uint8_t *
+MSNaluParts::slcRef() const {
+    return _slcRef;
+}
+
+const uint8_t *
+MSNaluParts::dpaRef() const {
+    return _dpaRef;
+}
+
+const uint8_t *
+MSNaluParts::dpbRef() const {
+    return _dpbRef;
+}
+
+const uint8_t *
+MSNaluParts::dpcRef() const {
+    return _dpcRef;
+}
+
+const uint8_t *
+MSNaluParts::idrRef() const {
+    return _idrRef;
+}
+
+const uint8_t *
+MSNaluParts::seiRef() const {
+    return _seiRef;
+}
+
+const uint8_t *
 MSNaluParts::spsRef() const {
     return _spsRef;
 }
@@ -67,14 +115,34 @@ MSNaluParts::ppsRef() const {
     return _ppsRef;
 }
 
-const uint8_t *
-MSNaluParts::seiRef() const {
-    return _seiRef;
+size_t
+MSNaluParts::slcSize() const {
+    return _slcSize;
 }
 
-const uint8_t *
-MSNaluParts::idrRef() const {
-    return _idrRef;
+size_t
+MSNaluParts::dpaSize() const {
+    return _dpaSize;
+}
+
+size_t
+MSNaluParts::dpbSize() const {
+    return _dpbSize;
+}
+
+size_t
+MSNaluParts::dpcSize() const {
+    return _dpcSize;
+}
+
+size_t
+MSNaluParts::idrSize() const {
+    return _idrSize;
+}
+
+size_t
+MSNaluParts::seiSize() const {
+    return _seiSize;
 }
 
 size_t
@@ -86,13 +154,3 @@ size_t
 MSNaluParts::ppsSize() const {
     return _ppsSize;
 }
-
-size_t
-MSNaluParts::seiSize() const {
-    return _seiSize;
-}
-
-size_t
-MSNaluParts::idrSize() const {
-    return _idrSize;
-    }

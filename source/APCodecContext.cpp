@@ -76,13 +76,13 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
         if (codecID == MSCodecID_H264) {
             status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
                                                                          sizeof(datas)/sizeof(uint8_t *),
-                                                                         datas, lengths, 1,
+                                                                         datas, lengths, 4,
                                                                          &videoFmtDescription);
         } else if (codecID == MSCodecID_HEVC) {
             if (__builtin_available(iOS 11.0, *)) {
                 status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(kCFAllocatorDefault,
                                                                              sizeof(datas)/sizeof(uint8_t *),
-                                                                             datas, lengths, 1, nullptr,
+                                                                             datas, lengths, 4, nullptr,
                                                                              &videoFmtDescription);
             } else {
                 ErrorLocationLog("current iOS version is not 11.0+, not support the hevc");
