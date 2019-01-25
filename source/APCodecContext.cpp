@@ -97,6 +97,7 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
             ErrorLocationLog("fail to instance CMFormatDescriptionRef");
             return nullptr;
         }
+        this->videoFmtDescription = videoFmtDescription;
         
         VTDecompressionOutputCallbackRecord outputCallback;
         outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataProvider.asynCallBack();
@@ -118,7 +119,7 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
                                               dstBufferAttr,
                                               &outputCallback,
                                               &videoDecoderSession);
-        CFRelease(videoFmtDescription);
+//        CFRelease(videoFmtDescription);
         CFRelease(dstBufferAttr);
         CFRelease(pixFmtType);
         

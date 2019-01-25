@@ -43,6 +43,7 @@ namespace MS {
             AudioConverterRef           const MSNullable audioConvert;
             VTCompressionSessionRef     const MSNullable videoEncodeSession;
             VTDecompressionSessionRef   const MSNullable videoDecodeSession;
+            CMVideoFormatDescriptionRef MSNullable videoFmtDescription = nullptr;
             
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,

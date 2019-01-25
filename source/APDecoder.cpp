@@ -21,34 +21,36 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         
 //        assert(*(uint32_t *)data.naluData == 0x01000000);
         uint32_t *tempRef = (uint32_t *)data.naluParts().idrRef() - 1;
+        size_t tempSize = data.naluParts().idrSize()+4;
         // 替换开始码为数据长度(小端存储)
         *tempRef &= 0;
-        *tempRef |= (data.naluParts().idrSize() << 24);
-        *tempRef |= (data.naluParts().idrSize() >> 24);
-        *tempRef |= (data.naluParts().idrSize() & 0x0000FF00) << 8;
-        *tempRef |= (data.naluParts().idrSize() & 0x00FF0000) >> 8;
+        *tempRef |= (tempSize << 24);
+        *tempRef |= (tempSize >> 24);
+        *tempRef |= (tempSize & 0x0000FF00) << 8;
+        *tempRef |= (tempSize & 0x00FF0000) >> 8;
         
         CMBlockBufferRef blockBuffer = nullptr;
         status = CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
                                                     tempRef,
-                                                    data.naluParts().idrSize(),
+                                                    tempSize,
                                                     blockAllocator, // 传入 nullptr, 将使用默认分配器 kCFAllocatorDefault.
                                                     nullptr, // 该结构参数将自定义内存分配和释放, 如果不为 nullptr, blockAllocator 参数将被忽略
                                                     0,
-                                                    data.naluParts().idrSize(),
+                                                    tempSize,
                                                     bufferFlags, // 传入 NULL 则该函数不会对传入数据重新分配空间.
                                                     &blockBuffer);
-        if (status != noErr) {
+        if (status != kCMBlockBufferNoErr) {
             ErrorLocationLog("call CMBlockBufferCreateWithMemoryBlock fail");
             delete videoData;
             return;
         }
         
         CMSampleBufferRef sampleBuffer = nullptr;
-        size_t sampleSizeArray[] = {data.naluParts().idrSize()};
+        size_t sampleSizeArray[] = {tempSize};
         status = CMSampleBufferCreateReady(kCFAllocatorDefault,
                                            blockBuffer,
-                                           nullptr, 1, 0, nullptr,
+                                           decoderContext->videoFmtDescription,
+                                           1, 0, nullptr,
                                            sizeof(sampleSizeArray) / sizeof(size_t),
                                            sampleSizeArray,
                                            &sampleBuffer);
