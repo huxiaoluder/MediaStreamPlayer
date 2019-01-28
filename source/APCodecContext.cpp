@@ -30,8 +30,9 @@ APCodecContext::APCodecContext(const APCodecType codecType,
 :codecType(codecType),
 codecID(codecID),
 asynDataProvider(asynDataProvider),
+_videoFmtDescription(initVideoFmtDescription(naluParts)),
 audioConvert(initAudioConvert()),
-videoDecodeSession(initVideoDecodeSession(naluParts)),
+videoDecodeSession(initVideoDecodeSession()),
 videoEncodeSession(initVideoEncodeSession()) {
     
 }
@@ -46,28 +47,20 @@ APCodecContext::~APCodecContext() {
     if (audioConvert) {
         AudioConverterDispose(audioConvert);
     }
+    if (_videoFmtDescription) {
+        CFRelease(_videoFmtDescription);
+    }
 }
 
-AudioConverterRef
-APCodecContext::initAudioConvert() {
-    return nullptr;
-}
-
-VTCompressionSessionRef
-APCodecContext::initVideoEncodeSession() {
-    return nullptr;
-}
-
-VTDecompressionSessionRef
-APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
+CMVideoFormatDescriptionRef
+APCodecContext::initVideoFmtDescription(const MSNaluParts &naluParts) {
     APCodecInfo codecInfo = getAPCodecInfo(codecID);
     IsVideoCodec isVideoCodec = get<1>(codecInfo);
     
     CMVideoFormatDescriptionRef videoFmtDescription = nullptr;
-    VTDecompressionSessionRef   videoDecoderSession = nullptr;
     
     if (codecType == APCodecDecoder && isVideoCodec) {
-        OSStatus status;
+        OSStatus status = 0;
         
         // MSNaluParts, 此处直接使用 sps, pps 内存引用, 未拼接 NALUnitHeaderLength.(待测试)
         const uint8_t *datas[] = {naluParts.spsRef(),  naluParts.ppsRef()};
@@ -86,19 +79,40 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
                                                                              &videoFmtDescription);
             } else {
                 ErrorLocationLog("current iOS version is not 11.0+, not support the hevc");
-                return nullptr;
             }
         } else {
             ErrorLocationLog("not support the codecID");
-            return nullptr;
         }
-    
+
         if (status != noErr) {
             ErrorLocationLog("fail to instance CMFormatDescriptionRef");
-            return nullptr;
         }
-        this->videoFmtDescription = videoFmtDescription;
+    }
+    return videoFmtDescription;
+}
+
+AudioConverterRef
+APCodecContext::initAudioConvert() {
+    return nullptr;
+}
+
+VTCompressionSessionRef
+APCodecContext::initVideoEncodeSession() {
+    return nullptr;
+}
+
+VTDecompressionSessionRef
+APCodecContext::initVideoDecodeSession() {
+    APCodecInfo codecInfo = getAPCodecInfo(codecID);
+    IsVideoCodec isVideoCodec = get<1>(codecInfo);
+    
+    VTDecompressionSessionRef videoDecoderSession = nullptr;
+    
+    if (codecType == APCodecDecoder && isVideoCodec) {
+        assert(_videoFmtDescription);
         
+        OSStatus status = 0;
+
         VTDecompressionOutputCallbackRecord outputCallback;
         outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataProvider.asynCallBack();
         outputCallback.decompressionOutputRefCon = (void *)&asynDataProvider;
@@ -114,21 +128,37 @@ APCodecContext::initVideoDecodeSession(const MSNaluParts &naluParts) {
                                                            &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
         
         status = VTDecompressionSessionCreate(kCFAllocatorDefault,
-                                              videoFmtDescription,
+                                              _videoFmtDescription,
                                               nullptr,
                                               dstBufferAttr,
                                               &outputCallback,
                                               &videoDecoderSession);
-//        CFRelease(videoFmtDescription);
         CFRelease(dstBufferAttr);
         CFRelease(pixFmtType);
         
         if (status != noErr) {
             ErrorLocationLog("fail to instance VTDecompressionSessionRef");
-            return nullptr;
         }
     }
     return videoDecoderSession;
+}
+
+void
+APCodecContext::setVideoFmtDescription(const MSNaluParts &naluParts) {
+    if (_videoFmtDescription) {
+        CFRelease(_videoFmtDescription);
+    }
+    _videoFmtDescription = initVideoFmtDescription(naluParts);
+    
+    bool ret = VTDecompressionSessionCanAcceptFormatDescription(videoDecodeSession, _videoFmtDescription);
+    if (!ret) {
+        ErrorLocationLog("call VTDecompressionSessionCanAcceptFormatDescription fail");
+    }
+}
+
+CMVideoFormatDescriptionRef
+APCodecContext::videoFmtDescription() const {
+    return _videoFmtDescription;
 }
 
 APCodecInfo

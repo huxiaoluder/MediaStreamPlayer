@@ -19,9 +19,11 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
     if (decoderContext) {
         OSStatus status;
         
-//        assert(*(uint32_t *)data.naluData == 0x01000000);
-        uint32_t *tempRef = (uint32_t *)data.naluParts().idrRef() - 1;
-        size_t tempSize = data.naluParts().idrSize()+4;
+        assert(*(uint32_t *)data.naluData == 0x01000000);
+        
+        uint32_t *tempRef = (uint32_t *)(data.naluParts().slcRef() ? data.naluParts().slcRef() : data.naluParts().idrRef());
+        tempRef -= 1;
+        size_t tempSize = data.naluParts().slcSize() ? data.naluParts().slcSize() : data.naluParts().idrSize();
         // 替换开始码为数据长度(小端存储)
         *tempRef &= 0;
         *tempRef |= (tempSize << 24);
@@ -49,7 +51,7 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         size_t sampleSizeArray[] = {tempSize};
         status = CMSampleBufferCreateReady(kCFAllocatorDefault,
                                            blockBuffer,
-                                           decoderContext->videoFmtDescription,
+                                           decoderContext->videoFmtDescription(), // 必须传,否则回调报错,且会卡死解码函数(kVTVideoDecoderMalfunctionErr -12911, 文档并不准确)
                                            1, 0, nullptr,
                                            sizeof(sampleSizeArray) / sizeof(size_t),
                                            sampleSizeArray,
@@ -119,6 +121,10 @@ APDecoder::getDecoderContext(const MSCodecID codecID,
         decoderContext = new APCodecContext(APCodecDecoder, codecID,
                                             sourceData.naluParts(), *this);
         decoderContexts[codecID] = decoderContext;
+        return decoderContext;
+    }
+    if (decoderContext && sourceData.isKeyFrame) {
+        decoderContext->setVideoFmtDescription(sourceData.naluParts());
     }
     return decoderContext;
 }
@@ -145,7 +151,6 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
                                                                    CVBufferRetain));
         printf("=================解码成功=================\n");
     } else {
-        delete (MSMedia<isEncode> *)sourceFrameRefCon;
         printf("=================解码失败=================\n");
     }
 };

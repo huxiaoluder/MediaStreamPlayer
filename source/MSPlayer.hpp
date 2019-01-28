@@ -29,13 +29,13 @@ namespace MS {
     class MSPlayer : public MSAsynDataReceiver<T> {
         typedef function<void(const MSMedia<isDecode,T> &decodeData)> ThrowDecodeData;
         
-        MSSyncDecoderProtocol<T> * MSNullable const _syncDecoder = nullptr;
+        MSSyncDecoderProtocol<T> * MSNullable  _syncDecoder = nullptr;
         
-        MSSyncEncoderProtocol<T> * MSNullable const _syncEncoder = nullptr;
+        MSSyncEncoderProtocol<T> * MSNullable  _syncEncoder = nullptr;
         
-        MSAsynDecoderProtocol<T> * MSNullable const _asynDecoder = nullptr;
+        MSAsynDecoderProtocol<T> * MSNullable  _asynDecoder = nullptr;
         
-        MSAsynEncoderProtocol<T> * MSNullable const _asynEncoder = nullptr;
+        MSAsynEncoderProtocol<T> * MSNullable  _asynEncoder = nullptr;
         
         MSTimer * MSNonnull const videoTimer;
         

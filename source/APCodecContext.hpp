@@ -39,11 +39,12 @@ namespace MS {
             const APCodecType codecType;
             const MSCodecID codecID;
             const APAsynDataProvider &asynDataProvider;
-            
+        private:
+            CMVideoFormatDescriptionRef MSNullable  _videoFmtDescription;
+        public:
             AudioConverterRef           const MSNullable audioConvert;
-            VTCompressionSessionRef     const MSNullable videoEncodeSession;
             VTDecompressionSessionRef   const MSNullable videoDecodeSession;
-            CMVideoFormatDescriptionRef MSNullable videoFmtDescription = nullptr;
+            VTCompressionSessionRef     const MSNullable videoEncodeSession;
             
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,
@@ -56,14 +57,19 @@ namespace MS {
             
             ~APCodecContext();
             
+            void setVideoFmtDescription(const MSNaluParts &naluParts);
+            
+            CMVideoFormatDescriptionRef MSNullable videoFmtDescription() const;
+            
             static APCodecInfo getAPCodecInfo(const MSCodecID codecID);
         private:
             // Note: don't allow copy with (APCodecContext &)obj
             APCodecContext(const APCodecContext &codecContext);
             
+            CMVideoFormatDescriptionRef MSNullable  initVideoFmtDescription(const MSNaluParts &naluParts);
             AudioConverterRef           MSNullable  initAudioConvert();
             VTCompressionSessionRef     MSNullable  initVideoEncodeSession();
-            VTDecompressionSessionRef   MSNullable  initVideoDecodeSession(const MSNaluParts &naluParts);
+            VTDecompressionSessionRef   MSNullable  initVideoDecodeSession();
         };
 
     }

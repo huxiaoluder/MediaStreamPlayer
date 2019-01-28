@@ -26,12 +26,17 @@
 #if DEBUG
 
 #define ErrorLocationLog(reson) \
-printf("-----------------------ERROR-----------------------\n"\
+printf("\n"\
+"-----------------------ERROR-----------------------\n"\
 "| filepath:    %s\n"\
 "| linenumber:  %d\n"\
 "| funcname:    %s\n"\
 "| reson:       %s\n"\
 "---------------------------------------------------\n",__FILE__,__LINE__,__func__,reson)
+
+#else
+
+#define ErrorLocationLog(reson)
 
 #endif
 
