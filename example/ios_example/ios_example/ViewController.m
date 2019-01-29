@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "IotlibTool.h"
+#include <math.h>
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UIButton *push;
@@ -17,7 +18,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
 }
 
 

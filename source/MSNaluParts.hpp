@@ -11,9 +11,20 @@
 
 #include <cstring>
 #include <cstdint>
-#include "MSUtils.h"
+#include "MSMacros.h"
 
 namespace MS {
+    
+    enum SpsType {
+        SpsTypeH264 = true,
+        SpsTypeH265 = false
+    };
+    
+    struct MSVideoParameters {
+        int width = 0;
+        int height = 0;
+        int frameRate = 1;
+    };
     
     class MSNaluParts {
         
@@ -34,7 +45,7 @@ namespace MS {
         size_t _seiSize = 0;
         size_t _spsSize = 0;
         size_t _ppsSize = 0;
-    
+        
     public:
         MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize);
         
@@ -56,7 +67,13 @@ namespace MS {
         size_t seiSize() const;
         size_t spsSize() const;
         size_t ppsSize() const;
+        
+        static MSVideoParameters videoParameter;
+        
+        void parseSps(SpsType spsType) const;
     };
+    
+    
     
 }
 

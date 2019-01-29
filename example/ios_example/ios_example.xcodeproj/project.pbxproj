@@ -90,7 +90,7 @@
 		4F0A740721B7BC4C000E0E31 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		4F0A740921B7C4A0000E0E31 /* MSViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSViewController.h; sourceTree = "<group>"; };
 		4F0A740A21B7C4A0000E0E31 /* MSViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MSViewController.mm; sourceTree = "<group>"; };
-		4F0E550221EF255900302D45 /* MSUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSUtils.h; sourceTree = "<group>"; };
+		4F0E550221EF255900302D45 /* MSMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSMacros.h; sourceTree = "<group>"; };
 		4F17069A21D207BA00CE476E /* opus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opus.h; sourceTree = "<group>"; };
 		4F17069B21D207BA00CE476E /* opus_multistream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opus_multistream.h; sourceTree = "<group>"; };
 		4F17069C21D207BA00CE476E /* opus_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opus_types.h; sourceTree = "<group>"; };
@@ -338,7 +338,7 @@
 			isa = PBXGroup;
 			children = (
 				4F0A736021B7B462000E0E31 /* MediaStreamPlayer.h */,
-				4F0E550221EF255900302D45 /* MSUtils.h */,
+				4F0E550221EF255900302D45 /* MSMacros.h */,
 				4F0A735E21B7B462000E0E31 /* MSCodecSyncProtocol.h */,
 				4FF055DF21DC936700339CDF /* MSCodecAsynProtocol.h */,
 				4FF055DD21DC53AD00339CDF /* MSAsynDataReceiver.h */,

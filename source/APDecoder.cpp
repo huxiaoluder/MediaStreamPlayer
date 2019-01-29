@@ -21,22 +21,33 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         
         assert(*(uint32_t *)data.naluData == 0x01000000);
         
-        uint32_t *tempRef = (uint32_t *)(data.naluParts().slcRef() ? data.naluParts().slcRef() : data.naluParts().idrRef());
+        // 帧数据引用
+        uint32_t *tempRef = (uint32_t *)(data.naluParts().slcRef() ?
+                                         data.naluParts().slcRef() :
+                                         data.naluParts().idrRef());
+        // 帧数据长度
+        size_t tempSize = (data.naluParts().slcSize() ?
+                           data.naluParts().slcSize() :
+                           data.naluParts().idrSize());
+        // 包含开始码
         tempRef -= 1;
-        size_t tempSize = data.naluParts().slcSize() ? data.naluParts().slcSize() : data.naluParts().idrSize();
-        // 替换开始码为数据长度(小端存储)
+        
+        // atom 型: 替换开始码为数据长度(小端存储)
         *tempRef &= 0;
         *tempRef |= (tempSize << 24);
         *tempRef |= (tempSize >> 24);
         *tempRef |= (tempSize & 0x0000FF00) << 8;
         *tempRef |= (tempSize & 0x00FF0000) >> 8;
         
+        // atom 型: nalu 数据长度
+        tempSize += 4;
+        
         CMBlockBufferRef blockBuffer = nullptr;
         status = CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
                                                     tempRef,
                                                     tempSize,
                                                     blockAllocator, // 传入 nullptr, 将使用默认分配器 kCFAllocatorDefault.
-                                                    nullptr, // 该结构参数将自定义内存分配和释放, 如果不为 nullptr, blockAllocator 参数将被忽略
+                                                    nullptr, // 该结构参数将自定义内存的分配和释放, 如果不为 nullptr, blockAllocator 参数将被忽略
                                                     0,
                                                     tempSize,
                                                     bufferFlags, // 传入 NULL 则该函数不会对传入数据重新分配空间.
@@ -46,13 +57,27 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
             delete videoData;
             return;
         }
-        
+       
         CMSampleBufferRef sampleBuffer = nullptr;
         size_t sampleSizeArray[] = {tempSize};
+        
+        CMSampleTimingInfo sampleTimingArray[] = {{
+            .duration = {
+                .value = MSNaluParts::videoParameter.frameRate,
+                .timescale = 0,
+                .flags = kCMTimeFlags_Valid,
+                .epoch = 0,
+            },
+            .presentationTimeStamp = NULL,
+            .decodeTimeStamp = NULL
+        }};
+        
         status = CMSampleBufferCreateReady(kCFAllocatorDefault,
                                            blockBuffer,
                                            decoderContext->videoFmtDescription(), // 必须传,否则回调报错,且会卡死解码函数(kVTVideoDecoderMalfunctionErr -12911, 文档并不准确)
-                                           1, 0, nullptr,
+                                           sizeof(sampleSizeArray) / sizeof(size_t),
+                                           sizeof(sampleTimingArray) / sizeof(CMSampleTimingInfo),
+                                           sampleTimingArray,
                                            sizeof(sampleSizeArray) / sizeof(size_t),
                                            sampleSizeArray,
                                            &sampleBuffer);
@@ -117,14 +142,19 @@ APCodecContext *
 APDecoder::getDecoderContext(const MSCodecID codecID,
                              const MSMedia<isEncode> &sourceData) {
     APCodecContext *decoderContext = decoderContexts[codecID];
-    if (!decoderContext && sourceData.isKeyFrame) {
-        decoderContext = new APCodecContext(APCodecDecoder, codecID,
-                                            sourceData.naluParts(), *this);
-        decoderContexts[codecID] = decoderContext;
-        return decoderContext;
-    }
-    if (decoderContext && sourceData.isKeyFrame) {
-        decoderContext->setVideoFmtDescription(sourceData.naluParts());
+    if (sourceData.isKeyFrame) {
+        if (decoderContext) {
+            // 实时更新解码器配置(用新的 sps, pps)
+            decoderContext->setVideoFmtDescription(sourceData.naluParts());
+        } else {
+            decoderContext = new APCodecContext(APCodecDecoder, codecID,
+                                                sourceData.naluParts(), *this);
+            decoderContexts[codecID] = decoderContext;
+        }
+        // 解析基本信息(实时更新宽高帧率)
+        sourceData.naluParts().parseSps(codecID == MSCodecID_H264 ?
+                                        SpsTypeH264 :
+                                        SpsTypeH265);
     }
     return decoderContext;
 }

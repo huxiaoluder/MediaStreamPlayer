@@ -12,7 +12,7 @@
 #include <string>
 #include <queue>
 #include <cassert>
-#include "MSUtils.h"
+#include "MSMacros.h"
 #include "MSTimer.hpp"
 #include "MSAsynDataReceiver.h"
 #include "MSCodecSyncProtocol.h"

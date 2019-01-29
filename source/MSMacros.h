@@ -1,13 +1,13 @@
 //
-//  MSUtils.h
+//  MSMacros.h
 //  ios_example
 //
 //  Created by 胡校明 on 2019/1/16.
 //  Copyright © 2019 freecoder. All rights reserved.
 //
 
-#ifndef MSUtils_h
-#define MSUtils_h
+#ifndef MSMacros_h
+#define MSMacros_h
 
 #ifdef __APPLE__
 
@@ -40,8 +40,4 @@ printf("\n"\
 
 #endif
 
-namespace MS {
- 
-}
-
-#endif /* MSUtils_h */
+#endif /* MSMacros_h */

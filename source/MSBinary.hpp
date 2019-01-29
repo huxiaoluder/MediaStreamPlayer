@@ -11,7 +11,7 @@
 
 #include <cstring>
 #include <cstdint>
-#include "MSUtils.h"
+#include "MSMacros.h"
 
 namespace MS {
     
