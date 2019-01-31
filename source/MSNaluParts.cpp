@@ -128,65 +128,96 @@ decode_vui_parameters(const uint8_t * const spsRef, size_t &startLocation, int &
     }
 }
 
+static const uint8_t *
+discardEmulationCode(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize) {
+    uint8_t * const realSps = new uint8_t[sourceSpsSize]{0};
+    
+    uint8_t * tempStart = realSps;
+    int lastStartIdx = 0;
+    size_t tempSize;
+    
+    for (int i = 3; i < sourceSpsSize; i++) {
+        if (sourceSpsRef[i] == 0x03 &&
+            *(uint32_t *)(sourceSpsRef + i - 2) << 8 == 0x03000000) {
+            tempSize = i - lastStartIdx;
+            memcpy(tempStart, sourceSpsRef+lastStartIdx, tempSize);
+            tempStart += tempSize;
+            lastStartIdx = i + 1;
+            i += 2;
+        }
+    }
+    
+    tempSize = sourceSpsSize - lastStartIdx;
+    memcpy(tempStart, sourceSpsRef+lastStartIdx, tempSize);
+    return realSps;
+}
+
 static void
-decode_h264_sps(const uint8_t * const spsRef, const size_t spsSize, MSVideoParameters &videoParameter) {
+decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, MSVideoParameters &videoParameter) {
+    
+    const uint8_t * const realSps = discardEmulationCode(sourceSpsRef, sourceSpsSize);
+    
     size_t startLocation = 0;
     
     skipBits(startLocation, 8);
-    int profile_idc = getBitsValue(spsRef, startLocation, 8);
+    
+    int profile_idc = getBitsValue(realSps, startLocation, 8);
     skipBits(startLocation, 16);
-    skipGolombBits(spsRef, startLocation, 1);
+    skipGolombBits(realSps, startLocation, 1);
     
     if (profile_idc == 100 ||
         profile_idc == 110 ||
         profile_idc == 122 ||
         profile_idc == 144) {
         
-        int chroma_format_idc = ueGolomb(spsRef, startLocation);
+        int chroma_format_idc = ueGolomb(realSps, startLocation);
         if(chroma_format_idc == 3) {
             skipBits(startLocation, 1);
         }
-        skipGolombBits(spsRef, startLocation, 2);
+        skipGolombBits(realSps, startLocation, 2);
         skipBits(startLocation, 1);
         
-        int seq_scaling_matrix_present_flag = getBitsValue(spsRef, startLocation, 1);
+        int seq_scaling_matrix_present_flag = getBitsValue(realSps, startLocation, 1);
         if(seq_scaling_matrix_present_flag) {
             skipBits(startLocation, 8);
         }
     }
-    skipGolombBits(spsRef, startLocation, 1);
+    skipGolombBits(realSps, startLocation, 1);
     
-    int pic_order_cnt_type = ueGolomb(spsRef, startLocation);
+    int pic_order_cnt_type = ueGolomb(realSps, startLocation);
     if(pic_order_cnt_type == 0) {
-        skipGolombBits(spsRef, startLocation, 1);
+        skipGolombBits(realSps, startLocation, 1);
     } else if (pic_order_cnt_type == 1) {
         skipBits(startLocation, 1);
-        skipGolombBits(spsRef, startLocation, 2);
-        skipGolombBits(spsRef, startLocation, ueGolomb(spsRef, startLocation));
+        skipGolombBits(realSps, startLocation, 2);
+        skipGolombBits(realSps, startLocation, ueGolomb(realSps, startLocation));
     }
-    skipGolombBits(spsRef, startLocation, 1);
+    skipGolombBits(realSps, startLocation, 1);
     skipBits(startLocation, 1);
-    int pic_width_in_mbs_minus1 = ueGolomb(spsRef, startLocation);
-    int pic_height_in_map_units_minus1 = ueGolomb(spsRef, startLocation);
     
-    int frame_mbs_only_flag = getBitsValue(spsRef, startLocation, 1);
+    int pic_width_in_mbs_minus1 = ueGolomb(realSps, startLocation);
+    int pic_height_in_map_units_minus1 = ueGolomb(realSps, startLocation);
+    
+    int frame_mbs_only_flag = getBitsValue(realSps, startLocation, 1);
     if(!frame_mbs_only_flag) {
         skipBits(startLocation, 1);
     }
     skipBits(startLocation, 1);
     
-    int frame_cropping_flag = getBitsValue(spsRef, startLocation, 1);
+    int frame_cropping_flag = getBitsValue(realSps, startLocation, 1);
     if(frame_cropping_flag) {
-        skipGolombBits(spsRef, startLocation, 4);
+        skipGolombBits(realSps, startLocation, 4);
     }
     
-    int vui_parameters_present_flag = getBitsValue(spsRef, startLocation, 1);
+    int vui_parameters_present_flag = getBitsValue(realSps, startLocation, 1);
     if(vui_parameters_present_flag) {
-        decode_vui_parameters(spsRef, startLocation, videoParameter.frameRate);
+        decode_vui_parameters(realSps, startLocation, videoParameter.frameRate);
     }
     
     videoParameter.width    = (pic_width_in_mbs_minus1 + 1) * 16;
     videoParameter.height   = (pic_height_in_map_units_minus1 + 1) * 16;
+    
+    delete [] realSps;
 }
 
 static size_t
@@ -194,11 +225,11 @@ nextSeparatorOffset(const uint8_t * MSNonnull const lastPtr) {
     const uint8_t *nextPtr = lastPtr;
     while (true) {
         if (*nextPtr++ == 0x01) {
-            if (*(uint32_t *)((uint64_t)nextPtr - 4) == 0x01000000) {
-                return (uint64_t)nextPtr - (uint64_t)lastPtr - 4;
+            if (*(uint32_t *)(nextPtr - 4) == 0x01000000) {
+                return nextPtr - lastPtr - 4;
             }
-            if (*(uint32_t *)((uint64_t)nextPtr - 3) << 8 == 0x01000000) {
-                return (uint64_t)nextPtr - (uint64_t)lastPtr - 3;
+            if (*(uint32_t *)(nextPtr - 3) << 8 == 0x01000000) {
+                return nextPtr - lastPtr - 3;
             }
         }
     }
