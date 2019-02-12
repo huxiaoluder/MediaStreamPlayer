@@ -174,6 +174,7 @@ FFEncoder::configureVideoEncoderContext(const FFCodecContext &videoDecoderContex
     int ret = avcodec_open2(&encoderContext, videoEncoderContext->codec, &dict);
     if (ret < 0) {
         ErrorLocationLog(av_err2str(ret));
+        delete videoEncoderContext;
         return nullptr;
     }
     
@@ -184,6 +185,7 @@ FFEncoder::configureVideoEncoderContext(const FFCodecContext &videoDecoderContex
     ret = avcodec_parameters_from_context(outStream.codecpar, &encoderContext);
     if (ret < 0) {
         ErrorLocationLog(av_err2str(ret));
+        delete videoEncoderContext;
         return nullptr;
     }
     outStream.time_base = encoderContext.time_base;
@@ -220,6 +222,7 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     int ret = avcodec_open2(&encoderContext, audioEncoderContext->codec, nullptr);
     if (ret < 0) {
         ErrorLocationLog(av_err2str(ret));
+        delete audioEncoderContext;
         return nullptr;
     }
     
@@ -228,6 +231,7 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     ret = avcodec_parameters_from_context(outStream.codecpar, &encoderContext);
     if (ret < 0) {
         ErrorLocationLog(av_err2str(ret));
+        delete audioEncoderContext;
         return nullptr;
     }
     outStream.time_base = encoderContext.time_base;

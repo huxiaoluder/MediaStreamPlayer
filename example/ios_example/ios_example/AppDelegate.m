@@ -24,7 +24,8 @@
     iotsdk_set_log_level(e_log_error);
     [[IotlibTool shareIotlibTool] initIotSdkWithUuid:[UIDevice currentDevice].identifierForVendor.UUIDString];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [[IotlibTool shareIotlibTool] iotSdkSetUserName:@"86-18584843282" pass:@"que123456"];
+//        [[IotlibTool shareIotlibTool] iotSdkSetUserName:@"86-18584843282" pass:@"que123456"];
+        [[IotlibTool shareIotlibTool] iotSdkSetUserName:@"86-18801381344" pass:@"aaaa0000"];
     });
     
     return YES;

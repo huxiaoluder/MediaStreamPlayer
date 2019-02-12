@@ -7,23 +7,14 @@
 //
 
 #include "MSNaluParts.hpp"
+#include <cassert>
 #include <cmath>
 
 using namespace MS;
 
-static inline int
+static inline bool
 detectBitValue(const uint8_t * const spsRef, const size_t &startLocation) {
     return spsRef[startLocation / 8] & (0x80 >> (startLocation % 8));
-}
-
-static inline bool
-detectBitEqua0(const uint8_t * const spsRef, const size_t &startLocation) {
-    return detectBitValue(spsRef, startLocation) == 0;
-}
-
-static inline bool
-detectBitEqua1(const uint8_t * const spsRef, const size_t &startLocation) {
-    return detectBitValue(spsRef, startLocation) != 0;
 }
 
 static inline void
@@ -36,7 +27,7 @@ skipGolombBits(const uint8_t * const spsRef, size_t &startLocation, const int ti
     for (int i = 0; i < times; i++) {
         // 指数
         int index = 0;
-        while (detectBitEqua0(spsRef, startLocation)) {
+        while (!detectBitValue(spsRef, startLocation)) {
             index++;
             startLocation++;
         }
@@ -45,10 +36,23 @@ skipGolombBits(const uint8_t * const spsRef, size_t &startLocation, const int ti
 }
 
 static int
+getBitsValue(const uint8_t * const spsRef, size_t &startLocation, const int bitsCount) {
+    int value = 0;
+    for (int i = 0; i < bitsCount; i++) {
+        value <<= 1;
+        if (detectBitValue(spsRef, startLocation)) {
+            value |= 1;
+        }
+        startLocation++;
+    }
+    return value;
+}
+
+static int
 ueGolomb(const uint8_t * const spsRef, size_t &startLocation) {
     // 指数
     int index = 0;
-    while (detectBitEqua0(spsRef, startLocation)) {
+    while (!detectBitValue(spsRef, startLocation)) {
         index++;
         startLocation++;
     }
@@ -57,42 +61,32 @@ ueGolomb(const uint8_t * const spsRef, size_t &startLocation) {
     startLocation++;
     
     // 去除指数的余值
-    int value = 0;
-    for (int i = 0; i < index; i++) {
-        value <<= 1;
-        if (detectBitEqua1(spsRef, startLocation)) {
-            value |= 1;
-        }
-        startLocation++;
-    }
+    int value = getBitsValue(spsRef, startLocation, index);
+    
     return (1 << index | value) - 1;
 }
 
-#if 0 // 暂未用到
 static int
 seGolomb(const uint8_t * const spsRef, size_t &startLocation) {
-    int ueValue=ueGolomb(spsRef, startLocation);
+    int ueValue = ueGolomb(spsRef, startLocation);
     double k = ueValue;
     // ceil函数求不小于给定实数的最小整数
     int newValue = ceil(k/2);
-    if (ueValue % 2 == 0) {
-        newValue = -newValue;
-    }
-    return newValue;
+    return ueValue % 2 == 0 ? -newValue : newValue;
 }
-#endif
 
-static int
-getBitsValue(const uint8_t * const spsRef, size_t &startLocation, const int bitsCount) {
-    int value = 0;
-    for (int i = 0; i < bitsCount; i++) {
-        value <<= 1;
-        if (detectBitEqua1(spsRef, startLocation)) {
-            value |= 1;
+static void
+skipScalingList(const uint8_t * const spsRef, size_t &startLocation, size_t sizeOfScalingList) {
+    int lastScale = 8;
+    int nextScale = 8;
+    int delta_scale;
+    for (int i = 0; i < sizeOfScalingList; i++) {
+        if (nextScale != 0) {
+            delta_scale = seGolomb(spsRef, startLocation);
+            nextScale = (lastScale + delta_scale + 256) % 256;
         }
-        startLocation++;
+        lastScale = nextScale == 0 ? lastScale : nextScale;
     }
-    return value;
 }
 
 static void
@@ -179,7 +173,15 @@ decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, 
         
         int seq_scaling_matrix_present_flag = getBitsValue(realSps, startLocation, 1);
         if(seq_scaling_matrix_present_flag) {
-            skipBits(startLocation, 8);
+            for (int i = 0; i < 8; i++) {
+                if (getBitsValue(realSps, startLocation, 1)) {
+                    if (i < 6) {
+                        skipScalingList(realSps, startLocation, 16);
+                    } else {
+                        skipScalingList(realSps, startLocation, 64);
+                    }
+                }
+            }
         }
     }
     skipGolombBits(realSps, startLocation, 1);
@@ -215,7 +217,7 @@ decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, 
     }
     
     videoParameter.width    = (pic_width_in_mbs_minus1 + 1) * 16;
-    videoParameter.height   = (pic_height_in_map_units_minus1 + 1) * 16;
+    videoParameter.height   = (pic_height_in_map_units_minus1 + 1) * 16 - 8;
     
     delete [] realSps;
 }
@@ -257,9 +259,8 @@ MSNaluParts::MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t n
                 }   break;
                 case 0x04: { // 非关键帧数据划分片段C部分 (DPC)
                     _dpbRef = ptr;
-                    _dpbSize = nextSeparatorOffset(ptr);
-                    ptr += _dpbSize;
-                }   break;
+                    _dpbSize = naluSize - (ptr - nalUnit);
+                }   return;
                 case 0x05: { // 关键帧数据 (IDR)
                     _idrRef = ptr;
                     _idrSize = naluSize - (ptr - nalUnit);

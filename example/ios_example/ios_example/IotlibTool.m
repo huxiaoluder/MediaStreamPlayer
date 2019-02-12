@@ -62,12 +62,12 @@ void logCallback(const char* log_content, int log_len){
 //    iotsdk_set_log_level(e_log_error);
 
 //#ifdef IsDebugModel     //pch里面打开注释
-    iotsdk_add_server_ip_addr("120.79.178.33", 5009);
+//    iotsdk_add_server_ip_addr("120.79.178.33", 5009);
 //#else
-//    iotsdk_add_server_ip_addr("120.77.150.206", 5009);
-//    iotsdk_add_server_ip_addr("47.75.85.181", 5009);
-//    iotsdk_add_server_ip_addr("47.254.33.237", 5009);
-//    iotsdk_add_server_ip_addr("47.91.107.36", 5009);
+    iotsdk_add_server_ip_addr("120.77.150.206", 5009);
+    iotsdk_add_server_ip_addr("47.75.85.181", 5009);
+    iotsdk_add_server_ip_addr("47.254.33.237", 5009);
+    iotsdk_add_server_ip_addr("47.91.107.36", 5009);
 //#endif
     
     iotsdk_user_set_app_verify_info("mktech", "2017mktech!@01");
@@ -533,7 +533,7 @@ void stopAll(){
 
 //终端连接
 - (void)stopConnectWithConnectId:(int)connectId complete:(void (^)(BOOL success))complete{
-    connectId = connectId == 0?g_conn_id:connectId;
+//    connectId = connectId == 0?g_conn_id:connectId;
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
 //        int ret = iotsdk_stop_conn(connectId);
         int ret = 0;

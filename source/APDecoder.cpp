@@ -63,8 +63,8 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         
         CMSampleTimingInfo sampleTimingArray[] = {{
             .duration = {
-                .value = MSNaluParts::videoParameter.frameRate,
-                .timescale = 0,
+                .value = 1000000LL / MSNaluParts::videoParameter.frameRate,
+                .timescale = 1000000,
                 .flags = kCMTimeFlags_Valid,
                 .epoch = 0,
             },
@@ -172,16 +172,16 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
         
         const APAsynDataProvider &dataProvider = *(APAsynDataProvider *)decompressionOutputRefCon;
         
-        microseconds timeInterval = microseconds(presentationDuration.value * 1000000L / presentationDuration.timescale);
+        microseconds timeInterval = microseconds(presentationDuration.value);
         
         dataProvider.launchVideoFrameData(new APDecoderOutputMeida(retainBuffer,
                                                                    timeInterval,
                                                                    (MSMedia<isEncode> *)sourceFrameRefCon,
                                                                    CVBufferRelease,
                                                                    CVBufferRetain));
-        printf("=================解码成功=================\n");
+        
     } else {
-        printf("=================解码失败=================\n");
+        ErrorLocationLog("APDecoder decode video error!");
     }
 };
 

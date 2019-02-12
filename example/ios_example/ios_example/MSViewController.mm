@@ -23,6 +23,7 @@ using namespace MS::APhard;
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
+//    MSPlayer<AVFrame> *player;
     MSPlayer<__CVBuffer> *player;
     BOOL updateVideo;
     BOOL updateAudio;
@@ -41,7 +42,7 @@ static int i;
 //    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
 //    player = new MSPlayer<AVFrame>(decoder,encoder,
 //                                   [&](const MSMedia<isDecode,AVFrame> &data) {
-//
+//                                       printf("data time: %lld\n", data.timeInterval.count());
 //                                   },
 //                                   [&](const MSMedia<isDecode,AVFrame> &data) {
 //
@@ -51,10 +52,10 @@ static int i;
 //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
     player = new MSPlayer<__CVBuffer>(decoder,nullptr,
                                       [&](const MSMedia<isDecode,__CVBuffer> &data) {
-                                          
+                                          printf("data time: %lld\n", data.timeInterval.count());
                                       },
                                       [&](const MSMedia<isDecode,__CVBuffer> &data) {
-                                          
+
                                       });
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -71,7 +72,8 @@ static int i;
                                                object:nil];
     [IotlibTool shareIotlibTool].delegate = self;
 
-    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK000S00004EDA785C"
+    // IOTSHMK000S00004EDA785C
+    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK000S0008EDA1FCDD"
                                                   callback:^(e_trans_conn_state status,
                                                              int connectId)
      {
