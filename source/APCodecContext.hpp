@@ -40,9 +40,9 @@ namespace MS {
             const MSCodecID codecID;
             const APAsynDataProvider &asynDataProvider;
         private:
-            CMVideoFormatDescriptionRef MSNullable  _videoFmtDescription;
+            CMVideoFormatDescriptionRef MSNullable videoFmtDescription;
         public:
-            AudioConverterRef           const MSNullable audioConvert;
+            AudioConverterRef           const MSNullable audioConverter;
             VTDecompressionSessionRef   const MSNullable videoDecodeSession;
             VTCompressionSessionRef     const MSNullable videoEncodeSession;
             
@@ -59,7 +59,7 @@ namespace MS {
             
             void setVideoFmtDescription(const MSNaluParts &naluParts);
             
-            CMVideoFormatDescriptionRef MSNullable videoFmtDescription() const;
+            CMVideoFormatDescriptionRef MSNullable getVideoFmtDescription() const;
             
             static APCodecInfo getAPCodecInfo(const MSCodecID codecID);
         private:

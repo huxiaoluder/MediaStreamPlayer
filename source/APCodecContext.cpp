@@ -17,7 +17,7 @@ APCodecContext::APCodecContext(const APCodecType codecType,
 :codecType(codecType),
 codecID(codecID),
 asynDataProvider(asynDataProvider),
-audioConvert(nullptr),
+audioConverter(nullptr),
 videoDecodeSession(nullptr),
 videoEncodeSession(nullptr) {
     
@@ -30,8 +30,8 @@ APCodecContext::APCodecContext(const APCodecType codecType,
 :codecType(codecType),
 codecID(codecID),
 asynDataProvider(asynDataProvider),
-_videoFmtDescription(initVideoFmtDescription(naluParts)),
-audioConvert(initAudioConvert()),
+videoFmtDescription(initVideoFmtDescription(naluParts)),
+audioConverter(initAudioConvert()),
 videoDecodeSession(initVideoDecodeSession()),
 videoEncodeSession(initVideoEncodeSession()) {
     
@@ -44,18 +44,18 @@ APCodecContext::~APCodecContext() {
     if (videoEncodeSession) {
         VTCompressionSessionInvalidate(videoEncodeSession);
     }
-    if (audioConvert) {
-        AudioConverterDispose(audioConvert);
+    if (audioConverter) {
+        AudioConverterDispose(audioConverter);
     }
-    if (_videoFmtDescription) {
-        CFRelease(_videoFmtDescription);
+    if (videoFmtDescription) {
+        CFRelease(videoFmtDescription);
     }
 }
 
 CMVideoFormatDescriptionRef
 APCodecContext::initVideoFmtDescription(const MSNaluParts &naluParts) {
     APCodecInfo codecInfo = getAPCodecInfo(codecID);
-    IsVideoCodec isVideoCodec = get<1>(codecInfo);
+    bool isVideoCodec = get<1>(codecInfo);
     
     CMVideoFormatDescriptionRef videoFmtDescription = nullptr;
     
@@ -93,7 +93,45 @@ APCodecContext::initVideoFmtDescription(const MSNaluParts &naluParts) {
 
 AudioConverterRef
 APCodecContext::initAudioConvert() {
-    return nullptr;
+    APCodecInfo codecInfo = getAPCodecInfo(codecID);
+    AudioFormatID audioFormatID = get<0>(codecInfo);
+    bool isAudioCodec = !get<1>(codecInfo);
+    
+    AudioConverterRef audioConverter = nullptr;
+    
+    if (codecType == APCodecDecoder  && isAudioCodec) {
+        OSStatus status = 0;
+        
+        AudioStreamBasicDescription sourceFormat = {
+            .mSampleRate        = 0,
+            .mFormatID          = audioFormatID,
+            .mFormatFlags       = 0,
+            .mBytesPerPacket    = 0,
+            .mFramesPerPacket   = 0,
+            .mBytesPerFrame     = 0,
+            .mChannelsPerFrame  = 0,
+            .mBitsPerChannel    = 0,
+            .mReserved          = 0
+        };
+        
+        AudioStreamBasicDescription destinationFormat = {
+            .mSampleRate        = 0,
+            .mFormatID          = kAudioFormatLinearPCM,
+            .mFormatFlags       = 0,
+            .mBytesPerPacket    = 0,
+            .mFramesPerPacket   = 0,
+            .mBytesPerFrame     = 0,
+            .mChannelsPerFrame  = 0,
+            .mBitsPerChannel    = 0,
+            .mReserved          = 0
+        };
+        
+        status = AudioConverterNew(&sourceFormat, &destinationFormat, &audioConverter);
+    }
+    
+
+    
+    return audioConverter;
 }
 
 VTCompressionSessionRef
@@ -109,7 +147,7 @@ APCodecContext::initVideoDecodeSession() {
     VTDecompressionSessionRef videoDecoderSession = nullptr;
     
     if (codecType == APCodecDecoder && isVideoCodec) {
-        assert(_videoFmtDescription);
+        assert(videoFmtDescription);
         
         OSStatus status = 0;
 
@@ -128,7 +166,7 @@ APCodecContext::initVideoDecodeSession() {
                                                            &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 #warning dstBufferAttr
         status = VTDecompressionSessionCreate(kCFAllocatorDefault,
-                                              _videoFmtDescription,
+                                              videoFmtDescription,
                                               nullptr,
                                               nullptr,
                                               &outputCallback,
@@ -145,20 +183,20 @@ APCodecContext::initVideoDecodeSession() {
 
 void
 APCodecContext::setVideoFmtDescription(const MSNaluParts &naluParts) {
-    if (_videoFmtDescription) {
-        CFRelease(_videoFmtDescription);
+    if (videoFmtDescription) {
+        CFRelease(videoFmtDescription);
     }
-    _videoFmtDescription = initVideoFmtDescription(naluParts);
+    videoFmtDescription = initVideoFmtDescription(naluParts);
     
-    bool ret = VTDecompressionSessionCanAcceptFormatDescription(videoDecodeSession, _videoFmtDescription);
+    bool ret = VTDecompressionSessionCanAcceptFormatDescription(videoDecodeSession, videoFmtDescription);
     if (!ret) {
         ErrorLocationLog("call VTDecompressionSessionCanAcceptFormatDescription fail");
     }
 }
 
 CMVideoFormatDescriptionRef
-APCodecContext::videoFmtDescription() const {
-    return _videoFmtDescription;
+APCodecContext::getVideoFmtDescription() const {
+    return videoFmtDescription;
 }
 
 APCodecInfo

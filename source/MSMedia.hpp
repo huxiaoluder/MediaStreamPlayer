@@ -77,10 +77,10 @@ namespace MS {
         }
         
         ~MSMedia() {
-            if (_naluParts) {
-                delete _naluParts;
+            if (naluParts) {
+                delete naluParts;
             }
-            delete[] naluData;
+            delete [] naluData;
         }
         
         MSMedia * MSNonnull clone() {
@@ -88,16 +88,16 @@ namespace MS {
         }
         
         // Note: only I frame can return naluParts and enforce changed naluParts value
-        const MSNaluParts & naluParts() const {
-            if (!_naluParts) {
-                auto naluParts = const_cast<MSNaluParts **>(&_naluParts);
-                *naluParts = new MSNaluParts(naluData, naluSize);
+        const MSNaluParts & getNaluParts() const {
+            if (!naluParts) {
+                auto naluPartsRef = const_cast<MSNaluParts **>(&naluParts);
+                *naluPartsRef = new MSNaluParts(naluData, naluSize);
             }
-            return *_naluParts;
+            return *naluParts;
         }
         
     private:
-        const MSNaluParts * MSNullable _naluParts = nullptr;
+        const MSNaluParts * MSNullable naluParts = nullptr;
     };
     
 #pragma mark - typeTraits: MSMedia<isDecode, CT>

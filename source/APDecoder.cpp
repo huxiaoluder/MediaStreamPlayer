@@ -14,7 +14,7 @@ using namespace MS::APhard;
 void
 APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
     const MSMedia<isEncode> &data = *videoData;
-    APCodecContext * const decoderContext = getDecoderContext(data.codecID, data);
+    APCodecContext * const decoderContext = getVideoDecoderContext(data);
     
     if (decoderContext) {
         OSStatus status;
@@ -22,13 +22,13 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         assert(*(uint32_t *)data.naluData == 0x01000000);
         
         // 帧数据引用
-        uint32_t *tempRef = (uint32_t *)(data.naluParts().slcRef() ?
-                                         data.naluParts().slcRef() :
-                                         data.naluParts().idrRef());
+        uint32_t *tempRef = (uint32_t *)(data.getNaluParts().slcRef() ?
+                                         data.getNaluParts().slcRef() :
+                                         data.getNaluParts().idrRef());
         // 帧数据长度
-        size_t tempSize = (data.naluParts().slcSize() ?
-                           data.naluParts().slcSize() :
-                           data.naluParts().idrSize());
+        size_t tempSize = (data.getNaluParts().slcSize() ?
+                           data.getNaluParts().slcSize() :
+                           data.getNaluParts().idrSize());
         // 包含开始码
         tempRef -= 1;
         
@@ -74,7 +74,7 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         
         status = CMSampleBufferCreateReady(kCFAllocatorDefault,
                                            blockBuffer,
-                                           decoderContext->videoFmtDescription(), // 必须传,否则回调报错,且会卡死解码函数(kVTVideoDecoderMalfunctionErr -12911, 文档并不准确)
+                                           decoderContext->getVideoFmtDescription(), // 必须传,否则回调报错,且会卡死解码函数(kVTVideoDecoderMalfunctionErr -12911, 文档并不准确)
                                            sizeof(sampleSizeArray) / sizeof(size_t),
                                            sizeof(sampleTimingArray) / sizeof(CMSampleTimingInfo),
                                            sampleTimingArray,
@@ -107,7 +107,15 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
 
 void
 APDecoder::decodeAudio(const MSMedia<isEncode> * const audioData) {
+    const MSMedia<isEncode> &data = *audioData;
+    APCodecContext * const decoderContext = getVideoDecoderContext(data);
     
+    if (decoderContext) {
+        OSStatus status;
+        decoderContext->audioConverter;
+    } else {
+        delete audioData;
+    }
 }
 
 APDecoder::APDecoder(const VTDecodeFrameFlags decodeFlags)
@@ -139,22 +147,34 @@ APDecoder::initBlockAllocator() {
 }
 
 APCodecContext *
-APDecoder::getDecoderContext(const MSCodecID codecID,
-                             const MSMedia<isEncode> &sourceData) {
+APDecoder::getVideoDecoderContext(const MSMedia<isEncode> &sourceData) {
+    MSCodecID codecID = sourceData.codecID;
     APCodecContext *decoderContext = decoderContexts[codecID];
+    
     if (sourceData.isKeyFrame) {
         if (decoderContext) {
             // 实时更新解码器配置(用新的 sps, pps)
-            decoderContext->setVideoFmtDescription(sourceData.naluParts());
+            decoderContext->setVideoFmtDescription(sourceData.getNaluParts());
         } else {
-            decoderContext = new APCodecContext(APCodecDecoder, codecID,
-                                                sourceData.naluParts(), *this);
+            decoderContext = new APCodecContext(APCodecDecoder, codecID, sourceData.getNaluParts(), *this);
             decoderContexts[codecID] = decoderContext;
         }
         // 解析基本信息(实时更新宽高帧率)
-        sourceData.naluParts().parseSps(codecID == MSCodecID_H264 ?
+        sourceData.getNaluParts().parseSps(codecID == MSCodecID_H264 ?
                                         SpsTypeH264 :
                                         SpsTypeH265);
+    }
+    return decoderContext;
+}
+
+APCodecContext *
+APDecoder::getAudioDecoderContext(const MSMedia<isEncode> &sourceData) {
+    MSCodecID codecID = sourceData.codecID;
+    APCodecContext *decoderContext = decoderContexts[codecID];
+    
+    if (!decoderContext) {
+        decoderContext = new APCodecContext(APCodecDecoder, codecID, *this);
+        decoderContexts[codecID] = decoderContext;
     }
     return decoderContext;
 }

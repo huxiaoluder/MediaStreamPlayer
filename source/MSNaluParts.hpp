@@ -26,6 +26,12 @@ namespace MS {
         int frameRate = 1;
     };
     
+    struct MSAudioParameters {
+        int width = 0;
+        int height = 0;
+        int frameRate = 1;
+    };
+    
     class MSNaluParts {
         
         const uint8_t * MSNullable _slcRef = nullptr;
@@ -70,7 +76,11 @@ namespace MS {
         
         static MSVideoParameters videoParameter;
         
+        static MSAudioParameters audioParameter;
+        
         void parseSps(SpsType spsType) const;
+        
+        void parseAdts() const;
     };
     
     

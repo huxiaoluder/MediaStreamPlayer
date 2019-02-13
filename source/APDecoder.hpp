@@ -44,8 +44,9 @@ namespace MS {
              */
             CFAllocatorRef MSNonnull initBlockAllocator();
             
-            APCodecContext * MSNullable getDecoderContext(const MSCodecID codecID,
-                                                          const MSMedia<isEncode> &sourceData);
+            APCodecContext * MSNullable getVideoDecoderContext(const MSMedia<isEncode> &sourceData);
+            
+            APCodecContext * MSNullable getAudioDecoderContext(const MSMedia<isEncode> &sourceData);
             
         public:
             void decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData);

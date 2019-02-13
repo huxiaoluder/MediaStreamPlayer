@@ -217,7 +217,8 @@ decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, 
     }
     
     videoParameter.width    = (pic_width_in_mbs_minus1 + 1) * 16;
-    videoParameter.height   = (pic_height_in_map_units_minus1 + 1) * 16 - 8;
+    // (主流的 1080p, 720p, 360p)按16字节对齐, 可能会产生8位的冗余长度, 需要去除
+    videoParameter.height   = (pic_height_in_map_units_minus1 + 1) * 16 ^ 8;
     
     delete [] realSps;
 }
