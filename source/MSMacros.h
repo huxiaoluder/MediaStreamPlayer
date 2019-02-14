@@ -27,16 +27,16 @@
 
 #define ErrorLocationLog(reson) \
 printf("\n"\
-"-----------------------ERROR-----------------------\n"\
+"-----------------------------ERROR-----------------------------\n"\
 "| filepath:    %s\n"\
 "| linenumber:  %d\n"\
 "| funcname:    %s\n"\
 "| reson:       %s\n"\
-"---------------------------------------------------\n",__FILE__,__LINE__,__func__,reson)
+"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reson)
 
 #else
 
-#define ErrorLocationLog(reson)
+#define ErrorLocationLog(reason)
 
 #endif
 

@@ -18,10 +18,12 @@ namespace MS {
         
         typedef MSAsynDecoderProtocol<__CVBuffer>   APDecoderProtocol;
         typedef MSAsynDataReceiver<__CVBuffer>      APAsynDataReceiver;
-        typedef MSMedia<isDecode,__CVBuffer>        APDecoderOutputMeida;
+        typedef MSMedia<MSDecodeMedia,__CVBuffer>   APDecoderOutputMeida;
         
         class APDecoder : public APDecoderProtocol {
-            std::map<MSCodecID,APCodecContext *> decoderContexts;
+            static map<APDecoder *, const MSMediaParameters *> mediaParametersMap;
+            
+            map<MSCodecID,APCodecContext *> decoderContexts;
             
             const VTDecodeFrameFlags decodeFlags;
             
@@ -44,13 +46,13 @@ namespace MS {
              */
             CFAllocatorRef MSNonnull initBlockAllocator();
             
-            APCodecContext * MSNullable getVideoDecoderContext(const MSMedia<isEncode> &sourceData);
+            APCodecContext * MSNullable getVideoDecoderContext(const MSMedia<MSEncodeMedia> &sourceData);
             
-            APCodecContext * MSNullable getAudioDecoderContext(const MSMedia<isEncode> &sourceData);
+            APCodecContext * MSNullable getAudioDecoderContext(const MSMedia<MSEncodeMedia> &sourceData);
             
         public:
-            void decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData);
-            void decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData);
+            void decodeVideo(const MSMedia<MSEncodeMedia> * MSNonnull const videoData);
+            void decodeAudio(const MSMedia<MSEncodeMedia> * MSNonnull const audioData);
             
             /**
              if decodeFlags == NULL, the decoder still decode source data synchronously.

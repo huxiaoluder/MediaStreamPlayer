@@ -12,8 +12,8 @@ using namespace MS;
 using namespace MS::APhard;
 
 void
-APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
-    const MSMedia<isEncode> &data = *videoData;
+APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
+    const MSMedia<MSEncodeMedia> &data = *videoData;
     APCodecContext * const decoderContext = getVideoDecoderContext(data);
     
     if (decoderContext) {
@@ -21,14 +21,12 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         
         assert(*(uint32_t *)data.naluData == 0x01000000);
         
+        const MSNaluParts &naluParts = data.getNaluParts();
+        
         // 帧数据引用
-        uint32_t *tempRef = (uint32_t *)(data.getNaluParts().slcRef() ?
-                                         data.getNaluParts().slcRef() :
-                                         data.getNaluParts().idrRef());
+        uint32_t *tempRef = (uint32_t *)naluParts.dataRef();
         // 帧数据长度
-        size_t tempSize = (data.getNaluParts().slcSize() ?
-                           data.getNaluParts().slcSize() :
-                           data.getNaluParts().idrSize());
+        size_t tempSize = naluParts.dataSize();
         // 包含开始码
         tempRef -= 1;
         
@@ -63,7 +61,7 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
         
         CMSampleTimingInfo sampleTimingArray[] = {{
             .duration = {
-                .value = 1000000LL / MSNaluParts::videoParameter.frameRate,
+                .value = 1000000LL / mediaParametersMap[this]->videoParameters.frameRate,
                 .timescale = 1000000,
                 .flags = kCMTimeFlags_Valid,
                 .epoch = 0,
@@ -106,9 +104,9 @@ APDecoder::decodeVideo(const MSMedia<isEncode> * const videoData) {
 }
 
 void
-APDecoder::decodeAudio(const MSMedia<isEncode> * const audioData) {
-    const MSMedia<isEncode> &data = *audioData;
-    APCodecContext * const decoderContext = getVideoDecoderContext(data);
+APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
+    const MSMedia<MSEncodeMedia> &data = *audioData;
+    APCodecContext * const decoderContext = getAudioDecoderContext(data);
     
     if (decoderContext) {
         OSStatus status;
@@ -117,6 +115,9 @@ APDecoder::decodeAudio(const MSMedia<isEncode> * const audioData) {
         delete audioData;
     }
 }
+
+map<APDecoder *, const MSMediaParameters *>
+APDecoder::mediaParametersMap;
 
 APDecoder::APDecoder(const VTDecodeFrameFlags decodeFlags)
 :APDecoderProtocol((void *)decompressionOutputCallback),
@@ -127,7 +128,11 @@ blockAllocator(initBlockAllocator()) {
 }
 
 APDecoder::~APDecoder() {
-    
+    auto mediaParameters = mediaParametersMap[this];
+    if (mediaParameters) {
+        mediaParametersMap.erase(this);
+        delete mediaParameters;
+    }
 }
 
 CMBlockBufferFlags
@@ -147,34 +152,44 @@ APDecoder::initBlockAllocator() {
 }
 
 APCodecContext *
-APDecoder::getVideoDecoderContext(const MSMedia<isEncode> &sourceData) {
+APDecoder::getVideoDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
     MSCodecID codecID = sourceData.codecID;
     APCodecContext *decoderContext = decoderContexts[codecID];
     
     if (sourceData.isKeyFrame) {
+        const MSNaluParts &naluParts = sourceData.getNaluParts();
+        
         if (decoderContext) {
             // 实时更新解码器配置(用新的 sps, pps)
-            decoderContext->setVideoFmtDescription(sourceData.getNaluParts());
+            decoderContext->setVideoFmtDescription(naluParts);
         } else {
-            decoderContext = new APCodecContext(APCodecDecoder, codecID, sourceData.getNaluParts(), *this);
+            decoderContext = new APCodecContext(APCodecDecoder, codecID, naluParts, *this);
             decoderContexts[codecID] = decoderContext;
         }
-        // 解析基本信息(实时更新宽高帧率)
-        sourceData.getNaluParts().parseSps(codecID == MSCodecID_H264 ?
-                                        SpsTypeH264 :
-                                        SpsTypeH265);
+        // 解析 sps 基本信息(实时更新宽高帧率)
+        if (codecID == MSCodecID_H264) {
+            mediaParametersMap[this] = naluParts.parseH264Sps();
+        } else {
+            mediaParametersMap[this] = naluParts.parseH265Sps();
+        }
+        
     }
     return decoderContext;
 }
 
 APCodecContext *
-APDecoder::getAudioDecoderContext(const MSMedia<isEncode> &sourceData) {
+APDecoder::getAudioDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
     MSCodecID codecID = sourceData.codecID;
     APCodecContext *decoderContext = decoderContexts[codecID];
     
     if (!decoderContext) {
-        decoderContext = new APCodecContext(APCodecDecoder, codecID, *this);
+        const MSNaluParts &naluParts = sourceData.getNaluParts();
+        // 音频一般不会动态更改编码配置, 暂时以首次的 adts 数据为准
+        auto audioParameters = mediaParametersMap[this] = naluParts.parseAacAdts();
+    
+        decoderContext = new APCodecContext(APCodecDecoder, codecID, audioParameters->audioParameters, *this);
         decoderContexts[codecID] = decoderContext;
+        
     }
     return decoderContext;
 }
@@ -196,7 +211,7 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
         
         dataProvider.launchVideoFrameData(new APDecoderOutputMeida(retainBuffer,
                                                                    timeInterval,
-                                                                   (MSMedia<isEncode> *)sourceFrameRefCon,
+                                                                   (MSMedia<MSEncodeMedia> *)sourceFrameRefCon,
                                                                    CVBufferRelease,
                                                                    CVBufferRetain));
         

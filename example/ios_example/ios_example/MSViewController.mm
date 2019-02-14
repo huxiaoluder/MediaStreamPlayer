@@ -51,10 +51,10 @@ static int i;
     auto decoder = new APDecoder();
 //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
     player = new MSPlayer<__CVBuffer>(decoder,nullptr,
-                                      [&](const MSMedia<isDecode,__CVBuffer> &data) {
+                                      [&](const MSMedia<MSDecodeMedia,__CVBuffer> &data) {
                                           printf("data time: %lld\n", data.timeInterval.count());
                                       },
-                                      [&](const MSMedia<isDecode,__CVBuffer> &data) {
+                                      [&](const MSMedia<MSDecodeMedia,__CVBuffer> &data) {
 
                                       });
     
@@ -113,14 +113,14 @@ static int i;
 //    printf("--------------datalen: %d\n",dataLen);
     if (updateVideo) {
         if (headerMedia->stream_type == e_stream_type_H264) {
-            auto data = new MSMedia<isEncode>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H264);
+            auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H264);
             player->pushVideoStreamData(data);
         }
     }
     
     if (updateAudio) {
         if (headerMedia->stream_type == e_stream_type_AAC) {
-            auto data = new MSMedia<isEncode>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
+            auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
             player->pushAudioStreamData(data);
         }
     }

@@ -17,8 +17,8 @@ namespace MS {
     class MSAsynDataReceiver {
     public:
         virtual ~MSAsynDataReceiver() {};
-        virtual void asynPushVideoFrameData(const MSMedia<isDecode, T> * const MSNonnull frameData) = 0;
-        virtual void asynPushAudioFrameData(const MSMedia<isDecode, T> * const MSNonnull frameData) = 0;
+        virtual void asynPushVideoFrameData(const MSMedia<MSDecodeMedia, T> * const MSNonnull frameData) = 0;
+        virtual void asynPushAudioFrameData(const MSMedia<MSDecodeMedia, T> * const MSNonnull frameData) = 0;
     };
     
 }

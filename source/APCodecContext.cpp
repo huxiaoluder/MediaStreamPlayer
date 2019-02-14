@@ -13,11 +13,12 @@ using namespace MS::APhard;
 
 APCodecContext::APCodecContext(const APCodecType codecType,
                                const MSCodecID codecID,
+                               const MSAudioParameters &audioParameters,
                                const APAsynDataProvider &asynDataProvider)
 :codecType(codecType),
 codecID(codecID),
 asynDataProvider(asynDataProvider),
-audioConverter(nullptr),
+audioConverter(initAudioConvert(audioParameters)),
 videoDecodeSession(nullptr),
 videoEncodeSession(nullptr) {
     
@@ -31,7 +32,7 @@ APCodecContext::APCodecContext(const APCodecType codecType,
 codecID(codecID),
 asynDataProvider(asynDataProvider),
 videoFmtDescription(initVideoFmtDescription(naluParts)),
-audioConverter(initAudioConvert()),
+audioConverter(nullptr),
 videoDecodeSession(initVideoDecodeSession()),
 videoEncodeSession(initVideoEncodeSession()) {
     
@@ -92,7 +93,7 @@ APCodecContext::initVideoFmtDescription(const MSNaluParts &naluParts) {
 }
 
 AudioConverterRef
-APCodecContext::initAudioConvert() {
+APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
     APCodecInfo codecInfo = getAPCodecInfo(codecID);
     AudioFormatID audioFormatID = get<0>(codecInfo);
     bool isAudioCodec = !get<1>(codecInfo);
@@ -103,25 +104,25 @@ APCodecContext::initAudioConvert() {
         OSStatus status = 0;
         
         AudioStreamBasicDescription sourceFormat = {
-            .mSampleRate        = 0,
+            .mSampleRate        = static_cast<Float64>(audioParameters.frequency.value),
             .mFormatID          = audioFormatID,
-            .mFormatFlags       = 0,
+            .mFormatFlags       = kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger,
             .mBytesPerPacket    = 0,
             .mFramesPerPacket   = 0,
             .mBytesPerFrame     = 0,
-            .mChannelsPerFrame  = 0,
+            .mChannelsPerFrame  = static_cast<UInt32>(audioParameters.channel),
             .mBitsPerChannel    = 0,
             .mReserved          = 0
         };
         
         AudioStreamBasicDescription destinationFormat = {
-            .mSampleRate        = 0,
+            .mSampleRate        = static_cast<Float64>(audioParameters.frequency.value),
             .mFormatID          = kAudioFormatLinearPCM,
             .mFormatFlags       = 0,
             .mBytesPerPacket    = 0,
             .mFramesPerPacket   = 0,
             .mBytesPerFrame     = 0,
-            .mChannelsPerFrame  = 0,
+            .mChannelsPerFrame  = static_cast<UInt32>(audioParameters.channel),
             .mBitsPerChannel    = 0,
             .mReserved          = 0
         };

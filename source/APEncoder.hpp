@@ -16,7 +16,7 @@ namespace MS {
     namespace APhard {
         
         typedef MSAsynEncoderProtocol<__CVBuffer>   APEncoderProtocol;
-        typedef MSMedia<isDecode,__CVBuffer>        APEncoderInputMedia;
+        typedef MSMedia<MSDecodeMedia,__CVBuffer>   APEncoderInputMedia;
 
         class APEncoder : public APEncoderProtocol {
     

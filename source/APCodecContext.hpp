@@ -48,6 +48,7 @@ namespace MS {
             
             APCodecContext(const APCodecType codecType,
                            const MSCodecID codecID,
+                           const MSAudioParameters &audioParameters,
                            const APAsynDataProvider &asynDataProvider);
             
             APCodecContext(const APCodecType codecType,
@@ -67,7 +68,7 @@ namespace MS {
             APCodecContext(const APCodecContext &codecContext);
             
             CMVideoFormatDescriptionRef MSNullable  initVideoFmtDescription(const MSNaluParts &naluParts);
-            AudioConverterRef           MSNullable  initAudioConvert();
+            AudioConverterRef           MSNullable  initAudioConvert(const MSAudioParameters &audioParameters);
             VTCompressionSessionRef     MSNullable  initVideoEncodeSession();
             VTDecompressionSessionRef   MSNullable  initVideoDecodeSession();
         };

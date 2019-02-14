@@ -22,20 +22,9 @@ namespace MS {
     
     using namespace chrono;
     
-    enum MSCodecID {
-        /*---video---*/
-        MSCodecID_H264,
-        MSCodecID_H265,
-        MSCodecID_HEVC = MSCodecID_H265,
-        /*---audio---*/
-        MSCodecID_AAC,
-        MSCodecID_OPUS,
-        MSCodecID_ALAW,//G711A
-    };
-    
     enum MSMediaType {
-        isDecode,
-        isEncode,
+        MSDecodeMedia,
+        MSEncodeMedia,
     };
     
     template <MSMediaType DT, typename CT = uint8_t>
@@ -44,7 +33,7 @@ namespace MS {
     
 #pragma mark - typeTraits: MSMedia<isEncode,uint8_t>
     template <>
-    struct MSMedia<isEncode, uint8_t> {
+    struct MSMedia<MSEncodeMedia, uint8_t> {
         // nalUnit data by encoder or from network source, free by player
         uint8_t * MSNonnull const naluData;
         
@@ -83,15 +72,17 @@ namespace MS {
             delete [] naluData;
         }
         
-        MSMedia * MSNonnull clone() {
+        MSMedia * MSNonnull
+        clone() {
             return new MSMedia(*this);
         }
         
         // Note: only I frame can return naluParts and enforce changed naluParts value
-        const MSNaluParts & getNaluParts() const {
+        const MSNaluParts &
+        getNaluParts() const {
             if (!naluParts) {
                 auto naluPartsRef = const_cast<MSNaluParts **>(&naluParts);
-                *naluPartsRef = new MSNaluParts(naluData, naluSize);
+                *naluPartsRef = new MSNaluParts(naluData, naluSize, codecID);
             }
             return *naluParts;
         }
@@ -102,7 +93,7 @@ namespace MS {
     
 #pragma mark - typeTraits: MSMedia<isDecode, CT>
     template <typename CT>
-    struct MSMedia<isDecode, CT> {
+    struct MSMedia<MSDecodeMedia, CT> {
         // frame data by user's decoder decoded, free by player
         CT * MSNonnull const frame;
         
@@ -110,7 +101,7 @@ namespace MS {
         const microseconds timeInterval;
         
         // source data referrence
-        const MSMedia<isEncode> * MSNullable const packt;
+        const MSMedia<MSEncodeMedia> * MSNullable const packt;
         
     private:
         // free function, T frame set by user's custom decoder, must provide the decoder's free method
@@ -122,7 +113,7 @@ namespace MS {
     public:
         MSMedia(typename enable_if<!is_pointer<CT>::value,CT>::type * MSNonnull const frame,
                 const microseconds timeInterval,
-                const MSMedia<isEncode> * MSNullable const packt,
+                const MSMedia<MSEncodeMedia> * MSNullable const packt,
                 const function<void(CT * MSNonnull const)> free,
                 const function<CT *(CT * MSNonnull const)> copy)
         :frame(frame),

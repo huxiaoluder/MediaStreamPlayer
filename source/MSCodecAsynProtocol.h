@@ -37,21 +37,21 @@ namespace MS {
             _dataReceiver = dataReceiver;
         };
         
-        void launchVideoFrameData(const MSMedia<isDecode,T> * const MSNonnull frameData) const {
+        void launchVideoFrameData(const MSMedia<MSDecodeMedia,T> * const MSNonnull frameData) const {
             assert(_dataReceiver);
             _dataReceiver->asynPushVideoFrameData(frameData);
         }
         
-        void launchAudioFrameData(const MSMedia<isDecode,T> * const MSNonnull frameData) const {
+        void launchAudioFrameData(const MSMedia<MSDecodeMedia,T> * const MSNonnull frameData) const {
             assert(_dataReceiver);
             _dataReceiver->asynPushAudioFrameData(frameData);
         }
         
         virtual ~MSAsynDecoderProtocol() {};
         // videoData free by user
-        virtual void decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData) = 0;
+        virtual void decodeVideo(const MSMedia<MSEncodeMedia> * MSNonnull const videoData) = 0;
         // audioData free by user
-        virtual void decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData) = 0;
+        virtual void decodeAudio(const MSMedia<MSEncodeMedia> * MSNonnull const audioData) = 0;
     };
     
     template <typename T,
@@ -60,8 +60,8 @@ namespace MS {
     public:
         virtual ~MSAsynEncoderProtocol() {};
         virtual void beginEncode() = 0;
-        virtual void encodeVideo(const MSMedia<isDecode,T> &pixelData) = 0;
-        virtual void encodeAudio(const MSMedia<isDecode,T> &sampleData) = 0;
+        virtual void encodeVideo(const MSMedia<MSDecodeMedia,T> &pixelData) = 0;
+        virtual void encodeAudio(const MSMedia<MSDecodeMedia,T> &sampleData) = 0;
         virtual void endEncode() = 0;
         virtual bool isEncoding() = 0;
     };

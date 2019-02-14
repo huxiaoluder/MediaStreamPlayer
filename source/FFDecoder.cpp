@@ -12,12 +12,12 @@ using namespace std;
 using namespace MS::FFmpeg;
 
 const FFDecoderOutputMedia *
-FFDecoder::decodeVideo(const MSMedia<isEncode> * MSNonnull const videoData) {
+FFDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * MSNonnull const videoData) {
     return decodeData(videoData);
 }
 
 const FFDecoderOutputMedia *
-FFDecoder::decodeAudio(const MSMedia<isEncode> * MSNonnull const audioData) {
+FFDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * MSNonnull const audioData) {
     return decodeData(audioData);
 }
 
@@ -44,8 +44,8 @@ FFDecoder::getDecoderContext(const MSCodecID codecID) {
 }
 
 const FFDecoderOutputMedia *
-FFDecoder::decodeData(const MSMedia<isEncode> * const mediaData) {
-    const MSMedia<isEncode> &data = *mediaData;
+FFDecoder::decodeData(const MSMedia<MSEncodeMedia> * const mediaData) {
+    const MSMedia<MSEncodeMedia> &data = *mediaData;
     const FFCodecContext &decoderContext = getDecoderContext(data.codecID);
     AVCodecContext *codec_ctx = decoderContext.codec_ctx;
     
