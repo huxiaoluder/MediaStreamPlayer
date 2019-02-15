@@ -12,10 +12,6 @@
 
 using namespace MS;
 
-static const int adtsFrequencyList[] = {
-    96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350
-};
-
 static inline bool
 detectBitValue(const uint8_t * const dataRef, const size_t &startLocation) {
     return dataRef[startLocation / 8] & (0x80 >> (startLocation % 8));

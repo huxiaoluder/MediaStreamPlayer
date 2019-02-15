@@ -26,6 +26,10 @@ namespace MS {
         MSCodecID_ALAW,//G711A
     };
     
+    static const int adtsFrequencyList[] = {
+        96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350
+    };
+    
     struct MSVideoParameters {
         int width       = 0;
         int height      = 0;
@@ -33,11 +37,11 @@ namespace MS {
     };
     
     struct MSAudioParameters {
-        int profile     = 0;
+        int profile     = 0; // == MPEG-4 Audio Object Types (APPLE ENUM: MPEG4ObjectID) - 1
         int channel     = 0;
         struct {
-            int index : 8;
-            int value : 24;
+            int index : 8;  // index of adtsFrequencyList
+            int value : 24; // value of index in adtsFrequencyList
         } frequency;
     };
     
