@@ -104,34 +104,34 @@ APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
         OSStatus status = 0;
         
         AudioStreamBasicDescription sourceFormat = {
-            .mSampleRate        = static_cast<Float64>(audioParameters.frequency.value),
+            .mSampleRate        = (Float64)audioParameters.frequency.value,
             .mFormatID          = audioFormatID,
-            .mFormatFlags       = kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger,
+            .mFormatFlags       = (UInt32)audioParameters.profile + 1,//kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger,
             .mBytesPerPacket    = 0,
-            .mFramesPerPacket   = 0,
+            .mFramesPerPacket   = 1024,
             .mBytesPerFrame     = 0,
-            .mChannelsPerFrame  = static_cast<UInt32>(audioParameters.channel),
+            .mChannelsPerFrame  = (UInt32)audioParameters.channel,
             .mBitsPerChannel    = 0,
             .mReserved          = 0
         };
         
         AudioStreamBasicDescription destinationFormat = {
-            .mSampleRate        = static_cast<Float64>(audioParameters.frequency.value),
+            .mSampleRate        = (Float64)audioParameters.frequency.value,
             .mFormatID          = kAudioFormatLinearPCM,
-            .mFormatFlags       = 0,
-            .mBytesPerPacket    = 0,
-            .mFramesPerPacket   = 0,
-            .mBytesPerFrame     = 0,
-            .mChannelsPerFrame  = static_cast<UInt32>(audioParameters.channel),
-            .mBitsPerChannel    = 0,
+            .mFormatFlags       = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
+            .mBytesPerPacket    = 1 * 2 * (UInt32)audioParameters.channel,
+            .mFramesPerPacket   = 1, // 只支持 1 pack 1 frame, 否则报错(code: -50)
+            .mBytesPerFrame     = 2 * (UInt32)audioParameters.channel,
+            .mChannelsPerFrame  = (UInt32)audioParameters.channel,
+            .mBitsPerChannel    = 16,
             .mReserved          = 0
         };
         
         status = AudioConverterNew(&sourceFormat, &destinationFormat, &audioConverter);
+        if (status != noErr) {
+            ErrorLocationLog("instance audio converter fail!");
+        }
     }
-    
-
-    
     return audioConverter;
 }
 

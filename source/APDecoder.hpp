@@ -68,6 +68,12 @@ namespace MS {
                                                     CVImageBufferRef MSNullable imageBuffer,
                                                     CMTime presentationTimeStamp,
                                                     CMTime presentationDuration);
+            
+            static OSStatus audioConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                                    UInt32 * MSNonnull ioNumberDataPackets,
+                                                    AudioBufferList * MSNonnull ioData,
+                                                    AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                                    void * MSNullable inUserData);
         };
         
     }

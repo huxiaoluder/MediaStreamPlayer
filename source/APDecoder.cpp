@@ -110,7 +110,24 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
     
     if (decoderContext) {
         OSStatus status;
-        decoderContext->audioConverter;
+        
+        const MSNaluParts &naluParts = data.getNaluParts();
+        
+        UInt32 dataSize = (UInt32)naluParts.dataSize();
+        
+        AudioBufferList list;
+        AudioStreamPacketDescription desc;
+        
+        status = AudioConverterFillComplexBuffer(decoderContext->audioConverter,
+                                                 audioConverterInputProc,
+                                                 (void *)naluParts.dataRef(),
+                                                 &dataSize,
+                                                 &list,
+                                                 &desc);
+        if (status != noErr) {
+            ErrorLocationLog("call AudioConverterFillComplexBuffer fail");
+            delete audioData;
+        }
     } else {
         delete audioData;
     }
@@ -220,3 +237,12 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
     }
 };
 
+OSStatus
+APDecoder::audioConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                   UInt32 * MSNonnull ioNumberDataPackets,
+                                   AudioBufferList * MSNonnull ioData,
+                                   AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                   void * MSNullable inUserData) {
+    
+    return noErr;
+}
