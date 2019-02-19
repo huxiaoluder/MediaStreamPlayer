@@ -108,6 +108,7 @@ namespace MS {
         const function<void(CT * MSNonnull const)> free;
         
         // copy function, T frame set by user's custom decoder, must provide the decoder's copy method
+        // note: deep copy is not guaranteed, may be retain refCount
         const function<CT *(CT * MSNonnull const)> copy;
         
     public:
@@ -121,9 +122,8 @@ namespace MS {
         packt(packt),
         free(free),
         copy(copy) {
-            if (frame) {
-                assert(free != nullptr && copy != nullptr);
-            }
+            assert(frame);
+            assert(free != nullptr && copy != nullptr);
         }
         
         MSMedia(const MSMedia &content)

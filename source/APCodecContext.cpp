@@ -11,6 +11,44 @@
 using namespace MS;
 using namespace MS::APhard;
 
+APFrame::APFrame(__CVBuffer  * MSNonnull const video)
+:video(video) {
+    
+}
+
+APFrame::APFrame(AudioBuffer * MSNonnull const audio)
+:audio(audio) {
+    
+}
+
+void
+APFrame::freeVideoFrame(const APFrame * MSNonnull const frame) {
+    CVPixelBufferRelease(frame->video);
+    delete frame;
+}
+
+void
+APFrame::freeAudioFrame(const APFrame * MSNonnull const frame) {
+    free(frame->audio->mData);
+    delete frame;
+}
+
+APFrame * MSNonnull
+APFrame::copyVideoFrame(const APFrame * MSNonnull const frame) {
+    return new APFrame(CVPixelBufferRetain(frame->video));
+}
+
+APFrame * MSNonnull
+APFrame::copyAudioFrame(const APFrame * MSNonnull const frame) {
+    AudioBuffer *audio = new AudioBuffer();
+    audio->mData = malloc(frame->audio->mDataByteSize);
+    audio->mDataByteSize = frame->audio->mDataByteSize;
+    audio->mNumberChannels = frame->audio->mNumberChannels;
+    memcpy(audio->mData, frame->audio->mData, audio->mDataByteSize);
+    return new APFrame(audio);
+}
+
+
 APCodecContext::APCodecContext(const APCodecType codecType,
                                const MSCodecID codecID,
                                const MSAudioParameters &audioParameters,

@@ -16,9 +16,9 @@
 namespace MS {
     namespace APhard {
         
-        typedef MSAsynDecoderProtocol<__CVBuffer>   APDecoderProtocol;
-        typedef MSAsynDataReceiver<__CVBuffer>      APAsynDataReceiver;
-        typedef MSMedia<MSDecodeMedia,__CVBuffer>   APDecoderOutputMeida;
+        typedef MSAsynDecoderProtocol<APFrame>  APDecoderProtocol;
+        typedef MSAsynDataReceiver<APFrame>     APAsynDataReceiver;
+        typedef MSMedia<MSDecodeMedia,APFrame>  APDecoderOutputMeida;
         
         class APDecoder : public APDecoderProtocol {
             static map<APDecoder *, const MSMediaParameters *> mediaParametersMap;

@@ -24,7 +24,7 @@ using namespace MS::APhard;
 @interface MSViewController ()<IotlibToolDelegate>
 {
 //    MSPlayer<AVFrame> *player;
-    MSPlayer<__CVBuffer> *player;
+    MSPlayer<APFrame> *player;
     BOOL updateVideo;
     BOOL updateAudio;
 }
@@ -50,13 +50,13 @@ static int i;
     
     auto decoder = new APDecoder();
 //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
-    player = new MSPlayer<__CVBuffer>(decoder,nullptr,
-                                      [&](const MSMedia<MSDecodeMedia,__CVBuffer> &data) {
-                                          printf("data time: %lld\n", data.timeInterval.count());
-                                      },
-                                      [&](const MSMedia<MSDecodeMedia,__CVBuffer> &data) {
-
-                                      });
+    player = new MSPlayer<APFrame>(decoder,nullptr,
+                                   [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                       printf("data time: %lld\n", data.timeInterval.count());
+                                   },
+                                   [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                       
+                                   });
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(connectsuccess:)

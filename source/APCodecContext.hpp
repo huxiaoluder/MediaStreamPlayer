@@ -25,10 +25,27 @@ extern "C" {
 namespace MS {
     namespace APhard {
         
+        union APFrame {
+            __CVBuffer  * MSNonnull const video;
+            AudioBuffer * MSNonnull const audio;
+            
+            APFrame(__CVBuffer  * MSNonnull const video);
+
+            APFrame(AudioBuffer * MSNonnull const audio);
+            
+            static void freeVideoFrame(const APFrame * MSNonnull const frame);
+            
+            static void freeAudioFrame(const APFrame * MSNonnull const frame);
+            
+            static APFrame * MSNonnull copyVideoFrame(const APFrame * MSNonnull const frame);
+            
+            static APFrame * MSNonnull copyAudioFrame(const APFrame * MSNonnull const frame);
+        };
+        
         typedef UInt32  APCodecID;
         typedef bool    IsVideoCodec;
-        typedef tuple<APCodecID,IsVideoCodec> APCodecInfo;
-        typedef MSAsynDecoderProtocol<__CVBuffer> APAsynDataProvider;
+        typedef tuple<APCodecID,IsVideoCodec>   APCodecInfo;
+        typedef MSAsynDecoderProtocol<APFrame>  APAsynDataProvider;
 
         enum APCodecType {
             APCodecDecoder,

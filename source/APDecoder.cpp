@@ -113,21 +113,39 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         
         const MSNaluParts &naluParts = data.getNaluParts();
         
-        UInt32 dataSize = (UInt32)naluParts.dataSize();
+        const MSAudioParameters &audioParameters = mediaParametersMap[this]->audioParameters;
         
-        AudioBufferList list;
-        AudioStreamPacketDescription desc;
+        UInt32 outPacktNumber = 1;
+        AudioBufferList outBufferList {
+            .mNumberBuffers = 1,
+            .mBuffers[0] = {
+                .mNumberChannels = (UInt32)audioParameters.channel,
+                .mDataByteSize = 1024 * (UInt32)audioParameters.channel,
+                .mData = malloc(1024 * 2 * (UInt32)audioParameters.channel)
+            }
+        };
+        AudioStreamPacketDescription outAspDesc[outPacktNumber];
         
         status = AudioConverterFillComplexBuffer(decoderContext->audioConverter,
                                                  audioConverterInputProc,
-                                                 (void *)naluParts.dataRef(),
-                                                 &dataSize,
-                                                 &list,
-                                                 &desc);
+                                                 (void *)&naluParts,
+                                                 &outPacktNumber,
+                                                 &outBufferList,
+                                                 outAspDesc);
         if (status != noErr) {
             ErrorLocationLog("call AudioConverterFillComplexBuffer fail");
             delete audioData;
         }
+        
+        int rate = mediaParametersMap[this]->audioParameters.frequency.value / 1024;
+        
+        APFrame *frame = new APFrame(outBufferList.mBuffers);
+        
+        launchAudioFrameData(new APDecoderOutputMeida(frame,
+                                                      intervale(rate),
+                                                      audioData,
+                                                      APFrame::freeAudioFrame,
+                                                      APFrame::copyAudioFrame));
     } else {
         delete audioData;
     }
@@ -202,9 +220,9 @@ APDecoder::getAudioDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
     if (!decoderContext) {
         const MSNaluParts &naluParts = sourceData.getNaluParts();
         // 音频一般不会动态更改编码配置, 暂时以首次的 adts 数据为准
-        auto audioParameters = mediaParametersMap[this] = naluParts.parseAacAdts();
+        auto mediaParameters = mediaParametersMap[this] = naluParts.parseAacAdts();
     
-        decoderContext = new APCodecContext(APCodecDecoder, codecID, audioParameters->audioParameters, *this);
+        decoderContext = new APCodecContext(APCodecDecoder, codecID, mediaParameters->audioParameters, *this);
         decoderContexts[codecID] = decoderContext;
         
     }
@@ -220,17 +238,17 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
                                        CMTime presentationTimeStamp,
                                        CMTime presentationDuration) {
     if (status == noErr && imageBuffer) {
-        CVBufferRef retainBuffer = CVBufferRetain(imageBuffer);
-        
         const APAsynDataProvider &dataProvider = *(APAsynDataProvider *)decompressionOutputRefCon;
         
-        microseconds timeInterval = microseconds(presentationDuration.value);
+        microseconds timeInterval(presentationDuration.value);
         
-        dataProvider.launchVideoFrameData(new APDecoderOutputMeida(retainBuffer,
+        APFrame *frame = new APFrame(CVPixelBufferRetain(imageBuffer));
+        
+        dataProvider.launchVideoFrameData(new APDecoderOutputMeida(frame,
                                                                    timeInterval,
                                                                    (MSMedia<MSEncodeMedia> *)sourceFrameRefCon,
-                                                                   CVBufferRelease,
-                                                                   CVBufferRetain));
+                                                                   APFrame::freeVideoFrame,
+                                                                   APFrame::copyVideoFrame));
         
     } else {
         ErrorLocationLog("APDecoder decode video error!");
@@ -243,6 +261,16 @@ APDecoder::audioConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
                                    AudioBufferList * MSNonnull ioData,
                                    AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
                                    void * MSNullable inUserData) {
+    const MSNaluParts &naluParts = *(MSNaluParts *)inUserData;
+    ioData->mNumberBuffers = 1;
+    ioData->mBuffers->mData = (void *)naluParts.dataRef();
+    ioData->mBuffers->mDataByteSize = (UInt32)naluParts.dataSize();
+    ioData->mBuffers->mNumberChannels = (UInt32)naluParts.parseAacAdts()->audioParameters.channel;
+    static AudioStreamPacketDescription *aspDesc = new AudioStreamPacketDescription();
+    aspDesc->mStartOffset = 0;
+    aspDesc->mVariableFramesInPacket = 0;
+    aspDesc->mDataByteSize = (UInt32)naluParts.dataSize();
+    *outDataPacketDescription = aspDesc;
     
     return noErr;
 }
