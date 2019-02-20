@@ -8,11 +8,7 @@
 
 #import "MSViewController.h"
 #import <iostream>
-#import <MSPlayer.hpp>
-#import <FFDecoder.hpp>
-#import <FFEncoder.hpp>
-#import <APDecoder.hpp>
-#import <APEncoder.hpp>
+#import <MediaStreamPlayer.h>
 
 #import "IotlibTool.h"
 

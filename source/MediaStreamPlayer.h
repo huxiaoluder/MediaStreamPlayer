@@ -9,11 +9,14 @@
 #ifndef MediaStreamPlayer_h
 #define MediaStreamPlayer_h
 
-#include "MSCodecProtocol.h"
-#include "MSMediaData.hpp"
-#include "MSBinaryData"
-#include "MSTimer.hpp"
+#include "MSCodecSyncProtocol.h"
+#include "MSCodecAsynProtocol.h"
+#include "MSAsynDataReceiver.h"
 #include "MSPlayer.hpp"
+#include "MSTimer.hpp"
+#include "MSMedia.hpp"
+#include "MSNaluParts.hpp"
+#include "MSBinary.hpp"
 
 // FFmpeg 跨平台软解/软编
 #include "FFCodecContext.hpp"
@@ -22,6 +25,9 @@
 
 #ifdef __APPLE__
 // ios 硬解/硬编
+#include "APCodecContext.hpp"
+#include "APDecoder.hpp"
+#include "APEncoder.hpp"
 #elif
 // android
 #endif
