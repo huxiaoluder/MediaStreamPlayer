@@ -476,6 +476,7 @@ namespace MS {
                 delete frameData;
             } else {
                 videoThreadCondition.notify_one();
+                this->throwDecodeVideo(MSMedia<MSDecodeMedia,T>::defaultNullMedia);
             }
         });
     }
@@ -501,6 +502,7 @@ namespace MS {
                 delete frameData;
             } else {
                 audioThreadCondition.notify_one();
+                this->throwDecodeAudio(MSMedia<MSDecodeMedia,T>::defaultNullMedia);
             }
         });
     }
@@ -526,6 +528,7 @@ namespace MS {
                 delete frameData;
             } else {
                 videoThreadCondition.notify_one();
+                this->throwDecodeVideo(MSMedia<MSDecodeMedia,T>::defaultNullMedia);
             }
         });
     }
@@ -551,6 +554,7 @@ namespace MS {
                 delete frameData;
             } else {
                 audioThreadCondition.notify_one();
+                this->throwDecodeAudio(MSMedia<MSDecodeMedia,T>::defaultNullMedia);
             }
         });
     }

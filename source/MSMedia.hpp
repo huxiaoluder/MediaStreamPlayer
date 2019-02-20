@@ -94,6 +94,8 @@ namespace MS {
 #pragma mark - typeTraits: MSMedia<isDecode, CT>
     template <typename CT>
     struct MSMedia<MSDecodeMedia, CT> {
+        static const MSMedia<MSDecodeMedia, CT> defaultNullMedia;
+        
         // frame data by user's decoder decoded, free by player
         CT * MSNonnull const frame;
         
@@ -112,18 +114,19 @@ namespace MS {
         const function<CT *(CT * MSNonnull const)> copy;
         
     public:
-        MSMedia(typename enable_if<!is_pointer<CT>::value,CT>::type * MSNonnull const frame,
+        MSMedia(typename enable_if<!is_pointer<CT>::value,CT>::type * MSNullable const frame,
                 const microseconds timeInterval,
                 const MSMedia<MSEncodeMedia> * MSNullable const packt,
-                const function<void(CT * MSNonnull const)> free,
-                const function<CT *(CT * MSNonnull const)> copy)
+                const function<void(CT * MSNullable const)> free,
+                const function<CT *(CT * MSNullable const)> copy)
         :frame(frame),
         timeInterval(timeInterval),
         packt(packt),
         free(free),
         copy(copy) {
-            assert(frame);
-            assert(free != nullptr && copy != nullptr);
+            if (frame) {
+                assert(free != nullptr && copy != nullptr);
+            }
         }
         
         MSMedia(const MSMedia &content)
@@ -145,6 +148,10 @@ namespace MS {
             return new MSMedia(*this);
         }
     };
+    
+    template <typename CT>
+    const MSMedia<MSDecodeMedia, CT>
+    MSMedia<MSDecodeMedia, CT>::defaultNullMedia(nullptr,microseconds(0),nullptr,nullptr,nullptr);
     
 }
 

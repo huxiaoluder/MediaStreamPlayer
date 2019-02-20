@@ -52,10 +52,10 @@ static int i;
 //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
     player = new MSPlayer<APFrame>(decoder,nullptr,
                                    [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
-                                       printf("data time: %lld\n", data.timeInterval.count());
+                                       printf("video time: %lld\n", data.timeInterval.count());
                                    },
                                    [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
-                                       
+                                       printf("audio time: %lld\n", data.timeInterval.count());
                                    });
     
     [[NSNotificationCenter defaultCenter] addObserver:self

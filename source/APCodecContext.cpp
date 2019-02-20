@@ -30,6 +30,7 @@ APFrame::freeVideoFrame(const APFrame * MSNonnull const frame) {
 void
 APFrame::freeAudioFrame(const APFrame * MSNonnull const frame) {
     free(frame->audio->mData);
+    delete frame->audio;
     delete frame;
 }
 

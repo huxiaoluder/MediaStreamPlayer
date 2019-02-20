@@ -21,7 +21,9 @@ namespace MS {
         typedef MSMedia<MSDecodeMedia,APFrame>  APDecoderOutputMeida;
         
         class APDecoder : public APDecoderProtocol {
-            static map<APDecoder *, const MSMediaParameters *> mediaParametersMap;
+            static map<APDecoder *, const MSVideoParameters *> videoParametersMap;
+            
+            static map<APDecoder *, const MSAudioParameters *> audioParametersMap;
             
             map<MSCodecID,APCodecContext *> decoderContexts;
             

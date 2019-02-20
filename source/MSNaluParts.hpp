@@ -40,17 +40,10 @@ namespace MS {
         int profile     = 0; // == MPEG-4 Audio Object Types (APPLE ENUM: MPEG4ObjectID) - 1
         int channel     = 0;
         struct {
-            int index : 8;  // index of adtsFrequencyList
-            int value : 24; // value of index in adtsFrequencyList
+            int index   = 0;  // index of adtsFrequencyList
+            int value   = 0; // value of index in adtsFrequencyList
         } frequency;
     };
-    
-    union MSMediaParameters {
-        MSVideoParameters videoParameters;
-        MSAudioParameters audioParameters;
-        MSMediaParameters() {};
-    };
-    
     
     /**
      curren not surport p frame is sliced a,b,c
@@ -124,11 +117,11 @@ namespace MS {
         
         size_t dataSize() const;
         
-        const MSMediaParameters * MSNonnull parseH264Sps() const;
+        const MSVideoParameters * MSNonnull parseH264Sps() const;
         
-        const MSMediaParameters * MSNonnull parseH265Sps() const;
+        const MSVideoParameters * MSNonnull parseH265Sps() const;
         
-        const MSMediaParameters * MSNonnull parseAacAdts() const;
+        const MSAudioParameters * MSNonnull parseAacAdts() const;
     };
     
     

@@ -419,24 +419,24 @@ MSNaluParts::dataSize() const {
     return _dataSize;
 }
 
-const MSMediaParameters *
+const MSVideoParameters *
 MSNaluParts::parseH264Sps() const {
-    MSMediaParameters *mediaParameters = new MSMediaParameters;
-    decode_h264_sps(_spsRef, _spsSize, mediaParameters->videoParameters);
-    return mediaParameters;
+    MSVideoParameters *videoParameters = new MSVideoParameters;
+    decode_h264_sps(_spsRef, _spsSize, *videoParameters);
+    return videoParameters;
 }
 
-const MSMediaParameters *
+const MSVideoParameters *
 MSNaluParts::parseH265Sps() const {
-    MSMediaParameters *mediaParameters = new MSMediaParameters;
-    decode_h265_sps(_spsRef, _spsSize, mediaParameters->videoParameters);
-    return mediaParameters;
+    MSVideoParameters *videoParameters = new MSVideoParameters;
+    decode_h265_sps(_spsRef, _spsSize, *videoParameters);
+    return videoParameters;
 }
 
-const MSMediaParameters *
+const MSAudioParameters *
 MSNaluParts::parseAacAdts() const {
-    MSMediaParameters *mediaParameters = new MSMediaParameters;
-    decode_aac_adts(_adtsRef, _adtsSize, mediaParameters->audioParameters);
-    return mediaParameters;
+    MSAudioParameters *audioParameters = new MSAudioParameters;
+    decode_aac_adts(_adtsRef, _adtsSize, *audioParameters);
+    return audioParameters;
 }
 

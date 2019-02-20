@@ -61,7 +61,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
         
         CMSampleTimingInfo sampleTimingArray[] = {{
             .duration = {
-                .value = 1000000LL / mediaParametersMap[this]->videoParameters.frameRate,
+                .value = 1000000LL / videoParametersMap[this]->frameRate,
                 .timescale = 1000000,
                 .flags = kCMTimeFlags_Valid,
                 .epoch = 0,
@@ -113,7 +113,7 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         
         const MSNaluParts &naluParts = data.getNaluParts();
         
-        const MSAudioParameters &audioParameters = mediaParametersMap[this]->audioParameters;
+        const MSAudioParameters &audioParameters = *audioParametersMap[this];
         
         UInt32 outPacktNumber = 1;
         AudioBufferList outBufferList {
@@ -135,11 +135,15 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         if (status != noErr) {
             ErrorLocationLog("call AudioConverterFillComplexBuffer fail");
             delete audioData;
+            return;
         }
         
-        int rate = mediaParametersMap[this]->audioParameters.frequency.value / 1024;
+        AudioBuffer *audioBuffer = new AudioBuffer();
+        *audioBuffer = outBufferList.mBuffers[0];
         
-        APFrame *frame = new APFrame(outBufferList.mBuffers);
+        APFrame *frame = new APFrame(audioBuffer);
+        
+        int rate = audioParametersMap[this]->frequency.value / 1024;
         
         launchAudioFrameData(new APDecoderOutputMeida(frame,
                                                       intervale(rate),
@@ -151,8 +155,11 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
     }
 }
 
-map<APDecoder *, const MSMediaParameters *>
-APDecoder::mediaParametersMap;
+map<APDecoder *, const MSVideoParameters *>
+APDecoder::videoParametersMap;
+
+map<APDecoder *, const MSAudioParameters *>
+APDecoder::audioParametersMap;
 
 APDecoder::APDecoder(const VTDecodeFrameFlags decodeFlags)
 :APDecoderProtocol((void *)decompressionOutputCallback),
@@ -163,9 +170,9 @@ blockAllocator(initBlockAllocator()) {
 }
 
 APDecoder::~APDecoder() {
-    auto mediaParameters = mediaParametersMap[this];
+    auto mediaParameters = videoParametersMap[this];
     if (mediaParameters) {
-        mediaParametersMap.erase(this);
+        videoParametersMap.erase(this);
         delete mediaParameters;
     }
 }
@@ -203,9 +210,9 @@ APDecoder::getVideoDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
         }
         // 解析 sps 基本信息(实时更新宽高帧率)
         if (codecID == MSCodecID_H264) {
-            mediaParametersMap[this] = naluParts.parseH264Sps();
+            videoParametersMap[this] = naluParts.parseH264Sps();
         } else {
-            mediaParametersMap[this] = naluParts.parseH265Sps();
+            videoParametersMap[this] = naluParts.parseH265Sps();
         }
         
     }
@@ -220,9 +227,9 @@ APDecoder::getAudioDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
     if (!decoderContext) {
         const MSNaluParts &naluParts = sourceData.getNaluParts();
         // 音频一般不会动态更改编码配置, 暂时以首次的 adts 数据为准
-        auto mediaParameters = mediaParametersMap[this] = naluParts.parseAacAdts();
+        auto audioParameters = audioParametersMap[this] = naluParts.parseAacAdts();
     
-        decoderContext = new APCodecContext(APCodecDecoder, codecID, mediaParameters->audioParameters, *this);
+        decoderContext = new APCodecContext(APCodecDecoder, codecID, *audioParameters, *this);
         decoderContexts[codecID] = decoderContext;
         
     }
@@ -265,7 +272,7 @@ APDecoder::audioConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
     ioData->mNumberBuffers = 1;
     ioData->mBuffers->mData = (void *)naluParts.dataRef();
     ioData->mBuffers->mDataByteSize = (UInt32)naluParts.dataSize();
-    ioData->mBuffers->mNumberChannels = (UInt32)naluParts.parseAacAdts()->audioParameters.channel;
+    ioData->mBuffers->mNumberChannels = (UInt32)naluParts.parseAacAdts()->channel;
     static AudioStreamPacketDescription *aspDesc = new AudioStreamPacketDescription();
     aspDesc->mStartOffset = 0;
     aspDesc->mVariableFramesInPacket = 0;
