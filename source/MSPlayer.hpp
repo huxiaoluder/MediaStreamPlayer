@@ -266,7 +266,7 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::startPlayVideo() {
-        assert(videoTimer->isValid() == false);
+        assert(videoTimer->isActivity() == false);
         microseconds timeInterval = audioTimer->getTimeInterval();
         if (timeInterval != intervale(1)) { // 同步音视频播放时间
             videoTimer->updateDelayTime((audioQueue.size() + sampleQueue.size()) * timeInterval);
@@ -281,7 +281,7 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::continuePlayVideo() {
-        videoTimer->_continue();
+        videoTimer->rePlay();
     }
     
     template <typename T>
@@ -293,7 +293,7 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::startPlayAudio() {
-        assert(audioTimer->isValid() == false);
+        assert(audioTimer->isActivity() == false);
         microseconds timeInterval = videoTimer->getTimeInterval();
         if (timeInterval != intervale(1)) { // 同步音视频播放时间
             audioTimer->updateDelayTime((videoQueue.size() + pixelQueue.size()) * timeInterval);
@@ -308,7 +308,7 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::continuePlayAudio() {
-        audioTimer->_continue();
+        audioTimer->rePlay();
     }
     
     template <typename T>
@@ -343,7 +343,7 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::pushVideoStreamData(const MSMedia<MSEncodeMedia> * MSNonnull const streamData) {
-        if (videoTimer->isValid()) {
+        if (videoTimer->isActivity()) {
             while (!videoQueueMutex.try_lock());
             videoQueue.push(streamData);
             videoQueueMutex.unlock();
@@ -354,7 +354,7 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::pushAudioStreamData(const MSMedia<MSEncodeMedia> * MSNonnull const streamData) {
-        if (audioTimer->isValid()) {
+        if (audioTimer->isActivity()) {
             while (!audioQueueMutex.try_lock());
             audioQueue.push(streamData);
             audioQueueMutex.unlock();

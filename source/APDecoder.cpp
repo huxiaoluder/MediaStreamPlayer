@@ -115,7 +115,7 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         
         const MSAudioParameters &audioParameters = *audioParametersMap[this];
         
-        UInt32 outPacktNumber = 1;
+        UInt32 outPacktNumber = 1024;
         AudioBufferList outBufferList {
             .mNumberBuffers = 1,
             .mBuffers[0] = {
@@ -143,7 +143,7 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         
         APFrame *frame = new APFrame(audioBuffer);
         
-        int rate = audioParametersMap[this]->frequency.value / 1024;
+        int rate = audioParametersMap[this]->frequency.value / outPacktNumber;
         
         launchAudioFrameData(new APDecoderOutputMeida(frame,
                                                       intervale(rate),

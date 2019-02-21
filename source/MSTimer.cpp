@@ -53,7 +53,7 @@ MSTimer::pause() {
 }
 
 void
-MSTimer::_continue() {
+MSTimer::rePlay() {
     assert(isRunning);
     isPausing = false;
 }
@@ -72,7 +72,7 @@ MSTimer::stop() {
 }
 
 bool
-MSTimer::isValid() {
+MSTimer::isActivity() {
     return isRunning;
 }
 

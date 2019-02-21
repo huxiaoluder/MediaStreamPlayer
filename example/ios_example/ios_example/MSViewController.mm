@@ -11,6 +11,8 @@
 #import <MediaStreamPlayer.h>
 
 #import "IotlibTool.h"
+#import "NVGLPlayView.h"
+#import "DDOpenAlAudioPlayer.h"
 
 using namespace std;
 using namespace MS;
@@ -24,6 +26,8 @@ using namespace MS::APhard;
     BOOL updateVideo;
     BOOL updateAudio;
 }
+@property (weak, nonatomic) IBOutlet UILabel *displayLabel;
+@property (weak, nonatomic) IBOutlet NVGLPlayView *displayView;
 
 @end
 
@@ -34,6 +38,10 @@ static int i;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.displayView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
+    self.displayView.layer.transform = CATransform3DRotate(CATransform3DIdentity, M_PI, UIScreen.mainScreen.bounds.size.width/2, 0, 0);
+    [self.displayView setupGL];
+    
 //    auto decoder = new FFDecoder();
 //    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
 //    player = new MSPlayer<AVFrame>(decoder,encoder,
@@ -44,14 +52,30 @@ static int i;
 //
 //                                   });
     
+    __weak typeof(MSViewController *) weakSelf = self;
+    
     auto decoder = new APDecoder();
 //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
     player = new MSPlayer<APFrame>(decoder,nullptr,
-                                   [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
-                                       printf("video time: %lld\n", data.timeInterval.count());
+                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                       if (data.frame) {
+//                                           dispatch_async(dispatch_get_main_queue(), ^{
+//                                               [[weakSelf displayLabel] setText:[NSString stringWithFormat:@"video: %d", i++]];
+//                                           });
+//                                           printf("data time: %lld\n", data.timeInterval.count());
+                                           [[weakSelf displayView] displayPixelBuffer:data.frame->video];
+                                       }
                                    },
                                    [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
-                                       printf("audio time: %lld\n", data.timeInterval.count());
+                                       if (data.frame) {
+//                                           printf("audio time: %lld\n", data.timeInterval.count());
+                                           AudioBuffer &audio = *data.frame->audio;
+                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)audio.mData
+                                                                                        dataSize:audio.mDataByteSize
+                                                                                      samplerate:8000
+                                                                                        channels:audio.mNumberChannels
+                                                                                             bit:16];
+                                       }
                                    });
     
     [[NSNotificationCenter defaultCenter] addObserver:self

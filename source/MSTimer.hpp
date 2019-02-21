@@ -52,11 +52,11 @@ namespace MS {
         
         void pause();
         
-        void _continue();
+        void rePlay();
         
         void stop();
         
-        bool isValid();
+        bool isActivity();
         
         microseconds getTimeInterval();
         
