@@ -51,7 +51,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
                                                     bufferFlags, // 传入 NULL 则该函数不会对传入数据重新分配空间.
                                                     &blockBuffer);
         if (status != kCMBlockBufferNoErr) {
-            ErrorLocationLog("call CMBlockBufferCreateWithMemoryBlock fail");
+            OSStatusErrorLocationLog("call CMBlockBufferCreateWithMemoryBlock fail",status);
             delete videoData;
             return;
         }
@@ -80,7 +80,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
                                            sampleSizeArray,
                                            &sampleBuffer);
         if (status != noErr) {
-            ErrorLocationLog("call CMSampleBufferCreateReady fail");
+            OSStatusErrorLocationLog("call CMSampleBufferCreateReady fail",status);
             CFRelease(blockBuffer);
             delete videoData;
             return;
@@ -93,7 +93,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
                                                    (void *)videoData, // 附带参数, 会透传到回调函数
                                                    nullptr);
         if (status != noErr) {
-            ErrorLocationLog("call VTDecompressionSessionDecodeFrame fail");
+            OSStatusErrorLocationLog("call VTDecompressionSessionDecodeFrame fail",status);
             delete videoData;
         }
         CFRelease(sampleBuffer);
@@ -116,12 +116,13 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         const MSAudioParameters &audioParameters = *audioParametersMap[this];
         
         UInt32 outPacktNumber = 1024;
+        UInt32 mDataByteSize = outPacktNumber * 2 * (UInt32)audioParameters.channels;
         AudioBufferList outBufferList {
             .mNumberBuffers = 1,
             .mBuffers[0] = {
-                .mNumberChannels = (UInt32)audioParameters.channel,
-                .mDataByteSize = 1024 * (UInt32)audioParameters.channel,
-                .mData = malloc(1024 * 2 * (UInt32)audioParameters.channel)
+                .mNumberChannels = (UInt32)audioParameters.channels,
+                .mDataByteSize = mDataByteSize,
+                .mData = malloc(mDataByteSize)
             }
         };
         AudioStreamPacketDescription outAspDesc[outPacktNumber];
@@ -133,7 +134,7 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
                                                  &outBufferList,
                                                  outAspDesc);
         if (status != noErr) {
-            ErrorLocationLog("call AudioConverterFillComplexBuffer fail");
+            OSStatusErrorLocationLog("call AudioConverterFillComplexBuffer fail",status);
             delete audioData;
             return;
         }
@@ -143,10 +144,11 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         
         APFrame *frame = new APFrame(audioBuffer);
         
-        int rate = audioParametersMap[this]->frequency.value / outPacktNumber;
+        // 不能整除, 需要提升精确度
+        long long rate = ((long long)audioParametersMap[this]->frequency.value << 16) / outPacktNumber;
         
         launchAudioFrameData(new APDecoderOutputMeida(frame,
-                                                      intervale(rate),
+                                                      microseconds((1000000ll << 16) / rate),
                                                       audioData,
                                                       APFrame::freeAudioFrame,
                                                       APFrame::copyAudioFrame));
@@ -272,7 +274,7 @@ APDecoder::audioConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
     ioData->mNumberBuffers = 1;
     ioData->mBuffers->mData = (void *)naluParts.dataRef();
     ioData->mBuffers->mDataByteSize = (UInt32)naluParts.dataSize();
-    ioData->mBuffers->mNumberChannels = (UInt32)naluParts.parseAacAdts()->channel;
+    ioData->mBuffers->mNumberChannels = (UInt32)naluParts.parseAacAdts()->channels;
     static AudioStreamPacketDescription *aspDesc = new AudioStreamPacketDescription();
     aspDesc->mStartOffset = 0;
     aspDesc->mVariableFramesInPacket = 0;

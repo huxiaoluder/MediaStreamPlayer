@@ -511,6 +511,7 @@ namespace MS {
     MSTimer * MSNonnull
     MSPlayer<T>::initAsynDataVideoTimer() {
         return new MSTimer(microseconds(0),intervale(1),[this](){
+            printf("pixelQueue: %ld------videoQueue: %ld\r",pixelQueue.size(),videoQueue.size());
             if (!pixelQueue.empty()) {
                 const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
                 frameData = pixelQueue.front();
@@ -537,6 +538,7 @@ namespace MS {
     MSTimer * MSNonnull
     MSPlayer<T>::initAsynDataAudioTimer() {
         return new MSTimer(microseconds(0),intervale(1),[this](){
+            printf("sampleQueue: %ld\r",sampleQueue.size());
             if (!sampleQueue.empty()) {
                 const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
                 frameData = sampleQueue.front();

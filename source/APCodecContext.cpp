@@ -125,7 +125,7 @@ APCodecContext::initVideoFmtDescription(const MSNaluParts &naluParts) {
         }
 
         if (status != noErr) {
-            ErrorLocationLog("fail to instance CMFormatDescriptionRef");
+            OSStatusErrorLocationLog("fail to instance CMFormatDescriptionRef",status);
         }
     }
     return videoFmtDescription;
@@ -149,7 +149,7 @@ APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
             .mBytesPerPacket    = 0,
             .mFramesPerPacket   = 1024,
             .mBytesPerFrame     = 0,
-            .mChannelsPerFrame  = (UInt32)audioParameters.channel,
+            .mChannelsPerFrame  = (UInt32)audioParameters.channels,
             .mBitsPerChannel    = 0,
             .mReserved          = 0
         };
@@ -158,17 +158,48 @@ APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
             .mSampleRate        = (Float64)audioParameters.frequency.value,
             .mFormatID          = kAudioFormatLinearPCM,
             .mFormatFlags       = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
-            .mBytesPerPacket    = 1 * 2 * (UInt32)audioParameters.channel,
+            .mBytesPerPacket    = 1 * 2 * (UInt32)audioParameters.channels,
             .mFramesPerPacket   = 1, // 只支持 1 pack 1 frame, 否则报错(code: -50)
-            .mBytesPerFrame     = 2 * (UInt32)audioParameters.channel,
-            .mChannelsPerFrame  = (UInt32)audioParameters.channel,
+            .mBytesPerFrame     = 2 * (UInt32)audioParameters.channels,
+            .mChannelsPerFrame  = (UInt32)audioParameters.channels,
             .mBitsPerChannel    = 16,
             .mReserved          = 0
         };
         
+        /**
+         // 获取对应类型的解码器描述, 经测试 iphone 中 AAC 编解码只有一种类型 'appl'
+         // kAppleSoftwareAudioCodecManufacturer = 'appl' => 软编解码
+         // kAppleHardwareAudioCodecManufacturer = 'aphw' => 硬编解码
+         UInt32 decodersSize;
+         status = AudioFormatGetPropertyInfo(kAudioFormatProperty_Decoders,
+                                             sizeof(audioFormatID),
+                                             &audioFormatID,
+                                             &decodersSize);
+         if (status != noErr) {
+             OSStatusErrorLocationLog("call AudioFormatGetPropertyInfo fail!",status);
+         }
+        
+         int decodersCount = decodersSize / sizeof(AudioClassDescription);
+         AudioClassDescription decoders[decodersCount];
+         status = AudioFormatGetProperty(kAudioFormatProperty_Decoders,
+                                         sizeof(audioFormatID),
+                                         &audioFormatID,
+                                         &decodersSize,
+                                         decoders);
+         if (status != noErr) {
+             OSStatusErrorLocationLog("call AudioFormatGetProperty fail!",status);
+         }
+         
+         for (int i = 0; i < decodersCount; i++) {
+             OSType mType = decoders[i].mType;
+             OSType mSubType = decoders[i].mSubType;
+             OSType mManufacturer = decoders[i].mManufacturer;
+         }
+        // */
+        
         status = AudioConverterNew(&sourceFormat, &destinationFormat, &audioConverter);
         if (status != noErr) {
-            ErrorLocationLog("instance audio converter fail!");
+            OSStatusErrorLocationLog("instance audio converter fail!",status);
         }
     }
     return audioConverter;
@@ -215,7 +246,7 @@ APCodecContext::initVideoDecodeSession() {
         CFRelease(pixFmtType);
         
         if (status != noErr) {
-            ErrorLocationLog("fail to instance VTDecompressionSessionRef");
+            OSStatusErrorLocationLog("fail to instance VTDecompressionSessionRef",status);
         }
     }
     return videoDecoderSession;

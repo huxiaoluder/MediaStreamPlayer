@@ -236,7 +236,7 @@ decode_aac_adts(const uint8_t * const sourceAdtsRef, const size_t sourceAdtsSize
     audioParameter.frequency.index      = getBitsValue(sourceAdtsRef, startLocation, 4);
     audioParameter.frequency.value      = adtsFrequencyList[audioParameter.frequency.index];
     skipBits(startLocation, 1);
-    audioParameter.channel              = getBitsValue(sourceAdtsRef, startLocation, 3);
+    audioParameter.channels              = getBitsValue(sourceAdtsRef, startLocation, 3);
 }
 
 static size_t

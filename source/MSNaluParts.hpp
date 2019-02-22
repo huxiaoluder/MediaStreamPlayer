@@ -38,7 +38,7 @@ namespace MS {
     
     struct MSAudioParameters {
         int profile     = 0; // == MPEG-4 Audio Object Types (APPLE ENUM: MPEG4ObjectID) - 1
-        int channel     = 0;
+        int channels    = 0;
         struct {
             int index   = 0;  // index of adtsFrequencyList
             int value   = 0; // value of index in adtsFrequencyList

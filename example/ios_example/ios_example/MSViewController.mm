@@ -135,6 +135,8 @@ static int i;
         if (headerMedia->stream_type == e_stream_type_H264) {
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H264);
             player->pushVideoStreamData(data);
+        } else {
+//            printf("**********video buffer empty!\n");
         }
     }
     
@@ -142,6 +144,8 @@ static int i;
         if (headerMedia->stream_type == e_stream_type_AAC) {
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
             player->pushAudioStreamData(data);
+        } else {
+//            printf("++++++++++audio buffer empty!\n");
         }
     }
 }
