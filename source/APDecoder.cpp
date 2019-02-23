@@ -252,7 +252,18 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
         microseconds timeInterval(presentationDuration.value);
         
         APFrame *frame = new APFrame(CVPixelBufferRetain(imageBuffer));
-        
+        static int i = 20;
+        if (((MSMedia<MSEncodeMedia> *)sourceFrameRefCon)->isKeyFrame) {
+            printf("**************** GOP 丢 %d 帧\n", 20 - i);
+            if (i < 20) {
+                for (int j = 0; j < 20 - i; i++) {
+                    dataProvider.launchVideoFrameData(&APDecoderOutputMeida::defaultNullMedia);
+                }
+            }
+            i = 0;
+        } else {
+            i++;
+        }
         dataProvider.launchVideoFrameData(new APDecoderOutputMeida(frame,
                                                                    timeInterval,
                                                                    (MSMedia<MSEncodeMedia> *)sourceFrameRefCon,

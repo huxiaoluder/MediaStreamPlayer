@@ -9,24 +9,16 @@
 #ifndef MSMacros_h
 #define MSMacros_h
 
-#ifdef __APPLE__
-
-#define MSNullable _Nullable
-#define MSNonnull _Nonnull
-
-#elif
-
-#define MSNullable
-#define MSNonnull
-
-#endif
-
 #define intervale(rate) microseconds(1000000LL/rate)
+
+#define MaxPixelBufferSize 100
+
+#define MaxSampleBufferSize 40
 
 #if DEBUG
 
 #define OSStatus2Str(status) \
-char ref[5] = {char(status >> 24), char(status >> 16), char(status >> 8), char(status) , 0x00}
+char errStr[5] = {char(status >> 24), char(status >> 16), char(status >> 8), char(status) , 0x00}
 
 #define ErrorLocationLog(reson) \
 printf("\n"\
@@ -46,11 +38,25 @@ printf("\n"\
 "| funcname:    %s\n"\
 "| reson:       %s\n"\
 "| status:      %s\n"\
-"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reson,ref)
+"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reson,errStr)
 
 #else
 
+#define OSStatus2Str(status)
 #define ErrorLocationLog(reason)
+#define OSStatusErrorLocationLog(reson,status)
+
+#endif
+
+#ifdef __APPLE__
+
+#define MSNullable  _Nullable
+#define MSNonnull   _Nonnull
+
+#else
+
+#define MSNullable
+#define MSNonnull
 
 #endif
 
