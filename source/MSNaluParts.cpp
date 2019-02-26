@@ -9,6 +9,7 @@
 #include "MSNaluParts.hpp"
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 
 using namespace MS;
 
@@ -76,7 +77,7 @@ seGolomb(const uint8_t * const dataRef, size_t &startLocation) {
 }
 
 static void
-skipScalingList(const uint8_t * const spsRef, size_t &startLocation, size_t sizeOfScalingList) {
+skipH264ScalingList(const uint8_t * const spsRef, size_t &startLocation, size_t sizeOfScalingList) {
     int lastScale = 8;
     int nextScale = 8;
     int delta_scale;
@@ -90,7 +91,27 @@ skipScalingList(const uint8_t * const spsRef, size_t &startLocation, size_t size
 }
 
 static void
-decode_vui_parameters(const uint8_t * const spsRef, size_t &startLocation, int &frameRate) {
+skipH265ScalingList(const uint8_t * const spsRef, size_t &startLocation) {
+    for (int sizeId = 0; sizeId < 4; sizeId++) {
+        for (int matrixId = 0; matrixId < (sizeId == 3 ? 2 : 6 ); matrixId++) {
+            int scaling_list_pred_mode_flag = getBitsValue(spsRef, startLocation, 1);
+            if (!scaling_list_pred_mode_flag) {
+                skipGolombBits(spsRef, startLocation, 1);
+            } else {
+                int coefNum = std::min(64, (1 << (4 + (sizeId << 1))));
+                if (sizeId > 1) {
+                    skipGolombBits(spsRef, startLocation, 1);
+                }
+                for (int i = 0; i < coefNum; i++) {
+                    skipGolombBits(spsRef, startLocation, 1);
+                }
+            }
+        }
+    }
+}
+
+static void
+decode_h264_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameRate) {
     int aspect_ratio_info_present_flag = getBitsValue(spsRef, startLocation, 1);
     if(aspect_ratio_info_present_flag) {
         int aspect_ratio_idc = getBitsValue(spsRef, startLocation, 8);
@@ -119,6 +140,76 @@ decode_vui_parameters(const uint8_t * const spsRef, size_t &startLocation, int &
         int num_units_in_tick = getBitsValue(spsRef, startLocation, 32);
         int time_scale = getBitsValue(spsRef, startLocation, 32);
         frameRate = time_scale / (2 * num_units_in_tick);
+    }
+}
+
+static void
+decode_h265_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameRate) {
+    int aspect_ratio_info_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if (aspect_ratio_info_present_flag) {
+        int aspect_ratio_idc = getBitsValue(spsRef, startLocation, 8);
+        if (aspect_ratio_idc == 255/* Extended_SAR = 255 */) {
+            skipBits(startLocation, 32);
+        }
+    }
+    
+    int overscan_info_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if (overscan_info_present_flag) {
+        skipBits(startLocation, 1);
+    }
+    
+    int video_signal_type_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if (video_signal_type_present_flag) {
+        skipBits(startLocation, 4);
+        
+        int colour_description_present_flag = getBitsValue(spsRef, startLocation, 1);
+        if (colour_description_present_flag) {
+            skipBits(startLocation, 24);
+        }
+    }
+    
+    int chroma_loc_info_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if (chroma_loc_info_present_flag) {
+        skipGolombBits(spsRef, startLocation, 2);
+    }
+    
+    skipBits(startLocation, 3);
+    
+    int default_display_window_flag = getBitsValue(spsRef, startLocation, 1);
+    if (default_display_window_flag) {
+        skipGolombBits(spsRef, startLocation, 4);
+    }
+    
+    int vui_timing_info_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if (vui_timing_info_present_flag) {
+        int vui_num_units_in_tick = getBitsValue(spsRef, startLocation, 32);
+        int vui_time_scale = getBitsValue(spsRef, startLocation, 32);
+        frameRate = vui_time_scale / vui_num_units_in_tick;
+    }
+}
+
+static void
+profile_tier_level(const uint8_t * const spsRef, size_t &startLocation, int sps_max_sub_layers_minus1) {
+    skipBits(startLocation, 96);
+    
+    int sub_layer_profile_present_flag[sps_max_sub_layers_minus1];
+    int sub_layer_level_present_flag[sps_max_sub_layers_minus1];
+    for (int i = 0; i < sps_max_sub_layers_minus1; i++) {
+        sub_layer_profile_present_flag[i] = getBitsValue(spsRef, startLocation, 1);
+        sub_layer_level_present_flag[i] = getBitsValue(spsRef, startLocation, 1);
+    }
+    
+    if (sps_max_sub_layers_minus1 > 0) {
+        skipBits(startLocation, 2 * (8 - sps_max_sub_layers_minus1));
+    }
+    
+    for (int i = 0; i < sps_max_sub_layers_minus1; i++) {
+        if (sub_layer_profile_present_flag[i]) {
+            skipBits(startLocation, 88);
+        }
+        if (sub_layer_level_present_flag[i]) {
+            skipBits(startLocation, 8);
+        }
     }
 }
 
@@ -176,9 +267,9 @@ decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, 
             for (int i = 0; i < 8; i++) {
                 if (getBitsValue(realSps, startLocation, 1)) {
                     if (i < 6) {
-                        skipScalingList(realSps, startLocation, 16);
+                        skipH264ScalingList(realSps, startLocation, 16);
                     } else {
-                        skipScalingList(realSps, startLocation, 64);
+                        skipH264ScalingList(realSps, startLocation, 64);
                     }
                 }
             }
@@ -197,8 +288,8 @@ decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, 
     skipGolombBits(realSps, startLocation, 1);
     skipBits(startLocation, 1);
     
-    int pic_width_in_mbs_minus1 = ueGolomb(realSps, startLocation);
-    int pic_height_in_map_units_minus1 = ueGolomb(realSps, startLocation);
+    int pic_width_in_mbs_minus1         = ueGolomb(realSps, startLocation);
+    int pic_height_in_map_units_minus1  = ueGolomb(realSps, startLocation);
     
     int frame_mbs_only_flag = getBitsValue(realSps, startLocation, 1);
     if(!frame_mbs_only_flag) {
@@ -213,7 +304,7 @@ decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, 
     
     int vui_parameters_present_flag = getBitsValue(realSps, startLocation, 1);
     if(vui_parameters_present_flag) {
-        decode_vui_parameters(realSps, startLocation, videoParameter.frameRate);
+        decode_h264_vui(realSps, startLocation, videoParameter.frameRate);
     }
     
     videoParameter.width    = (pic_width_in_mbs_minus1 + 1) * 16;
@@ -225,7 +316,81 @@ decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, 
 
 static void
 decode_h265_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, MSVideoParameters &videoParameter) {
+    const uint8_t * const realSps = discardEmulationCode(sourceSpsRef, sourceSpsSize);
     
+    size_t startLocation = 0;
+    
+    skipBits(startLocation, 20);
+    
+    int sps_max_sub_layers_minus1 = getBitsValue(realSps, startLocation, 3);
+    
+    skipBits(startLocation, 1);
+    
+    profile_tier_level(realSps, startLocation, sps_max_sub_layers_minus1);
+    
+    skipGolombBits(realSps, startLocation, 1);
+    
+    int chroma_format_idc = ueGolomb(realSps, startLocation);
+    if (chroma_format_idc == 3) {
+        skipBits(startLocation, 1);
+    }
+    
+    int pic_width_in_luma_samples   = ueGolomb(realSps, startLocation);
+    int pic_height_in_luma_samples  = ueGolomb(realSps, startLocation);
+    
+    int conformance_window_flag = ueGolomb(realSps, startLocation);
+    if (conformance_window_flag) {
+        skipGolombBits(realSps, startLocation, 4);
+    }
+    
+    skipGolombBits(realSps, startLocation, 2);
+    
+    int log2_max_pic_order_cnt_lsb_minus4 = ueGolomb(realSps, startLocation);
+    
+    int sps_sub_layer_ordering_info_present_flag = getBitsValue(realSps, startLocation, 1);
+    for (int i = (sps_sub_layer_ordering_info_present_flag ? 0 : sps_max_sub_layers_minus1);
+         i <= sps_max_sub_layers_minus1; i++) {
+        skipGolombBits(realSps, startLocation, 3);
+    }
+    
+    skipGolombBits(realSps, startLocation, 6);
+    
+    int scaling_list_enabled_flag = getBitsValue(realSps, startLocation, 1);
+    if (scaling_list_enabled_flag) {
+        int sps_scaling_list_data_present_flag = getBitsValue(realSps, startLocation, 1);
+        if (sps_scaling_list_data_present_flag) {
+            skipH265ScalingList(realSps, startLocation);
+        }
+    }
+    
+    skipBits(startLocation, 2);
+    
+    int pcm_enabled_flag = getBitsValue(realSps, startLocation, 1);
+    if (pcm_enabled_flag) {
+        skipBits(startLocation, 8);
+        skipGolombBits(realSps, startLocation, 2);
+        skipBits(startLocation, 1);
+    }
+    
+    skipGolombBits(realSps, startLocation, 1);
+    
+    int long_term_ref_pics_present_flag = getBitsValue(realSps, startLocation, 1);
+    if (long_term_ref_pics_present_flag) {
+        int num_long_term_ref_pics_sps = ueGolomb(realSps, startLocation);
+        for (int i = 0; i < num_long_term_ref_pics_sps; i++) {
+            skipBits(startLocation, log2_max_pic_order_cnt_lsb_minus4 + 4 + 1);
+        }
+    }
+    
+    skipBits(startLocation, 2);
+    
+    int vui_parameters_present_flag = getBitsValue(realSps, startLocation, 1);
+    if (vui_parameters_present_flag) {
+        decode_h265_vui(realSps, startLocation, videoParameter.frameRate);
+    }
+    
+    videoParameter.width    = pic_width_in_luma_samples;
+    videoParameter.height   = pic_height_in_luma_samples;
 }
 
 static void
@@ -255,64 +420,121 @@ nextSeparatorOffset(const uint8_t * MSNonnull const lastPtr) {
     return 0;
 }
 
-MSNaluParts::MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize, const MSCodecID codecID) {
-    if (codecID <= MSCodecID_HEVC) {
-        const uint8_t *ptr = nalUnit;
-        while (true) {
-            if (*ptr++ == 0x01) {
-                switch (*ptr & 0x1F) {
-                    case 0x01: { // 非关键帧数据,不划分片段 (SLICE)
-                        _slcRef = ptr;
-                        _slcSize = naluSize - (ptr - nalUnit);
-                    }   return;
-//                    case 0x02: { // 非关键帧数据划分片段A部分 (DPA)
-//                        _dpaRef = ptr;
-//                        _dpaSize = nextSeparatorOffset(ptr);
-//                        ptr += _dpaSize;
-//                    }   break;
-//                    case 0x03: { // 非关键帧数据划分片段B部分 (DPB)
-//                        _dpbRef = ptr;
-//                        _dpbSize = nextSeparatorOffset(ptr);
-//                        ptr += _dpbSize;
-//                    }   break;
-//                    case 0x04: { // 非关键帧数据划分片段C部分 (DPC)
-//                        _dpbRef = ptr;
-//                        _dpbSize = naluSize - (ptr - nalUnit);
-//                    }   return;
-                    case 0x05: { // 关键帧数据 (IDR)
-                        _idrRef = ptr;
-                        _idrSize = naluSize - (ptr - nalUnit);
-                    }   return;
-                    case 0x06: { // 补充增强信息（SEI）
-                        _seiRef = ptr;
-                        _seiSize = nextSeparatorOffset(ptr);
-                        ptr += _seiSize;
-                    }   break;
-                    case 0x07: { // 序列参数集（SPS）
-                        _spsRef = ptr;
-                        _spsSize = nextSeparatorOffset(ptr);
-                        ptr += _spsSize;
-                    }   break;
-                    case 0x08: { // 图像参数集（PPS）
-                        _ppsRef = ptr;
-                        _ppsSize = nextSeparatorOffset(ptr);
-                        ptr += _ppsSize;
-                    }   break;
-                    default:break;
-                }
+void
+MSNaluParts::initH264NaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize) {
+    const uint8_t *ptr = nalUnit;
+    while (true) {
+        if (*ptr++ == 0x01) {
+            switch (*ptr & 0x1F) {
+                case 1: { // 非关键帧数据,不划分片段 (SLICE)
+                    _slcRef = ptr;
+                    _slcSize = naluSize - (ptr - nalUnit);
+                }   return;
+//                case 2: { // 非关键帧数据划分片段A部分 (DPA)
+//                    _dpaRef = ptr;
+//                    _dpaSize = nextSeparatorOffset(ptr);
+//                    ptr += _dpaSize;
+//                }   break;
+//                case 3: { // 非关键帧数据划分片段B部分 (DPB)
+//                    _dpbRef = ptr;
+//                    _dpbSize = nextSeparatorOffset(ptr);
+//                    ptr += _dpbSize;
+//                }   break;
+//                case 4: { // 非关键帧数据划分片段C部分 (DPC)
+//                    _dpbRef = ptr;
+//                    _dpbSize = naluSize - (ptr - nalUnit);
+//                }   return;
+                case 5: { // 关键帧数据 (IDR)
+                    _idrRef = ptr;
+                    _idrSize = naluSize - (ptr - nalUnit);
+                }   return;
+                case 6: { // 补充增强信息（SEI）
+                    _seiRef = ptr;
+                    _seiSize = nextSeparatorOffset(ptr);
+                    ptr += _seiSize;
+                }   break;
+                case 7: { // 序列参数集（SPS）
+                    _spsRef = ptr;
+                    _spsSize = nextSeparatorOffset(ptr);
+                    ptr += _spsSize;
+                }   break;
+                case 8: { // 图像参数集（PPS）
+                    _ppsRef = ptr;
+                    _ppsSize = nextSeparatorOffset(ptr);
+                    ptr += _ppsSize;
+                }   break;
+                default:break;
             }
         }
-    } else {
-        if (codecID == MSCodecID_AAC) {
-            size_t startLocation = 15;
-            int protectionAbsent = getBitsValue(nalUnit, startLocation, 1);
-            
-            _adtsRef    = nalUnit;
-            _adtsSize   = protectionAbsent == 1 ? 7 : 9;
-            _dataRef    = _adtsRef + _adtsSize;
-            _dataSize   = naluSize - _adtsSize;
+    }
+}
+
+void
+MSNaluParts::initH265NaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize) {
+    const uint8_t *ptr = nalUnit;
+    while (true) {
+        if (*ptr++ == 0x01) {
+            switch (*ptr >> 1 & 0x3F) {
+                case 1: { // 非关键帧数据,不划分片段 (SLICE)
+                    _slcRef = ptr;
+                    _slcSize = naluSize - (ptr - nalUnit);
+                }   return;
+                case 19: { // 关键帧数据 (IDR)
+                    _idrRef = ptr;
+                    _idrSize = naluSize - (ptr - nalUnit);
+                }   return;
+                case 32: { // 视频参数集 (VPS)
+                    _vpsRef = ptr;
+                    _vpsSize = nextSeparatorOffset(ptr);
+                    ptr += _vpsSize;
+                }
+                case 33: { // 序列参数集（SPS）
+                    _spsRef = ptr;
+                    _spsSize = nextSeparatorOffset(ptr);
+                    ptr += _spsSize;
+                }   break;
+                case 34: { // 图像参数集（PPS）
+                    _ppsRef = ptr;
+                    _ppsSize = nextSeparatorOffset(ptr);
+                    ptr += _ppsSize;
+                }   break;
+                case 40: { // 补充增强信息（SEI）
+                    _seiRef = ptr;
+                    _seiSize = nextSeparatorOffset(ptr);
+                    ptr += _seiSize;
+                }   break;
+                default:break;
+            }
         }
     }
+}
+
+void
+MSNaluParts::initAACNaluParts(const uint8_t * MSNonnull const nalUnit,  const size_t naluSize) {
+    size_t startLocation = 15;
+    int protectionAbsent = getBitsValue(nalUnit, startLocation, 1);
+    
+    _adtsRef    = nalUnit;
+    _adtsSize   = protectionAbsent == 1 ? 7 : 9;
+    _dataRef    = _adtsRef + _adtsSize;
+    _dataSize   = naluSize - _adtsSize;
+}
+
+
+
+MSNaluParts::MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize, const MSCodecID codecID) {
+    if (codecID == MSCodecID_H264) {
+        initH264NaluParts(nalUnit, naluSize);
+    } else if (codecID == MSCodecID_H265) {
+        initH265NaluParts(nalUnit, naluSize);
+    } else if (codecID == MSCodecID_AAC) {
+        initAACNaluParts(nalUnit, naluSize);
+    }
+}
+
+const uint8_t *
+MSNaluParts::vpsRef() const {
+    return _vpsRef;
 }
 
 const uint8_t *
@@ -356,6 +578,11 @@ MSNaluParts::dpcRef() const {
     return _dpcRef;
 }
  */
+
+size_t
+MSNaluParts::vpsSize() const {
+    return _vpsSize;
+}
 
 size_t
 MSNaluParts::spsSize() const {

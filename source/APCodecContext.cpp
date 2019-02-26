@@ -234,7 +234,8 @@ APCodecContext::initVideoDecodeSession() {
         
         CFDictionaryRef dstBufferAttr = CFDictionaryCreate(kCFAllocatorDefault,
                                                            keys, values, sizeof(keys)/sizeof(void *),
-                                                           &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+                                                           &kCFTypeDictionaryKeyCallBacks,
+                                                           &kCFTypeDictionaryValueCallBacks);
 #warning dstBufferAttr
         status = VTDecompressionSessionCreate(kCFAllocatorDefault,
                                               videoFmtDescription,

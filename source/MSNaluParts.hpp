@@ -49,6 +49,7 @@ namespace MS {
      curren not surport p frame is sliced a,b,c
      */
     class MSNaluParts {
+        const uint8_t * MSNullable _vpsRef = nullptr;
         union {
             // i frame use
             const uint8_t * MSNullable _spsRef = nullptr;
@@ -69,6 +70,7 @@ namespace MS {
 //        const uint8_t * MSNullable _dpbRef = nullptr;
 //        const uint8_t * MSNullable _dpcRef = nullptr;
         
+        size_t _vpsSize = 0;
         union {
             size_t _spsSize = 0;
             size_t _adtsSize;
@@ -84,20 +86,26 @@ namespace MS {
 //        size_t _dpbSize = 0;
 //        size_t _dpcSize = 0;
         
+        void initH264NaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize);
+        void initH265NaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize);
+        void initAACNaluParts(const uint8_t * MSNonnull const nalUnit,  const size_t naluSize);
+        
     public:
         MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize, const MSCodecID codecID);
         
         /*---------------- video ---------------- */
-        // slice refference
+        const uint8_t * MSNullable vpsRef() const;
         const uint8_t * MSNullable spsRef() const;
         const uint8_t * MSNullable ppsRef() const;
         const uint8_t * MSNullable seiRef() const;
         const uint8_t * MSNullable idrRef() const;
+        // slice refference
         const uint8_t * MSNullable slcRef() const;
 //        const uint8_t * MSNullable dpaRef() const;
 //        const uint8_t * MSNullable dpbRef() const;
 //        const uint8_t * MSNullable dpcRef() const;
         
+        size_t vpsSize() const;
         size_t spsSize() const;
         size_t ppsSize() const;
         size_t seiSize() const;
