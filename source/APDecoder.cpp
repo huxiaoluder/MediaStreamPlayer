@@ -271,7 +271,7 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
                                                                    APFrame::copyVideoFrame));
         
     } else {
-        ErrorLocationLog("APDecoder decode video error!");
+        OSStatusErrorLocationLog("APDecoder decode video error!", status);
     }
 };
 

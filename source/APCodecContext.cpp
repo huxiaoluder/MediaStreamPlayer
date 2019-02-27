@@ -102,7 +102,7 @@ APCodecContext::initVideoFmtDescription(const MSNaluParts &naluParts) {
     if (codecType == APCodecDecoder && isVideoCodec) {
         OSStatus status = 0;
         
-        // MSNaluParts, 此处直接使用 sps, pps 内存引用, 未拼接 NALUnitHeaderLength.(待测试)
+        // MSNaluParts, 此处直接使用 sps, pps 内存引用, 不需要使用 NALUnitHeaderLength 替换开始码.
         const uint8_t *datas[] = {naluParts.spsRef(),  naluParts.ppsRef()};
         const size_t lengths[] = {naluParts.spsSize(), naluParts.ppsSize()};
         
