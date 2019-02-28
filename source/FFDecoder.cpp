@@ -75,18 +75,18 @@ FFDecoder::decodeData(const MSMedia<MSEncodeMedia> * const mediaData) {
         return nullptr;
     }
     
-    int rate = 0;
+    long long rate = 0;
     
     if (data.codecID <= MSCodecID_HEVC) {
-        rate = codec_ctx->framerate.num / codec_ctx->framerate.den;
+        rate = codec_ctx->framerate.num << 16 / codec_ctx->framerate.den;
     } else {
-        rate = codec_ctx->sample_rate / frame->nb_samples;
+        rate = codec_ctx->sample_rate << 16 / frame->nb_samples;
     }
     
     av_packet_unref(&packet);
     
     return new FFDecoderOutputMedia(frame,
-                                    intervale(rate),
+                                    adv_intervale(rate),
                                     mediaData,
                                     av_frame_free,
                                     av_frame_clone);

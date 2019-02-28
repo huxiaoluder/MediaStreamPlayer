@@ -11,6 +11,8 @@
 
 #define intervale(rate) microseconds(1000000LL/rate)
 
+#define adv_intervale(rate) microseconds((1000000ll << 16) / rate)
+
 #define MaxPixelBufferSize 100
 
 #define MaxSampleBufferSize 40

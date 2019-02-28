@@ -148,7 +148,7 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         long long rate = ((long long)audioParametersMap[this]->frequency.value << 16) / outPacktNumber;
         
         launchAudioFrameData(new APDecoderOutputMeida(frame,
-                                                      microseconds((1000000ll << 16) / rate),
+                                                      adv_intervale(rate),
                                                       audioData,
                                                       APFrame::freeAudioFrame,
                                                       APFrame::copyAudioFrame));

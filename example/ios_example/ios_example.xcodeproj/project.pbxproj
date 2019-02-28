@@ -36,6 +36,8 @@
 		4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085A21D5FC6400CE476E /* CoreMedia.framework */; };
 		4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085621D5FC3F00CE476E /* VideoToolbox.framework */; };
 		4F17085F21D6065D00CE476E /* MSBinary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F17085D21D6065D00CE476E /* MSBinary.cpp */; };
+		4F1F708C22277EC900384999 /* APVideoRender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1F708A22277EC900384999 /* APVideoRender.cpp */; };
+		4F1F708F22277ED300384999 /* APAudioRender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1F708D22277ED300384999 /* APAudioRender.cpp */; };
 		4F226DBA221E40F1006A1046 /* NVPlayViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F226DB4221E40F1006A1046 /* NVPlayViewManager.m */; };
 		4F226DBB221E40F1006A1046 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F226DB5221E40F1006A1046 /* Shader.fsh */; };
 		4F226DBC221E40F1006A1046 /* NVGLPlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F226DB6221E40F1006A1046 /* NVGLPlayView.m */; };
@@ -222,6 +224,10 @@
 		4F17085D21D6065D00CE476E /* MSBinary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSBinary.cpp; sourceTree = "<group>"; };
 		4F17085E21D6065D00CE476E /* MSBinary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSBinary.hpp; sourceTree = "<group>"; };
 		4F1DA55E21CCE5D6000EFE53 /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transcoding.c; sourceTree = "<group>"; };
+		4F1F708A22277EC900384999 /* APVideoRender.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APVideoRender.cpp; sourceTree = "<group>"; };
+		4F1F708B22277EC900384999 /* APVideoRender.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = APVideoRender.hpp; sourceTree = "<group>"; };
+		4F1F708D22277ED300384999 /* APAudioRender.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APAudioRender.cpp; sourceTree = "<group>"; };
+		4F1F708E22277ED300384999 /* APAudioRender.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = APAudioRender.hpp; sourceTree = "<group>"; };
 		4F226DA8221E35F9006A1046 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		4F226DB4221E40F1006A1046 /* NVPlayViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NVPlayViewManager.m; sourceTree = "<group>"; };
 		4F226DB5221E40F1006A1046 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; };
@@ -376,6 +382,10 @@
 				4F1707B321D3639E00CE476E /* APDecoder.cpp */,
 				4F1707B121D3632300CE476E /* APEncoder.hpp */,
 				4F1707B021D3632300CE476E /* APEncoder.cpp */,
+				4F1F708B22277EC900384999 /* APVideoRender.hpp */,
+				4F1F708A22277EC900384999 /* APVideoRender.cpp */,
+				4F1F708E22277ED300384999 /* APAudioRender.hpp */,
+				4F1F708D22277ED300384999 /* APAudioRender.cpp */,
 				4F226DB3221E40F1006A1046 /* VideoDisplayer */,
 				4F226DBE221E4616006A1046 /* AudioDisplayer */,
 			);
@@ -848,6 +858,7 @@
 				4F0A736D21B7B462000E0E31 /* MSTimer.cpp in Sources */,
 				4F0A740B21B7C4A0000E0E31 /* MSViewController.mm in Sources */,
 				4F0A736F21B7B462000E0E31 /* FFCodecContext.cpp in Sources */,
+				4F1F708C22277EC900384999 /* APVideoRender.cpp in Sources */,
 				4F0A735721B7B3C6000E0E31 /* main.m in Sources */,
 				4F9ADF1621B7D12F00862770 /* IotlibTool.m in Sources */,
 				4F0A734921B7B3C4000E0E31 /* AppDelegate.m in Sources */,
@@ -856,6 +867,7 @@
 				4F1707B821D3785800CE476E /* APCodecContext.cpp in Sources */,
 				4F226DC1221E4638006A1046 /* DDOpenALAudioPlayer.m in Sources */,
 				4FCF481221F05DFD0030E739 /* MSNaluParts.cpp in Sources */,
+				4F1F708F22277ED300384999 /* APAudioRender.cpp in Sources */,
 				4F1707BA21D4B6C000CE476E /* APEncoder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
