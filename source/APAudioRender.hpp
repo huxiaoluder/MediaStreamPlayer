@@ -15,7 +15,7 @@ class APAudioRender {
     
     
 public:
-    AudioUnit
+    
 };
 
 #endif /* APAudioRender_hpp */

@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "IotlibTool.h"
+#import <AVKit/AVKit.h>
 
 
 @interface AppDelegate ()
@@ -19,6 +20,11 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
+    
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
+                                     withOptions:AVAudioSessionCategoryOptionAllowBluetooth
+                                           error:NULL];
+    [[AVAudioSession sharedInstance] setActive:true error:NULL];
     
     iotsdk_debug(false);
     iotsdk_set_log_level(e_log_error);

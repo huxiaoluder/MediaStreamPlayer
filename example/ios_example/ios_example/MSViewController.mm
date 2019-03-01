@@ -21,8 +21,8 @@ using namespace MS::APhard;
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
-    MSPlayer<AVFrame> *player;
-//    MSPlayer<APFrame> *player;
+//    MSPlayer<AVFrame> *player;
+    MSPlayer<APFrame> *player;
     BOOL updateVideo;
     BOOL updateAudio;
 }
@@ -36,55 +36,71 @@ using namespace MS::APhard;
 static int i;
 //static int j;
 
+- (void)enterForeground {
+//    player->startPlayVideo();
+}
+
+- (void)enterBackground {
+//    player->stopPlayVideo();
+////    player->pausePlayVideo();
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification object:nil];
+    
+    
     self.displayView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
     self.displayView.layer.transform = CATransform3DRotate(CATransform3DIdentity, M_PI, UIScreen.mainScreen.bounds.size.width/2, 0, 0);
     [self.displayView setupGL];
     
     __weak typeof(MSViewController *) weakSelf = self;
 
-    auto decoder = new FFDecoder();
-    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
-    player = new MSPlayer<AVFrame>(decoder,encoder,
-                                   [&](const MSMedia<MSDecodeMedia,AVFrame> &data) {
-                                       printf("data time: %lld\n", data.timeInterval.count());
-                                   },
-                                   [&](const MSMedia<MSDecodeMedia,AVFrame> &data) {
-                                       if (data.frame) {
-                                            AVFrame &audio = *data.frame;
-                                            [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:audio.data[0]
-                                                                                         dataSize:audio.linesize[0]
-                                                                                       samplerate:audio.sample_rate
-                                                                                         channels:audio.channels
-                                                                                              bit:16];
-                                        }
-                                   });
-    
-//
-//    auto decoder = new APDecoder();
-////    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
-//    player = new MSPlayer<APFrame>(decoder,nullptr,
-//                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
-//                                       if (data.frame) {
-////                                           dispatch_async(dispatch_get_main_queue(), ^{
-////                                               [[weakSelf displayLabel] setText:[NSString stringWithFormat:@"video: %d", i++]];
-////                                           });
-////                                           printf("data time: %lld\n", data.timeInterval.count());
-//                                           [[weakSelf displayView] displayPixelBuffer:data.frame->video];
-//                                       }
+//    auto decoder = new FFDecoder();
+//    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
+//    player = new MSPlayer<AVFrame>(decoder,encoder,
+//                                   [&](const MSMedia<MSDecodeMedia,AVFrame> &data) {
+//                                       printf("data time: %lld\n", data.timeInterval.count());
 //                                   },
-//                                   [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
+//                                   [&](const MSMedia<MSDecodeMedia,AVFrame> &data) {
 //                                       if (data.frame) {
-////                                           printf("audio time: %lld\n", data.timeInterval.count());
-//                                           AudioBuffer &audio = *data.frame->audio;
-//                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)audio.mData
-//                                                                                        dataSize:audio.mDataByteSize
-//                                                                                      samplerate:8000
-//                                                                                        channels:audio.mNumberChannels
-//                                                                                             bit:16];
-//                                       }
+//                                            AVFrame &audio = *data.frame;
+//                                            [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:audio.data[0]
+//                                                                                         dataSize:audio.linesize[0]
+//                                                                                       samplerate:audio.sample_rate
+//                                                                                         channels:audio.channels
+//                                                                                              bit:16];
+//                                        }
 //                                   });
+    
+
+    auto decoder = new APDecoder();
+//    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
+    player = new MSPlayer<APFrame>(decoder,nullptr,
+                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                       if (data.frame) {
+//                                           dispatch_async(dispatch_get_main_queue(), ^{
+//                                               [[weakSelf displayLabel] setText:[NSString stringWithFormat:@"video: %d", i++]];
+//                                           });
+//                                           printf("data time: %lld\n", data.timeInterval.count());
+                                           [[weakSelf displayView] displayPixelBuffer:data.frame->video];
+                                       }
+                                   },
+                                   [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                       if (data.frame) {
+//                                           printf("audio time: %lld\n", data.timeInterval.count());
+                                           AudioBuffer &audio = *data.frame->audio;
+                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)audio.mData
+                                                                                        dataSize:audio.mDataByteSize
+                                                                                      samplerate:8000
+                                                                                        channels:audio.mNumberChannels
+                                                                                             bit:16];
+                                       }
+                                   });
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(connectsuccess:)
@@ -234,6 +250,7 @@ static int i;
 - (void)dealloc {
     printf("----delloc\n");
     delete player;
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

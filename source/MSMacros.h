@@ -39,8 +39,8 @@ printf("\n"\
 "| linenumber:  %d\n"\
 "| funcname:    %s\n"\
 "| reson:       %s\n"\
-"| status:      %s\n"\
-"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reson,errStr)
+"| status:      %d --> %s\n"\
+"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reson,status,errStr)
 
 #else
 

@@ -224,6 +224,10 @@ const GLfloat kColorConversion601FullRange[] = {
 
 - (void)displayPixelBuffer:(CVPixelBufferRef)pixelBuffer
 {
+    if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
+        return;
+    }
+
     CVReturn err;
     if (pixelBuffer != NULL) {
         int frameWidth = (int)CVPixelBufferGetWidth(pixelBuffer);

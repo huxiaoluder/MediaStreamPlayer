@@ -36,13 +36,14 @@
 		4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085A21D5FC6400CE476E /* CoreMedia.framework */; };
 		4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085621D5FC3F00CE476E /* VideoToolbox.framework */; };
 		4F17085F21D6065D00CE476E /* MSBinary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F17085D21D6065D00CE476E /* MSBinary.cpp */; };
-		4F1F708C22277EC900384999 /* APVideoRender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1F708A22277EC900384999 /* APVideoRender.cpp */; };
 		4F1F708F22277ED300384999 /* APAudioRender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1F708D22277ED300384999 /* APAudioRender.cpp */; };
 		4F226DBA221E40F1006A1046 /* NVPlayViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F226DB4221E40F1006A1046 /* NVPlayViewManager.m */; };
 		4F226DBB221E40F1006A1046 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F226DB5221E40F1006A1046 /* Shader.fsh */; };
 		4F226DBC221E40F1006A1046 /* NVGLPlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F226DB6221E40F1006A1046 /* NVGLPlayView.m */; };
 		4F226DBD221E40F1006A1046 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F226DB7221E40F1006A1046 /* Shader.vsh */; };
 		4F226DC1221E4638006A1046 /* DDOpenALAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F226DBF221E4637006A1046 /* DDOpenALAudioPlayer.m */; };
+		4F65D95D222931A2008B4B3D /* APVideoRender.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F65D95C222931A2008B4B3D /* APVideoRender.mm */; };
+		4F65D96022293315008B4B3D /* MSGLESWraper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F65D95E22293315008B4B3D /* MSGLESWraper.cpp */; };
 		4F9ADF0321B7D02900862770 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEEF21B7D02900862770 /* libcrypto.a */; };
 		4F9ADF0421B7D02900862770 /* libpjlib-util.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF121B7D02900862770 /* libpjlib-util.a */; };
 		4F9ADF0521B7D02900862770 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF221B7D02900862770 /* libmxml.a */; };
@@ -224,8 +225,6 @@
 		4F17085D21D6065D00CE476E /* MSBinary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSBinary.cpp; sourceTree = "<group>"; };
 		4F17085E21D6065D00CE476E /* MSBinary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSBinary.hpp; sourceTree = "<group>"; };
 		4F1DA55E21CCE5D6000EFE53 /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transcoding.c; sourceTree = "<group>"; };
-		4F1F708A22277EC900384999 /* APVideoRender.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APVideoRender.cpp; sourceTree = "<group>"; };
-		4F1F708B22277EC900384999 /* APVideoRender.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = APVideoRender.hpp; sourceTree = "<group>"; };
 		4F1F708D22277ED300384999 /* APAudioRender.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APAudioRender.cpp; sourceTree = "<group>"; };
 		4F1F708E22277ED300384999 /* APAudioRender.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = APAudioRender.hpp; sourceTree = "<group>"; };
 		4F226DA8221E35F9006A1046 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
@@ -237,6 +236,10 @@
 		4F226DB9221E40F1006A1046 /* NVGLPlayView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NVGLPlayView.h; sourceTree = "<group>"; };
 		4F226DBF221E4637006A1046 /* DDOpenALAudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDOpenALAudioPlayer.m; sourceTree = "<group>"; };
 		4F226DC0221E4638006A1046 /* DDOpenALAudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDOpenALAudioPlayer.h; sourceTree = "<group>"; };
+		4F65D95B222931A2008B4B3D /* APVideoRender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APVideoRender.h; sourceTree = "<group>"; };
+		4F65D95C222931A2008B4B3D /* APVideoRender.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = APVideoRender.mm; sourceTree = "<group>"; };
+		4F65D95E22293315008B4B3D /* MSGLESWraper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSGLESWraper.cpp; sourceTree = "<group>"; };
+		4F65D95F22293315008B4B3D /* MSGLESWraper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSGLESWraper.hpp; sourceTree = "<group>"; };
 		4F81B868221D56A100385B2B /* MediaStreamPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaStreamPlayer.h; sourceTree = "<group>"; };
 		4F9ADEEF21B7D02900862770 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		4F9ADEF021B7D02900862770 /* iot_comm.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iot_comm.pb.h; sourceTree = "<group>"; };
@@ -382,10 +385,12 @@
 				4F1707B321D3639E00CE476E /* APDecoder.cpp */,
 				4F1707B121D3632300CE476E /* APEncoder.hpp */,
 				4F1707B021D3632300CE476E /* APEncoder.cpp */,
-				4F1F708B22277EC900384999 /* APVideoRender.hpp */,
-				4F1F708A22277EC900384999 /* APVideoRender.cpp */,
 				4F1F708E22277ED300384999 /* APAudioRender.hpp */,
 				4F1F708D22277ED300384999 /* APAudioRender.cpp */,
+				4F65D95F22293315008B4B3D /* MSGLESWraper.hpp */,
+				4F65D95E22293315008B4B3D /* MSGLESWraper.cpp */,
+				4F65D95B222931A2008B4B3D /* APVideoRender.h */,
+				4F65D95C222931A2008B4B3D /* APVideoRender.mm */,
 				4F226DB3221E40F1006A1046 /* VideoDisplayer */,
 				4F226DBE221E4616006A1046 /* AudioDisplayer */,
 			);
@@ -807,6 +812,11 @@
 				TargetAttributes = {
 					4F0A734321B7B3C4000E0E31 = {
 						CreatedOnToolsVersion = 10.0;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -858,8 +868,9 @@
 				4F0A736D21B7B462000E0E31 /* MSTimer.cpp in Sources */,
 				4F0A740B21B7C4A0000E0E31 /* MSViewController.mm in Sources */,
 				4F0A736F21B7B462000E0E31 /* FFCodecContext.cpp in Sources */,
-				4F1F708C22277EC900384999 /* APVideoRender.cpp in Sources */,
 				4F0A735721B7B3C6000E0E31 /* main.m in Sources */,
+				4F65D96022293315008B4B3D /* MSGLESWraper.cpp in Sources */,
+				4F65D95D222931A2008B4B3D /* APVideoRender.mm in Sources */,
 				4F9ADF1621B7D12F00862770 /* IotlibTool.m in Sources */,
 				4F0A734921B7B3C4000E0E31 /* AppDelegate.m in Sources */,
 				4F226DBA221E40F1006A1046 /* NVPlayViewManager.m in Sources */,

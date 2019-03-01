@@ -94,6 +94,9 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
                                                    nullptr);
         if (status != noErr) {
             OSStatusErrorLocationLog("call VTDecompressionSessionDecodeFrame fail",status);
+            if (status == kVTInvalidSessionErr) { // APP进入后台时, 系统会重置解码器
+                decoderContexts.erase(videoData->codecID);
+            }
             delete videoData;
         }
         CFRelease(sampleBuffer);
