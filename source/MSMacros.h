@@ -9,6 +9,9 @@
 #ifndef MSMacros_h
 #define MSMacros_h
 
+#include <cstdio>
+#include <cassert>
+
 #define intervale(rate) microseconds(1000000LL/rate)
 
 #define adv_intervale(rate) microseconds((1000000ll << 16) / rate)

@@ -88,6 +88,8 @@ static int i;
 //                                           });
 //                                           printf("data time: %lld\n", data.timeInterval.count());
                                            [[weakSelf displayView] displayPixelBuffer:data.frame->video];
+                                           auto render = [APVideoRender new];
+                                           [render displayAPFrame:*data.frame];
                                        }
                                    },
                                    [&](const MSMedia<MSDecodeMedia,APFrame> &data) {

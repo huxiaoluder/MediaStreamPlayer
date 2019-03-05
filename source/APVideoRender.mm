@@ -10,5 +10,12 @@
 
 @implementation APVideoRender
 
+- (void)displayAVFrame:(AVFrame &)frame {
+    
+}
+
+- (void)displayAPFrame:(APFrame &)frame {
+    
+}
 
 @end

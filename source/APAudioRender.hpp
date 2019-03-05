@@ -11,11 +11,16 @@
 
 #include <AudioUnit/AudioUnit.h>
 
-class APAudioRender {
-    
-    
-public:
-    
-};
+namespace MS {
+    namespace APHard {
+        
+        class APAudioRender {
+            
+        public:
+            
+        };
+        
+    }
+}
 
 #endif /* APAudioRender_hpp */

@@ -28,6 +28,8 @@
 #include "APCodecContext.hpp"
 #include "APDecoder.hpp"
 #include "APEncoder.hpp"
+#include "APVideoRender.h"
+#include "APAudioRender.hpp"
 #elif
 // android
 #endif
