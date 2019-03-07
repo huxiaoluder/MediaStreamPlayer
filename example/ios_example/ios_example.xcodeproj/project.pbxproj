@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4F0A734921B7B3C4000E0E31 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A734821B7B3C4000E0E31 /* AppDelegate.m */; };
-		4F0A734C21B7B3C4000E0E31 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A734B21B7B3C4000E0E31 /* ViewController.m */; };
+		4F0A734C21B7B3C4000E0E31 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A734B21B7B3C4000E0E31 /* ViewController.mm */; };
 		4F0A734F21B7B3C4000E0E31 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A734D21B7B3C4000E0E31 /* Main.storyboard */; };
 		4F0A735121B7B3C6000E0E31 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A735021B7B3C6000E0E31 /* Assets.xcassets */; };
 		4F0A735421B7B3C6000E0E31 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A735221B7B3C6000E0E31 /* LaunchScreen.storyboard */; };
@@ -72,7 +72,7 @@
 		4F0A734721B7B3C4000E0E31 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		4F0A734821B7B3C4000E0E31 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		4F0A734A21B7B3C4000E0E31 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		4F0A734B21B7B3C4000E0E31 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		4F0A734B21B7B3C4000E0E31 /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
 		4F0A734E21B7B3C4000E0E31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4F0A735021B7B3C6000E0E31 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4F0A735321B7B3C6000E0E31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -228,7 +228,8 @@
 		4F17085E21D6065D00CE476E /* MSBinary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSBinary.hpp; sourceTree = "<group>"; };
 		4F1DA55E21CCE5D6000EFE53 /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transcoding.c; sourceTree = "<group>"; };
 		4F1F3266222E73480022CE66 /* yuv420p.vsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.exports; path = yuv420p.vsh; sourceTree = "<group>"; };
-		4F1F3268222E82000022CE66 /* yuv420p.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv420p.fsh; sourceTree = "<group>"; };
+		4F1F3268222E82000022CE66 /* yuv420p.fsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.exports; path = yuv420p.fsh; sourceTree = "<group>"; };
+		4F1F32742230FD9C0022CE66 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		4F1F708D22277ED300384999 /* APAudioRender.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APAudioRender.cpp; sourceTree = "<group>"; };
 		4F1F708E22277ED300384999 /* APAudioRender.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = APAudioRender.hpp; sourceTree = "<group>"; };
 		4F226DA8221E35F9006A1046 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
@@ -349,7 +350,7 @@
 				4F0A734721B7B3C4000E0E31 /* AppDelegate.h */,
 				4F0A734821B7B3C4000E0E31 /* AppDelegate.m */,
 				4F0A734A21B7B3C4000E0E31 /* ViewController.h */,
-				4F0A734B21B7B3C4000E0E31 /* ViewController.m */,
+				4F0A734B21B7B3C4000E0E31 /* ViewController.mm */,
 				4F0A740921B7C4A0000E0E31 /* MSViewController.h */,
 				4F0A740A21B7C4A0000E0E31 /* MSViewController.mm */,
 				4F0A734D21B7B3C4000E0E31 /* Main.storyboard */,
@@ -490,6 +491,7 @@
 		4F0A740421B7BC09000E0E31 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F1F32742230FD9C0022CE66 /* OpenGLES.framework */,
 				4F226DA8221E35F9006A1046 /* CoreAudio.framework */,
 				4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */,
 				4F17085A21D5FC6400CE476E /* CoreMedia.framework */,
@@ -870,7 +872,7 @@
 			files = (
 				4F0A736A21B7B462000E0E31 /* FFDecoder.cpp in Sources */,
 				4F226DBC221E40F1006A1046 /* NVGLPlayView.m in Sources */,
-				4F0A734C21B7B3C4000E0E31 /* ViewController.m in Sources */,
+				4F0A734C21B7B3C4000E0E31 /* ViewController.mm in Sources */,
 				4F0A736E21B7B462000E0E31 /* FFEncoder.cpp in Sources */,
 				4F1707B921D4B6BD00CE476E /* APDecoder.cpp in Sources */,
 				4F0A736D21B7B462000E0E31 /* MSTimer.cpp in Sources */,

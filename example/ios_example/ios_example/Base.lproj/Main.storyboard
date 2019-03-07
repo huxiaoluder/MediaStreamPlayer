@@ -26,11 +26,32 @@
                                     <segue destination="yGe-yb-JNp" kind="show" id="DeO-hc-kY1"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WNM-HI-S4D">
+                                <rect key="frame" x="61" y="348" width="31" height="30"/>
+                                <state key="normal" title="金黄"/>
+                                <connections>
+                                    <action selector="yellow:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Wax-Vg-QBk"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gMx-KU-6Nf">
+                                <rect key="frame" x="230" y="348" width="31" height="30"/>
+                                <state key="normal" title="天蓝"/>
+                                <connections>
+                                    <action selector="blue:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0rX-8J-Q5c"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="gMx-KU-6Nf" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="328" id="8Bw-vm-Adp"/>
                             <constraint firstItem="eaG-Jo-mrN" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="MNC-KT-Znb"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="WNM-HI-S4D" secondAttribute="bottom" constant="190" id="OcW-U6-omG"/>
+                            <constraint firstItem="WNM-HI-S4D" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="61" id="XEr-nY-dkg"/>
+                            <constraint firstItem="gMx-KU-6Nf" firstAttribute="leading" secondItem="WNM-HI-S4D" secondAttribute="trailing" constant="138" id="g5Z-7X-Aqo"/>
                             <constraint firstItem="eaG-Jo-mrN" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="lEr-mN-yKR"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="gMx-KU-6Nf" secondAttribute="bottom" constant="190" id="lTF-qL-2JZ"/>
+                            <constraint firstItem="WNM-HI-S4D" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="328" id="w6O-eG-dXe"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gMx-KU-6Nf" secondAttribute="trailing" constant="59" id="wic-6B-UaY"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>

@@ -6,7 +6,6 @@
 //  Copyright © 2019 freecoder. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 #import "MSGLWrapper.hpp"
 #import "FFCodecContext.hpp"
