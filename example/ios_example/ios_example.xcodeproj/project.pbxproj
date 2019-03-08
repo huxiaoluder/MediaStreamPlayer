@@ -227,8 +227,8 @@
 		4F17085D21D6065D00CE476E /* MSBinary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSBinary.cpp; sourceTree = "<group>"; };
 		4F17085E21D6065D00CE476E /* MSBinary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSBinary.hpp; sourceTree = "<group>"; };
 		4F1DA55E21CCE5D6000EFE53 /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transcoding.c; sourceTree = "<group>"; };
-		4F1F3266222E73480022CE66 /* yuv420p.vsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.exports; path = yuv420p.vsh; sourceTree = "<group>"; };
-		4F1F3268222E82000022CE66 /* yuv420p.fsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.exports; path = yuv420p.fsh; sourceTree = "<group>"; };
+		4F1F3266222E73480022CE66 /* yuv420p.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv420p.vsh; sourceTree = "<group>"; };
+		4F1F3268222E82000022CE66 /* yuv420p.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv420p.fsh; sourceTree = "<group>"; };
 		4F1F32742230FD9C0022CE66 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		4F1F708D22277ED300384999 /* APAudioRender.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APAudioRender.cpp; sourceTree = "<group>"; };
 		4F1F708E22277ED300384999 /* APAudioRender.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = APAudioRender.hpp; sourceTree = "<group>"; };

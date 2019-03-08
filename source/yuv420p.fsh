@@ -13,6 +13,8 @@
 // 当前为默认指定(全局有效), 单独指定将覆盖默认指定
 precision highp float;
 
+out vec4 fragColor;
+
 void main() {
-    
+    fragColor = vec4 ( 1.0, 0.0, 0.0, 1.0 );
 }

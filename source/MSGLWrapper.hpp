@@ -14,12 +14,6 @@
 #include <fstream>
 #include "MSMacros.h"
 
-#define VERTEXES_ATTR_IDX   0   // 顶点坐标属性   index, 对应顶点着色器中 vertexesCoord location
-#define TEXTURES_ATTR_IDX   1   // 2D纹理坐标属性 index, 对应顶点找色其中 texturesCoord location
-
-#define VERTEXES_ATTR_SIZE  3   // 顶点坐标属性基本元素数量
-#define TEXTURES_ATTR_SIZE  2   // 2D纹理坐标属性基本元素数量
-
 namespace MS {
     
     class MSGLWrapper {
