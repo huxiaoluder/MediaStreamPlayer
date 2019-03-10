@@ -224,6 +224,21 @@ const GLfloat kColorConversion601FullRange[] = {
 
 - (void)displayPixelBuffer:(CVPixelBufferRef)pixelBuffer
 {
+//    kCVPixelFormatType_420YpCbCr8Planar
+    OSType type = CVPixelBufferGetPixelFormatType(pixelBuffer);
+    size_t planeCount   = CVPixelBufferGetPlaneCount(pixelBuffer);
+    size_t dataSize     = CVPixelBufferGetDataSize(pixelBuffer);
+    size_t dataWidth    = CVPixelBufferGetWidth(pixelBuffer);
+    size_t dataHeight   = CVPixelBufferGetHeight(pixelBuffer);
+    size_t rowSize      = CVPixelBufferGetBytesPerRow(pixelBuffer);
+    size_t YplaneWidth  = CVPixelBufferGetWidthOfPlane(pixelBuffer, 0);
+    size_t UVplaneWidth = CVPixelBufferGetWidthOfPlane(pixelBuffer, 1);
+    CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+    uint8_t *basePtr       = CVPixelBufferGetBaseAddress(pixelBuffer);
+    uint8_t *Ybaseptr      = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0);
+    uint8_t *UVbaseptr     = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1);
+    
+    
     if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
         return;
     }

@@ -51,9 +51,8 @@
         self.view.drawableMultisample = GLKViewDrawableMultisample4X; // 4倍反走样(抗锯齿)
         glClearColor(.7f, .7f, .7f, .0f);
         
-        string vshPath = [NSBundle.mainBundle pathForResource:@"yuv420p" ofType:@"vsh"].UTF8String;
-        string fshPath = [NSBundle.mainBundle pathForResource:@"yuv420p" ofType:@"fsh"].UTF8String;
-        glWrapper = new MSGLWrapper(vshPath, fshPath);
+        glWrapper = new MSGLWrapper([NSBundle.mainBundle pathForResource:@"yuv420p" ofType:@"vsh"].UTF8String,
+                                    [NSBundle.mainBundle pathForResource:@"yuv420p" ofType:@"fsh"].UTF8String);
     }
     return self;
 }

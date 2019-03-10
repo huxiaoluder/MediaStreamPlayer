@@ -10,8 +10,6 @@
 #define MSGLWrapper_hpp
 
 #include <OpenGLES/ES3/glext.h>
-#include <string>
-#include <fstream>
 #include "MSMacros.h"
 
 namespace MS {
@@ -22,14 +20,15 @@ namespace MS {
         GLuint attrBuffer;  // 顶点属性的缓冲区对象
         
     public:
-        MSGLWrapper(const std::string &vshPath, const std::string &fshPath);
+        MSGLWrapper(const char * const vshFilePath,
+                    const char * const fshFilePath);
         ~MSGLWrapper();
         
         /**
          加载编译着色器
          
-         @param shaderType 着色器类型 GL_..._SHADER
-         @param shaderStr 着色器内容
+         @param shaderType  着色器类型 GL_..._SHADER
+         @param shaderStr   着色器内容
          @return 着色器对象(free by caller)
          */
         static GLuint loadShader(const GLenum shaderType, const GLchar * const shaderStr);
@@ -37,9 +36,9 @@ namespace MS {
         /**
          链接着色器程序
          
-         @param vertexShader 顶点着色器
-         @param fragmentShader 片段着色器
-         @return 链接程序对象(free by caller)
+         @param vertexShader    顶点着色器
+         @param fragmentShader  片段着色器
+         @return 着色器链接程序对象(free by caller)
          */
         static GLuint linkProgram(const GLuint vertexShader, const GLuint fragmentShader);
         

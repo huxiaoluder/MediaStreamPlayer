@@ -6,35 +6,36 @@
 //  Copyright © 2019 freecoder. All rights reserved.
 //
 
+#include <string>
+#include <sstream>
+#include <fstream>
 #include "MSGLWrapper.hpp"
 
 using namespace std;
 using namespace MS;
 
-MSGLWrapper::MSGLWrapper(const string &vshPath, const string &fshPath) {
-    string vsh;
-    string fsh;
-    
-    char *readBuf = new char[1024];
+MSGLWrapper::MSGLWrapper(const char * const vshFilePath,
+                         const char * const fshFilePath) {
+    stringstream vshStream;
+    stringstream fshStream;
     
     ifstream fileHandle;
     
     // 读取顶点着色器代码
-    fileHandle.open(vshPath);
-    fileHandle.read(readBuf, INT32_MAX);
-    vsh.append(readBuf, fileHandle.gcount());
+    fileHandle.open(vshFilePath);
+    vshStream << fileHandle.rdbuf();
     fileHandle.close();
     
     // 读取片段着色器代码
-    fileHandle.open(fshPath);
-    fileHandle.read(readBuf, INT32_MAX);
-    fsh.append(readBuf, fileHandle.gcount());
+    fileHandle.open(fshFilePath);
+    fshStream << fileHandle.rdbuf();
     fileHandle.close();
     
-    delete [] readBuf;
-
-    GLuint vertexShader     = loadShader(GL_VERTEX_SHADER,    vsh.c_str());
-    GLuint fragmentShader   = loadShader(GL_FRAGMENT_SHADER,  fsh.c_str());
+    string vshCode = vshStream.str();
+    string fshCode = fshStream.str();
+    
+    GLuint vertexShader     = loadShader(GL_VERTEX_SHADER,    vshCode.c_str());
+    GLuint fragmentShader   = loadShader(GL_FRAGMENT_SHADER,  fshCode.c_str());
     
     program = linkProgram(vertexShader, fragmentShader);
     
@@ -112,11 +113,18 @@ MSGLWrapper::linkProgram(const GLuint vertexShader, const GLuint fragmentShader)
 
 GLuint
 MSGLWrapper::bindFullViewportAttrBuffer() {
+//    GLfloat coordinates[] = { // 采用结构数组的方式组织数据, 前三列顶点坐标属性, 后两列 2D纹理坐标属性
+//         1.0f,   1.0f,  0.0f,   1.0f,   1.0f,
+//        -1.0f,   1.0f,  0.0f,   0.0f,   1.0f,
+//        -1.0f,  -1.0f,  0.0f,   0.0f,   0.0f,
+//         1.0f,  -1.0f,  0.0f,   1.0f,   0.0f,
+//    };
+    
     GLfloat coordinates[] = { // 采用结构数组的方式组织数据, 前三列顶点坐标属性, 后两列 2D纹理坐标属性
-        +1.0f,  +1.0f,  .0f,    .1f,    .0f,
-        -1.0f,  +1.0f,  .0f,    .0f,    .0f,
-        -1.0f,  -1.0f,  .0f,    .0f,    1.f,
-        +1.0f,  -1.0f,  .0f,    1.f,    1.f,
+         1.0f,   1.0f,  0.0f,   1.0f,   0.0f,   0.0f,
+        -1.0f,   1.0f,  0.0f,   0.0f,   1.0f,   0.0f,
+        -1.0f,  -1.0f,  0.0f,   0.0f,   0.0f,   1.0f,
+         1.0f,  -1.0f,  0.0f,   1.0f,   1.0f,   0.0f,
     };
     
     GLuint attrBuffers[1] = {0};
@@ -132,7 +140,7 @@ MSGLWrapper::bindFullViewportAttrBuffer() {
     const GLuint vertexesAttrIdx  = 0;    // 顶点坐标属性   index, 对应顶点着色器中 vertexesCoord location
     const GLuint texturesAttrIdx  = 1;    // 2D纹理坐标属性 index, 对应顶点着色其中 texturesCoord location
     const GLint vertexesAttrSize  = 3;    // 顶点坐标属性基本元素数量
-    const GLint texturesAttrSize  = 2;    // 2D纹理坐标属性基本元素数量
+    const GLint texturesAttrSize  = 3;    // 2D纹理坐标属性基本元素数量
 
     GLsizei vertexesLen = vertexesAttrSize * sizeof(GLfloat);
     GLsizei texturesLen = texturesAttrSize * sizeof(GLfloat);
