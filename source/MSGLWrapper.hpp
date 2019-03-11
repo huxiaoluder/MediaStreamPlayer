@@ -18,20 +18,23 @@ namespace MS {
         
         GLuint program;     // 二进制着色器程序对象
         GLuint attrBuffer;  // 顶点属性的缓冲区对象
+        GLuint yTexture;    // 亮度纹理对象
         
     public:
-        MSGLWrapper(const char * const vshFilePath,
-                    const char * const fshFilePath);
+        MSGLWrapper(const char * MSNonnull const vshFilePath,
+                    const char * MSNonnull const fshFilePath);
         ~MSGLWrapper();
+        
+        GLuint getYtexture() const;
         
         /**
          加载编译着色器
          
-         @param shaderType  着色器类型 GL_..._SHADER
+         @param shaderType  着色器类型 GL_XXX_SHADER
          @param shaderStr   着色器内容
          @return 着色器对象(free by caller)
          */
-        static GLuint loadShader(const GLenum shaderType, const GLchar * const shaderStr);
+        static GLuint loadShader(const GLenum shaderType, const GLchar * MSNonnull const shaderStr);
         
         /**
          链接着色器程序
@@ -49,7 +52,32 @@ namespace MS {
          */
         static GLuint bindFullViewportAttrBuffer();
         
-        static GLvoid renderBuffer();
+        /**
+         申请纹理对象, 并做相应的纹理配置
+
+         @return 纹理对象(free by caller)
+         */
+        static GLuint generateEmptyTexture2D();
+      
+        /**
+         提交纹理数据到 GPU
+         
+         @Note  注意: innerformat pixelformat type 共同进行纹理格式调配
+         @param texture     纹理对象
+         @param innerformat 纹理内部数据格式
+         @param pixelformat 像素数据格式
+         @param width       像素宽度
+         @param height      像素高度
+         @param type        像素数据类型
+         @param pixels      像素数据
+         */
+        static GLvoid commitTexture2DPixels(const GLuint  texture,
+                                            const GLint   innerformat,
+                                            const GLenum  pixelformat,
+                                            const GLsizei width,
+                                            const GLsizei height,
+                                            const GLenum  type,
+                                            const GLvoid * MSNonnull pixels);
     };
 
 }

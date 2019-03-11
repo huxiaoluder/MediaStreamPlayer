@@ -65,8 +65,15 @@
     if (UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
         return;
     }
+//    GLubyte * const yuvTextures = new GLubyte[frame.width * frame.height * 3];
+//    if (frame.format == AV_PIX_FMT_YUVJ420P) {
+//
+//    }
+    
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
+    
+//    MSGLWrapper::commitTexture2DPixels(glWrapper., GL_LUMINANCE, GL_LUMINANCE, frame.width, frame.height, GL_UNSIGNED_BYTE, frame.data[0]);
     
     //TODO: 构造缓冲区
     

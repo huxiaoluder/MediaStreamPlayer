@@ -45,11 +45,22 @@ MSGLWrapper::MSGLWrapper(const char * const vshFilePath,
     glDeleteShader(fragmentShader);
     
     attrBuffer = bindFullViewportAttrBuffer();
+    
+    // 指定纹理在 OpenGL 中的内存对齐方式
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    
+    yTexture = generateEmptyTexture2D();
 }
 
 MSGLWrapper::~MSGLWrapper() {
     glDeleteProgram(program);
-    glDeleteBuffers(1, &attrBuffer);
+    glDeleteBuffers(1,  &attrBuffer);
+    glDeleteTextures(1, &yTexture);
+}
+
+GLuint
+MSGLWrapper::getYtexture() const {
+    return this->yTexture;
 }
 
 GLuint
@@ -173,4 +184,34 @@ MSGLWrapper::bindFullViewportAttrBuffer() {
 //    glDisableVertexAttribArray(TEXTURES_ATTR_IDX);
     
     return attrBuffers[0];
+}
+
+GLuint
+MSGLWrapper::generateEmptyTexture2D() {
+    GLuint texture;
+    glGenTextures(1, &texture);// 分配纹理对象
+    glBindTexture(GL_TEXTURE_2D, texture);// 绑定纹理对象到 GL_TEXTURE_2D 目标
+    /* @Note: 环绕方式 GL_CLAMP_TO_BORDER 超出的坐标为用户指定的边缘颜色, OpenGLES 不支持 */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);// GL_TEXTURE_WRAP_S 纹理水平环绕方式, GL_CLAMP_TO_EDGE 边缘拉伸
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);// GL_TEXTURE_WRAP_T 纹理垂直环绕方式, GL_CLAMP_TO_EDGE 边缘拉伸
+    // GL_TEXTURE_MAG_FILTER 纹理放大显示过滤器, GL_LINEAR 线性采样(提取对应顶点附近的纹素取平均值), GL_NEAREST 邻近采样(提取对应顶点最近的纹素值)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // GL_TEXTURE_MIN_FILTER 纹理缩小显示过滤器, GL_LINEAR_MIPMAP_LINEAR 在相邻两个多级渐远纹理之间线性插值, 再对插值纹素进行线性采样
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);// 将纹理对象从 GL_TEXTURE_2D 目标解绑(0 为默认的,用户不可用的对象), 避免纹理对象混乱
+    return texture;
+}
+
+GLvoid
+MSGLWrapper::commitTexture2DPixels(const GLuint  texture,
+                                   const GLint   innerformat,
+                                   const GLenum  pixelformat,
+                                   const GLsizei width,
+                                   const GLsizei height,
+                                   const GLenum  type,
+                                   const GLvoid * MSNonnull pixels) {
+    glBindTexture(GL_TEXTURE_2D, texture);// 绑定纹理对象到 GL_TEXTURE_2D 目标
+    glTexImage2D(GL_TEXTURE_2D, 0, innerformat, width, height, 0, pixelformat, type, pixels);// CPU -交换数据-> GPU
+    glGenerateMipmap(GL_TEXTURE_2D); // 手动让 GPU 为纹理生成多级渐远纹理链(按照 2 ^ n 倍缩小纹理, 只用于缩小, 放大基本无效果), GPU 根据视口大小选择合适的 Mip 级纹理进行采样渲染
+    glBindTexture(GL_TEXTURE_2D, 0);// 将纹理对象从目标解绑(0 为默认的,用户不可用的对象), 避免纹理对象混乱
 }

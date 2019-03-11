@@ -17,6 +17,14 @@ in vec3 color;
 
 out vec4 fragColor;
 
+//uniform Sampler2D ytexture;
+//uniform Sampler2D utexture;
+//uniform Sampler2D vtexture;
+
+mat4 convertMat4;
+
 void main() {
     fragColor = vec4(color, 1.0f);
+//    vec4(y,u,v,1) * convertMat4;
+    
 }
