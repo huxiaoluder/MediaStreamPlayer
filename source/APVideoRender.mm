@@ -10,12 +10,12 @@
 
 @interface APVideoRender ()
 {
-    MSGLWrapper *glWrapper;
+    MSGLHanlder *glHandler;
 }
 
-@property (nonatomic, weak)     NSLock      *lock;
-@property (nonatomic, strong)   GLKView     *view;
-@property (nonatomic, strong)   EAGLContext *context;
+@property (nonatomic, strong) NSLock      *lock;
+@property (nonatomic, strong) GLKView     *view;
+@property (nonatomic, strong) EAGLContext *context;
 
 @end
 
@@ -49,9 +49,11 @@
         self.view.context = self.context;
         self.view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
         self.view.drawableMultisample = GLKViewDrawableMultisample4X; // 4倍反走样(抗锯齿)
+        
+        // 设置 viewport 背景色
         glClearColor(.7f, .7f, .7f, .0f);
         
-        glWrapper = new MSGLWrapper([NSBundle.mainBundle pathForResource:@"yuv420p" ofType:@"vsh"].UTF8String,
+        glHandler = new MSGLHanlder([NSBundle.mainBundle pathForResource:@"yuv420p" ofType:@"vsh"].UTF8String,
                                     [NSBundle.mainBundle pathForResource:@"yuv420p" ofType:@"fsh"].UTF8String);
     }
     return self;
@@ -62,32 +64,93 @@
 }
 
 - (void)displayAVFrame:(AVFrame &)frame {
-    if (UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
-        return;
-    }
-//    GLubyte * const yuvTextures = new GLubyte[frame.width * frame.height * 3];
-//    if (frame.format == AV_PIX_FMT_YUVJ420P) {
-//
-//    }
     
+    int yLen = frame.width * frame.height;
+
+    uint8_t *oldUData = frame.data[1];
+    uint8_t *oldVData = frame.data[2];
+    
+    int yColLen = frame.width;
+    int uvColLen = frame.width  / 2;
+    int uvRowLen = frame.height / 2;
+    
+    uint8_t *newYData = frame.data[0];
+    uint8_t *newUData = new uint8_t[yLen];
+    uint8_t *newVData = new uint8_t[yLen];
+    
+    for (int row = 0; row < uvRowLen; row++) {
+        for (int col = 0; col < uvColLen; col++) {
+            int idx  = uvColLen * row + col;
+            int newrow = row * 2;
+            int newCol = col * 2;
+            int idx1_1 = newrow * yColLen  + newCol;
+            int idx1_2 = idx1_1 + 1;
+            int idx2_1 = idx1_1 + yColLen;
+            int idx2_2 = idx2_1 + 1;
+            newUData[idx1_1] = newUData[idx1_2] = newUData[idx2_1] = newUData[idx2_2] = oldUData[idx];
+            newVData[idx1_1] = newVData[idx1_2] = newVData[idx2_1] = newVData[idx2_2] = oldVData[idx];
+        }
+    }
+    
+    // 异步更新纹理数据, 防止多个 EAGLContext 数据混乱, 必须要加锁
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
+    /*-------------------Y texture-------------------*/
+    // 提交纹理数据
+    MSOpenGLES::commitTexture2DPixels(glHandler->getYtexture(),
+                                      GL_LUMINANCE,
+                                      GL_LUMINANCE,
+                                      frame.width,
+                                      frame.height,
+                                      GL_UNSIGNED_BYTE,
+                                      newYData);
+//                                      frame.data[0]);
+    // 激活纹理单元, 并分配采样器位置
+    MSOpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
+                                         glHandler->getProgram(),
+                                         GL_TEXTURE0,
+                                         "ySampler2D");
     
-//    MSGLWrapper::commitTexture2DPixels(glWrapper., GL_LUMINANCE, GL_LUMINANCE, frame.width, frame.height, GL_UNSIGNED_BYTE, frame.data[0]);
-    
-    //TODO: 构造缓冲区
-    
+    /*-------------------U texture-------------------*/
+    MSOpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
+                                      GL_LUMINANCE,
+                                      GL_LUMINANCE,
+                                      frame.width  ,
+                                      frame.height ,
+                                      GL_UNSIGNED_BYTE,
+                                      newUData);
+//                                      frame.data[1]);
+    MSOpenGLES::activeTexture2DToProgram(glHandler->getUtexture(),
+                                         glHandler->getProgram(),
+                                         GL_TEXTURE1,
+                                         "uSampler2D");
+
+    /*-------------------V texture-------------------*/
+    MSOpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
+                                      GL_LUMINANCE,
+                                      GL_LUMINANCE,
+                                      frame.width  ,
+                                      frame.height ,
+                                      GL_UNSIGNED_BYTE,
+                                      newVData);
+//                                      frame.data[2]);
+    MSOpenGLES::activeTexture2DToProgram(glHandler->getVtexture(),
+                                         glHandler->getProgram(),
+                                         GL_TEXTURE2,
+                                         "vSampler2D");
     [self.lock unlock];
     
+    delete [] newUData;
+    delete [] newVData;
+    
+    // 主线程刷新 UI
     dispatch_async(dispatch_get_main_queue(), ^{
+        // @Note: GLKView 当 APP 进入后台后, 会自动停止渲染
         [self.view display];
     });
 }
 
 - (void)displayAPFrame:(APFrame &)frame {
-    if (UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
-        return;
-    }
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
     
@@ -101,8 +164,8 @@
 }
 
 - (void)dealloc {
-    if (glWrapper) {
-        delete glWrapper;
+    if (glHandler) {
+        delete glHandler;
     }
     [EAGLContext setCurrentContext:nil];
     [self.view removeFromSuperview];
@@ -123,7 +186,6 @@
     glViewport(0, 0, (GLsizei)view.drawableWidth, (GLsizei)view.drawableHeight);
     glClear(GL_COLOR_BUFFER_BIT);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    NSLog(@"-------- draw -------- thread: %@", [NSThread currentThread]);
 }
 
 @end

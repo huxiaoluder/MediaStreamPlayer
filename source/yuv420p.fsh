@@ -13,18 +13,25 @@
 // 当前为默认指定(全局有效), 单独指定将覆盖默认指定
 precision highp float;
 
-in vec3 color;
+const mat3 yuv2rgbMat3 = mat3(1.164f,    1.164f,    1.164f,
+                              0.0f,     -0.213f,    2.112f,
+                              1.793f,   -0.533f,    0.0f);
+
+uniform sampler2D ySampler2D;
+uniform sampler2D uSampler2D;
+uniform sampler2D vSampler2D;
+
+in  vec2 textureCoord;
 
 out vec4 fragColor;
 
-//uniform Sampler2D ytexture;
-//uniform Sampler2D utexture;
-//uniform Sampler2D vtexture;
-
-mat4 convertMat4;
-
 void main() {
-    fragColor = vec4(color, 1.0f);
-//    vec4(y,u,v,1) * convertMat4;
     
+    vec3 yuv = vec3(texture(ySampler2D, textureCoord).x, //0.0f, 0.0f);
+                    texture(uSampler2D, textureCoord).x,
+                    texture(vSampler2D, textureCoord).x);
+    
+    vec3 rgb = yuv2rgbMat3 * yuv;
+    
+    fragColor = vec4(rgb, 1.0f);
 }

@@ -21,13 +21,15 @@ using namespace MS::APhard;
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
-//    MSPlayer<AVFrame> *player;
-    MSPlayer<APFrame> *player;
+    MSPlayer<AVFrame> *player;
+//    MSPlayer<APFrame> *player;
     BOOL updateVideo;
     BOOL updateAudio;
 }
 @property (weak, nonatomic) IBOutlet UILabel *displayLabel;
 @property (weak, nonatomic) IBOutlet NVGLPlayView *displayView;
+
+@property (nonatomic, strong) APVideoRender *videoRender;
 
 @end
 
@@ -48,83 +50,57 @@ static int i;
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterBackground)
-                                                 name:UIApplicationDidEnterBackgroundNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterForeground)
-                                                 name:UIApplicationWillEnterForegroundNotification object:nil];
-    
-    
-    self.displayView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
-    self.displayView.layer.transform = CATransform3DRotate(CATransform3DIdentity, M_PI, UIScreen.mainScreen.bounds.size.width/2, 0, 0);
-    [self.displayView setupGL];
+    [self doSomeSetup];
+//    [self setupRenderView];
+    [self setupVideoRender];
     
     __weak typeof(MSViewController *) weakSelf = self;
-
-//    auto decoder = new FFDecoder();
-//    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
-//    player = new MSPlayer<AVFrame>(decoder,encoder,
-//                                   [&](const MSMedia<MSDecodeMedia,AVFrame> &data) {
-//                                       printf("data time: %lld\n", data.timeInterval.count());
-//                                   },
-//                                   [&](const MSMedia<MSDecodeMedia,AVFrame> &data) {
-//                                       if (data.frame) {
-//                                            AVFrame &audio = *data.frame;
-//                                            [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:audio.data[0]
-//                                                                                         dataSize:audio.linesize[0]
-//                                                                                       samplerate:audio.sample_rate
-//                                                                                         channels:audio.channels
-//                                                                                              bit:16];
-//                                        }
-//                                   });
     
-
-    auto decoder = new APDecoder();
-//    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
-    player = new MSPlayer<APFrame>(decoder,nullptr,
-                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+    auto decoder = new FFDecoder();
+    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
+    player = new MSPlayer<AVFrame>(decoder,encoder,
+                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
                                        if (data.frame) {
-//                                           dispatch_async(dispatch_get_main_queue(), ^{
-//                                               [[weakSelf displayLabel] setText:[NSString stringWithFormat:@"video: %d", i++]];
-//                                           });
-//                                           printf("data time: %lld\n", data.timeInterval.count());
-                                           [[weakSelf displayView] displayPixelBuffer:data.frame->video];
-//                                           auto render = [APVideoRender new];
-//                                           [render displayAPFrame:*data.frame];
+                                           [[weakSelf videoRender] displayAVFrame:*data.frame];
                                        }
                                    },
-                                   [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
                                        if (data.frame) {
-//                                           printf("audio time: %lld\n", data.timeInterval.count());
-                                           AudioBuffer &audio = *data.frame->audio;
-                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)audio.mData
-                                                                                        dataSize:audio.mDataByteSize
-                                                                                      samplerate:8000
-                                                                                        channels:audio.mNumberChannels
-                                                                                             bit:16];
-                                       }
+                                            AVFrame &audio = *data.frame;
+                                            [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:audio.data[0]
+                                                                                         dataSize:audio.linesize[0]
+                                                                                       samplerate:audio.sample_rate
+                                                                                         channels:audio.channels
+                                                                                              bit:16];
+                                        }
                                    });
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(connectsuccess:)
-                                                 name:CONNECTSUCCESS
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(connectfail:)
-                                                 name:CONNECTFAIL
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(connectfail:)
-                                                 name:CONNECTSTOPPED
-                                               object:nil];
-    [IotlibTool shareIotlibTool].delegate = self;
-
-    // IOTSHMK000S00004EDA785C
-    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK000S0008EDA1FCDD"
-                                                  callback:^(e_trans_conn_state status,
-                                                             int connectId)
-     {
-         printf("------------connectId: %d\n",connectId);
-     }];
+//    auto decoder = new APDecoder();
+//    //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
+//    player = new MSPlayer<APFrame>(decoder,nullptr,
+//                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+//                                       if (data.frame) {
+//                                           //                                           dispatch_async(dispatch_get_main_queue(), ^{
+//                                           //                                               [[weakSelf displayLabel] setText:[NSString stringWithFormat:@"video: %d", i++]];
+//                                           //                                           });
+//                                           //                                           printf("data time: %lld\n", data.timeInterval.count());
+//                                           [[weakSelf displayView] displayPixelBuffer:data.frame->video];
+//                                           //                                           auto render = [APVideoRender new];
+//                                           //                                           [render displayAPFrame:*data.frame];
+//                                       }
+//                                   },
+//                                   [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
+//                                       if (data.frame) {
+//                                           //                                           printf("audio time: %lld\n", data.timeInterval.count());
+//                                           AudioBuffer &audio = *data.frame->audio;
+//                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)audio.mData
+//                                                                                        dataSize:audio.mDataByteSize
+//                                                                                      samplerate:8000
+//                                                                                        channels:audio.mNumberChannels
+//                                                                                             bit:16];
+//                                       }
+//                                   });
+    
 }
 
 - (void)connectfail:(NSNotification *)notify {
@@ -253,6 +229,65 @@ static int i;
     printf("----delloc\n");
     delete player;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+
+
+
+
+
+
+
+
+
+
+//----------------------
+- (void)doSomeSetup {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(enterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(enterForeground)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(connectsuccess:)
+                                                 name:CONNECTSUCCESS
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(connectfail:)
+                                                 name:CONNECTFAIL
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(connectfail:)
+                                                 name:CONNECTSTOPPED
+                                               object:nil];
+    [IotlibTool shareIotlibTool].delegate = self;
+    
+    // IOTSHMK000S00004EDA785C
+    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK000S0008EDA1FCDD"
+                                                  callback:^(e_trans_conn_state status,
+                                                             int connectId)
+     {
+         printf("------------connectId: %d\n",connectId);
+     }];
+}
+
+- (void)setupRenderView {
+    self.displayView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
+    self.displayView.layer.transform = CATransform3DRotate(CATransform3DIdentity, M_PI, UIScreen.mainScreen.bounds.size.width/2, 0, 0);
+    [self.displayView setupGL];
+}
+
+- (void)setupVideoRender {
+    
+    CGFloat width   = UIScreen.mainScreen.bounds.size.width;
+    CGFloat height  = UIScreen.mainScreen.bounds.size.width * 9 / 16;
+    CGFloat yVtx    = UIScreen.mainScreen.bounds.size.height - 73 - height;
+    CGRect rect = CGRectMake(0, yVtx, width, height);
+    NSLock *lock = [NSLock new];
+    self.videoRender = [APVideoRender renderTo:self.view drawRect:rect syncLock:lock];
 }
 
 @end

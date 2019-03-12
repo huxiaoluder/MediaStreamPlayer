@@ -7,7 +7,7 @@
 //
 
 #import <GLKit/GLKit.h>
-#import "MSGLWrapper.hpp"
+#import "MSGLHanlder.hpp"
 #import "FFCodecContext.hpp"
 #import "APCodecContext.hpp"
 

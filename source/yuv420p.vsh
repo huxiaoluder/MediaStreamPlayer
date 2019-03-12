@@ -8,13 +8,15 @@
 
 #version 300 es
 
-layout(location = 0) in vec3 vertexesCoord;
+layout(location = 0) in vec3 vtxCoord;
 
-layout(location = 1) in vec3 texturesCoord;
+layout(location = 1) in vec2 texCoord;
 
-out vec3 color;
+out vec2 textureCoord;
 
 void main() {
-    gl_Position = vec4(vertexesCoord, 1.0f);
-    color = texturesCoord;
+    
+    gl_Position  = vec4(vtxCoord, 1.0f);
+    
+    textureCoord = texCoord;
 }
