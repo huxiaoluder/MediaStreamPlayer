@@ -21,8 +21,8 @@ using namespace MS::APhard;
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
-    MSPlayer<AVFrame> *player;
-//    MSPlayer<APFrame> *player;
+//    MSPlayer<AVFrame> *player;
+    MSPlayer<APFrame> *player;
     BOOL updateVideo;
     BOOL updateAudio;
 }
@@ -56,50 +56,43 @@ static int i;
     
     __weak typeof(MSViewController *) weakSelf = self;
     
-    auto decoder = new FFDecoder();
-    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
-    player = new MSPlayer<AVFrame>(decoder,encoder,
-                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
-                                       if (data.frame) {
-                                           [[weakSelf videoRender] displayAVFrame:*data.frame];
-                                       }
-                                   },
-                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
-                                       if (data.frame) {
-                                            AVFrame &audio = *data.frame;
-                                            [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:audio.data[0]
-                                                                                         dataSize:audio.linesize[0]
-                                                                                       samplerate:audio.sample_rate
-                                                                                         channels:audio.channels
-                                                                                              bit:16];
-                                        }
-                                   });
-    
-//    auto decoder = new APDecoder();
-//    //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
-//    player = new MSPlayer<APFrame>(decoder,nullptr,
-//                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+//    auto decoder = new FFDecoder();
+//    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
+//    player = new MSPlayer<AVFrame>(decoder,encoder,
+//                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
 //                                       if (data.frame) {
-//                                           //                                           dispatch_async(dispatch_get_main_queue(), ^{
-//                                           //                                               [[weakSelf displayLabel] setText:[NSString stringWithFormat:@"video: %d", i++]];
-//                                           //                                           });
-//                                           //                                           printf("data time: %lld\n", data.timeInterval.count());
-//                                           [[weakSelf displayView] displayPixelBuffer:data.frame->video];
-//                                           //                                           auto render = [APVideoRender new];
-//                                           //                                           [render displayAPFrame:*data.frame];
+//                                           [[weakSelf videoRender] displayAVFrame:*data.frame];
 //                                       }
 //                                   },
-//                                   [&](const MSMedia<MSDecodeMedia,APFrame> &data) {
+//                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
 //                                       if (data.frame) {
-//                                           //                                           printf("audio time: %lld\n", data.timeInterval.count());
-//                                           AudioBuffer &audio = *data.frame->audio;
-//                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)audio.mData
-//                                                                                        dataSize:audio.mDataByteSize
-//                                                                                      samplerate:8000
-//                                                                                        channels:audio.mNumberChannels
-//                                                                                             bit:16];
-//                                       }
+//                                            AVFrame &audio = *data.frame;
+//                                            [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:audio.data[0]
+//                                                                                         dataSize:audio.linesize[0]
+//                                                                                       samplerate:audio.sample_rate
+//                                                                                         channels:audio.channels
+//                                                                                              bit:16];
+//                                        }
 //                                   });
+    
+    auto decoder = new APDecoder();
+    //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
+    player = new MSPlayer<APFrame>(decoder,nullptr,
+                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                       if (data.frame) {
+                                           [[weakSelf videoRender] displayAPFrame:*data.frame];
+                                       }
+                                   },
+                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                       if (data.frame) {
+                                           AudioBuffer &audio = *data.frame->audio;
+                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)audio.mData
+                                                                                        dataSize:audio.mDataByteSize
+                                                                                      samplerate:8000
+                                                                                        channels:audio.mNumberChannels
+                                                                                             bit:16];
+                                       }
+                                   });
     
 }
 

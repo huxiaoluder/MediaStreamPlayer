@@ -226,7 +226,8 @@ APCodecContext::initVideoDecodeSession() {
         outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataProvider.asynCallBack();
         outputCallback.decompressionOutputRefCon = (void *)&asynDataProvider;
 
-        SInt32 pixFmtNum = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
+        /* 指定输出数据格式为 yuv420p '420f', 方便 yuv 数据分离, 提供给着色器 */
+        SInt32 pixFmtNum = kCVPixelFormatType_420YpCbCr8PlanarFullRange;
         CFNumberRef pixFmtType = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &pixFmtNum);
         
         const void * keys[] = {(void *)kCVPixelBufferPixelFormatTypeKey};
@@ -236,11 +237,11 @@ APCodecContext::initVideoDecodeSession() {
                                                            keys, values, sizeof(keys)/sizeof(void *),
                                                            &kCFTypeDictionaryKeyCallBacks,
                                                            &kCFTypeDictionaryValueCallBacks);
-#warning dstBufferAttr
+
         status = VTDecompressionSessionCreate(kCFAllocatorDefault,
                                               videoFmtDescription,
                                               nullptr,
-                                              nullptr,
+                                              dstBufferAttr,
                                               &outputCallback,
                                               &videoDecoderSession);
         CFRelease(dstBufferAttr);

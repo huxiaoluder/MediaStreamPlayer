@@ -65,37 +65,12 @@
 
 - (void)displayAVFrame:(AVFrame &)frame {
     
-    int yLen = frame.width * frame.height;
-
-    uint8_t *oldUData = frame.data[1];
-    uint8_t *oldVData = frame.data[2];
-    
-    int yColLen = frame.width;
-    int uvColLen = frame.width  / 2;
-    int uvRowLen = frame.height / 2;
-    
-    uint8_t *newYData = frame.data[0];
-    uint8_t *newUData = new uint8_t[yLen];
-    uint8_t *newVData = new uint8_t[yLen];
-    
-    for (int row = 0; row < uvRowLen; row++) {
-        for (int col = 0; col < uvColLen; col++) {
-            int idx  = uvColLen * row + col;
-            int newrow = row * 2;
-            int newCol = col * 2;
-            int idx1_1 = newrow * yColLen  + newCol;
-            int idx1_2 = idx1_1 + 1;
-            int idx2_1 = idx1_1 + yColLen;
-            int idx2_2 = idx2_1 + 1;
-            newUData[idx1_1] = newUData[idx1_2] = newUData[idx2_1] = newUData[idx2_2] = oldUData[idx];
-            newVData[idx1_1] = newVData[idx1_2] = newVData[idx2_1] = newVData[idx2_2] = oldVData[idx];
-        }
-    }
+    GLsizei uvWidth  = frame.width / 2;
+    GLsizei uvHeight = frame.height / 2;
     
     // 异步更新纹理数据, 防止多个 EAGLContext 数据混乱, 必须要加锁
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
-    /*-------------------Y texture-------------------*/
     // 提交纹理数据
     MSOpenGLES::commitTexture2DPixels(glHandler->getYtexture(),
                                       GL_LUMINANCE,
@@ -103,45 +78,36 @@
                                       frame.width,
                                       frame.height,
                                       GL_UNSIGNED_BYTE,
-                                      newYData);
-//                                      frame.data[0]);
+                                      frame.data[0]);
+    MSOpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
+                                      GL_LUMINANCE,
+                                      GL_LUMINANCE,
+                                      uvWidth,
+                                      uvHeight,
+                                      GL_UNSIGNED_BYTE,
+                                      frame.data[1]);
+    MSOpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
+                                      GL_LUMINANCE,
+                                      GL_LUMINANCE,
+                                      uvWidth,
+                                      uvHeight,
+                                      GL_UNSIGNED_BYTE,
+                                      frame.data[2]);
+    /* @Note (查找了一整天的 BUG), 所有纹理数据上传后才能激活, 否则之前的纹理会失效 */
     // 激活纹理单元, 并分配采样器位置
     MSOpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
                                          glHandler->getProgram(),
                                          GL_TEXTURE0,
                                          "ySampler2D");
-    
-    /*-------------------U texture-------------------*/
-    MSOpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
-                                      GL_LUMINANCE,
-                                      GL_LUMINANCE,
-                                      frame.width  ,
-                                      frame.height ,
-                                      GL_UNSIGNED_BYTE,
-                                      newUData);
-//                                      frame.data[1]);
     MSOpenGLES::activeTexture2DToProgram(glHandler->getUtexture(),
                                          glHandler->getProgram(),
                                          GL_TEXTURE1,
                                          "uSampler2D");
-
-    /*-------------------V texture-------------------*/
-    MSOpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
-                                      GL_LUMINANCE,
-                                      GL_LUMINANCE,
-                                      frame.width  ,
-                                      frame.height ,
-                                      GL_UNSIGNED_BYTE,
-                                      newVData);
-//                                      frame.data[2]);
     MSOpenGLES::activeTexture2DToProgram(glHandler->getVtexture(),
                                          glHandler->getProgram(),
                                          GL_TEXTURE2,
                                          "vSampler2D");
     [self.lock unlock];
-    
-    delete [] newUData;
-    delete [] newVData;
     
     // 主线程刷新 UI
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -151,10 +117,57 @@
 }
 
 - (void)displayAPFrame:(APFrame &)frame {
+    
+    CVPixelBufferLockBaseAddress(frame.video, kCVPixelBufferLock_ReadOnly);
+
+    GLsizei yWidth = (GLsizei)CVPixelBufferGetWidth(frame.video);
+    GLsizei yHeight = (GLsizei)CVPixelBufferGetHeight(frame.video);
+    GLsizei uvWidth  = yWidth / 2;
+    GLsizei uvHeight = yHeight / 2;
+    
+    GLvoid *yData = CVPixelBufferGetBaseAddressOfPlane(frame.video, 0);
+    GLvoid *uData = CVPixelBufferGetBaseAddressOfPlane(frame.video, 1);
+    GLvoid *vData = CVPixelBufferGetBaseAddressOfPlane(frame.video, 2);
+    
+    CVPixelBufferUnlockBaseAddress(frame.video, kCVPixelBufferLock_ReadOnly);
+    
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
     
-    //TODO: 构造缓冲区
+    MSOpenGLES::commitTexture2DPixels(glHandler->getYtexture(),
+                                      GL_LUMINANCE,
+                                      GL_LUMINANCE,
+                                      yWidth,
+                                      yHeight,
+                                      GL_UNSIGNED_BYTE,
+                                      yData);
+    MSOpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
+                                      GL_LUMINANCE,
+                                      GL_LUMINANCE,
+                                      uvWidth,
+                                      uvHeight,
+                                      GL_UNSIGNED_BYTE,
+                                      uData);
+    MSOpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
+                                      GL_LUMINANCE,
+                                      GL_LUMINANCE,
+                                      uvWidth,
+                                      uvHeight,
+                                      GL_UNSIGNED_BYTE,
+                                      vData);
+    
+    MSOpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
+                                         glHandler->getProgram(),
+                                         GL_TEXTURE0,
+                                         "ySampler2D");
+    MSOpenGLES::activeTexture2DToProgram(glHandler->getUtexture(),
+                                         glHandler->getProgram(),
+                                         GL_TEXTURE1,
+                                         "uSampler2D");
+    MSOpenGLES::activeTexture2DToProgram(glHandler->getVtexture(),
+                                         glHandler->getProgram(),
+                                         GL_TEXTURE2,
+                                         "vSampler2D");
     
     [self.lock lock];
     
