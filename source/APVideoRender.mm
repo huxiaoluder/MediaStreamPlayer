@@ -50,11 +50,11 @@
         self.view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
         self.view.drawableMultisample = GLKViewDrawableMultisample4X; // 4倍反走样(抗锯齿)
         
-        // 设置 viewport 背景色
-        glClearColor(.7f, .7f, .7f, .0f);
+        // 设置 viewport 清屏色
+        glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
         
-        glHandler = new MSGLHanlder([NSBundle.mainBundle pathForResource:@"yuv420p" ofType:@"vsh"].UTF8String,
-                                    [NSBundle.mainBundle pathForResource:@"yuv420p" ofType:@"fsh"].UTF8String);
+        glHandler = new MSGLHanlder([NSBundle.mainBundle pathForResource:@"yuv" ofType:@"vsh"].UTF8String,
+                                    [NSBundle.mainBundle pathForResource:@"yuv" ofType:@"fsh"].UTF8String);
     }
     return self;
 }
@@ -118,18 +118,15 @@
 
 - (void)displayAPFrame:(APFrame &)frame {
     
-    CVPixelBufferLockBaseAddress(frame.video, kCVPixelBufferLock_ReadOnly);
-
     GLsizei yWidth = (GLsizei)CVPixelBufferGetWidth(frame.video);
     GLsizei yHeight = (GLsizei)CVPixelBufferGetHeight(frame.video);
     GLsizei uvWidth  = yWidth / 2;
     GLsizei uvHeight = yHeight / 2;
-    
+
+    CVPixelBufferLockBaseAddress(frame.video, kCVPixelBufferLock_ReadOnly);
     GLvoid *yData = CVPixelBufferGetBaseAddressOfPlane(frame.video, 0);
     GLvoid *uData = CVPixelBufferGetBaseAddressOfPlane(frame.video, 1);
     GLvoid *vData = CVPixelBufferGetBaseAddressOfPlane(frame.video, 2);
-    
-    CVPixelBufferUnlockBaseAddress(frame.video, kCVPixelBufferLock_ReadOnly);
     
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
@@ -168,8 +165,9 @@
                                          glHandler->getProgram(),
                                          GL_TEXTURE2,
                                          "vSampler2D");
+    [self.lock unlock];
     
-    [self.lock lock];
+    CVPixelBufferUnlockBaseAddress(frame.video, kCVPixelBufferLock_ReadOnly);
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.view display];

@@ -27,11 +27,11 @@ out vec4 fragColor;
 
 void main() {
     // 内置函数 texture(sampler2D, textureCoord), 会自动将数据映射到(0 ~> 1.0)
-    vec3 yuv = vec3(texture(ySampler2D, textureCoord).x,
-                    texture(uSampler2D, textureCoord).x - 0.5,
-                    texture(vSampler2D, textureCoord).x - 0.5);
+    vec3 yuvPixel = vec3(texture(ySampler2D, textureCoord).x,
+                         texture(uSampler2D, textureCoord).x - 0.5,
+                         texture(vSampler2D, textureCoord).x - 0.5);
 
-    vec3 rgb = yuv2rgbMat3 * yuv;
+    vec3 rgb = yuv2rgbMat3 * yuvPixel;
     
     fragColor = vec4(rgb, 1.0f);
 }

@@ -36,8 +36,8 @@
 		4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085A21D5FC6400CE476E /* CoreMedia.framework */; };
 		4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085621D5FC3F00CE476E /* VideoToolbox.framework */; };
 		4F17085F21D6065D00CE476E /* MSBinary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F17085D21D6065D00CE476E /* MSBinary.cpp */; };
-		4F1F3267222E73480022CE66 /* yuv420p.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3266222E73480022CE66 /* yuv420p.vsh */; };
-		4F1F3269222E82000022CE66 /* yuv420p.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3268222E82000022CE66 /* yuv420p.fsh */; };
+		4F1F3267222E73480022CE66 /* yuv.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3266222E73480022CE66 /* yuv.vsh */; };
+		4F1F3269222E82000022CE66 /* yuv.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3268222E82000022CE66 /* yuv.fsh */; };
 		4F1F708F22277ED300384999 /* APAudioRender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1F708D22277ED300384999 /* APAudioRender.cpp */; };
 		4F207D11223743350098190E /* MSOpenGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F207D0F223743350098190E /* MSOpenGLES.cpp */; };
 		4F226DBA221E40F1006A1046 /* NVPlayViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F226DB4221E40F1006A1046 /* NVPlayViewManager.m */; };
@@ -228,8 +228,8 @@
 		4F17085D21D6065D00CE476E /* MSBinary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSBinary.cpp; sourceTree = "<group>"; };
 		4F17085E21D6065D00CE476E /* MSBinary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSBinary.hpp; sourceTree = "<group>"; };
 		4F1DA55E21CCE5D6000EFE53 /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transcoding.c; sourceTree = "<group>"; };
-		4F1F3266222E73480022CE66 /* yuv420p.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv420p.vsh; sourceTree = "<group>"; };
-		4F1F3268222E82000022CE66 /* yuv420p.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv420p.fsh; sourceTree = "<group>"; };
+		4F1F3266222E73480022CE66 /* yuv.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.vsh; sourceTree = "<group>"; };
+		4F1F3268222E82000022CE66 /* yuv.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.fsh; sourceTree = "<group>"; };
 		4F1F32742230FD9C0022CE66 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		4F1F708D22277ED300384999 /* APAudioRender.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APAudioRender.cpp; sourceTree = "<group>"; };
 		4F1F708E22277ED300384999 /* APAudioRender.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = APAudioRender.hpp; sourceTree = "<group>"; };
@@ -401,8 +401,8 @@
 				4F65D95E22293315008B4B3D /* MSGLHanlder.cpp */,
 				4F65D95B222931A2008B4B3D /* APVideoRender.h */,
 				4F65D95C222931A2008B4B3D /* APVideoRender.mm */,
-				4F1F3266222E73480022CE66 /* yuv420p.vsh */,
-				4F1F3268222E82000022CE66 /* yuv420p.fsh */,
+				4F1F3266222E73480022CE66 /* yuv.vsh */,
+				4F1F3268222E82000022CE66 /* yuv.fsh */,
 				4F226DB3221E40F1006A1046 /* VideoDisplayer */,
 				4F226DBE221E4616006A1046 /* AudioDisplayer */,
 			);
@@ -858,10 +858,10 @@
 			files = (
 				4F226DBB221E40F1006A1046 /* Shader.fsh in Resources */,
 				4F226DBD221E40F1006A1046 /* Shader.vsh in Resources */,
-				4F1F3269222E82000022CE66 /* yuv420p.fsh in Resources */,
+				4F1F3269222E82000022CE66 /* yuv.fsh in Resources */,
 				4F0A735421B7B3C6000E0E31 /* LaunchScreen.storyboard in Resources */,
 				4F0A736C21B7B462000E0E31 /* MSMedia.hpp in Resources */,
-				4F1F3267222E73480022CE66 /* yuv420p.vsh in Resources */,
+				4F1F3267222E73480022CE66 /* yuv.vsh in Resources */,
 				4F0A736B21B7B462000E0E31 /* MSPlayer.hpp in Resources */,
 				4F0A735121B7B3C6000E0E31 /* Assets.xcassets in Resources */,
 				4F0A734F21B7B3C4000E0E31 /* Main.storyboard in Resources */,

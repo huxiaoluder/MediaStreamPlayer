@@ -230,11 +230,12 @@ APCodecContext::initVideoDecodeSession() {
         SInt32 pixFmtNum = kCVPixelFormatType_420YpCbCr8PlanarFullRange;
         CFNumberRef pixFmtType = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &pixFmtNum);
         
-        const void * keys[] = {(void *)kCVPixelBufferPixelFormatTypeKey};
-        const void * values[] = {(void *)pixFmtType};
+        const void * keys[] = { (void *)kCVPixelBufferPixelFormatTypeKey };
+        const void * values[] = { (void *)pixFmtType };
         
         CFDictionaryRef dstBufferAttr = CFDictionaryCreate(kCFAllocatorDefault,
-                                                           keys, values, sizeof(keys)/sizeof(void *),
+                                                           keys, values,
+                                                           sizeof(keys)/sizeof(void *),
                                                            &kCFTypeDictionaryKeyCallBacks,
                                                            &kCFTypeDictionaryValueCallBacks);
 

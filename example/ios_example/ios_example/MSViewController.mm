@@ -19,10 +19,16 @@ using namespace MS;
 using namespace MS::FFmpeg;
 using namespace MS::APhard;
 
+
+#define condition 1
+
 @interface MSViewController ()<IotlibToolDelegate>
 {
-//    MSPlayer<AVFrame> *player;
+#if condition
+    MSPlayer<AVFrame> *player;
+#else
     MSPlayer<APFrame> *player;
+#endif
     BOOL updateVideo;
     BOOL updateAudio;
 }
@@ -56,25 +62,26 @@ static int i;
     
     __weak typeof(MSViewController *) weakSelf = self;
     
-//    auto decoder = new FFDecoder();
-//    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
-//    player = new MSPlayer<AVFrame>(decoder,encoder,
-//                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
-//                                       if (data.frame) {
-//                                           [[weakSelf videoRender] displayAVFrame:*data.frame];
-//                                       }
-//                                   },
-//                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
-//                                       if (data.frame) {
-//                                            AVFrame &audio = *data.frame;
-//                                            [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:audio.data[0]
-//                                                                                         dataSize:audio.linesize[0]
-//                                                                                       samplerate:audio.sample_rate
-//                                                                                         channels:audio.channels
-//                                                                                              bit:16];
-//                                        }
-//                                   });
-    
+#if condition
+    auto decoder = new FFDecoder();
+    auto encoder = new FFEncoder(MSCodecID_H264,MSCodecID_AAC);
+    player = new MSPlayer<AVFrame>(decoder,encoder,
+                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
+                                       if (data.frame) {
+                                           [[weakSelf videoRender] displayAVFrame:*data.frame];
+                                       }
+                                   },
+                                   [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
+                                       if (data.frame) {
+                                            AVFrame &audio = *data.frame;
+                                            [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:audio.data[0]
+                                                                                         dataSize:audio.linesize[0]
+                                                                                       samplerate:audio.sample_rate
+                                                                                         channels:audio.channels
+                                                                                              bit:16];
+                                        }
+                                   });
+#else
     auto decoder = new APDecoder();
     //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
     player = new MSPlayer<APFrame>(decoder,nullptr,
@@ -93,6 +100,7 @@ static int i;
                                                                                              bit:16];
                                        }
                                    });
+#endif
     
 }
 
