@@ -17,9 +17,9 @@ namespace MS {
         
         GLuint program;     // 二进制着色器程序对象
         GLuint attrBuffer;  // 顶点属性的缓冲区对象
-        GLuint yTexture;    // 亮度纹理对象
-        GLuint uTexture;    // 亮度纹理对象
-        GLuint vTexture;    // 亮度纹理对象
+        GLuint yTexture;    // Y 纹理对象
+        GLuint uTexture;    // Cb纹理对象
+        GLuint vTexture;    // Cr纹理对象
         
     public:
         MSGLHanlder(const char * MSNonnull const vshFilePath,

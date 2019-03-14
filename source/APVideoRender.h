@@ -18,6 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface APVideoRender : NSObject<GLKViewDelegate>
 
+/**
+ 渲染范围
+ */
 @property (readonly) CGRect drawRect;
 
 /**
@@ -38,6 +41,13 @@ NS_ASSUME_NONNULL_BEGIN
  @param rect 范围
  */
 - (void)updateDrawRect:(CGRect)rect;
+
+/**
+ 截取视口当前图片
+ 
+ @return 截图
+ */
+- (UIImage *)snapshot;
 
 /**
  渲染 FFmpeg 软解视频数据

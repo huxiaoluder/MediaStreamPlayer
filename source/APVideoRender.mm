@@ -63,6 +63,10 @@
     self.view.frame = rect;
 }
 
+- (UIImage *)snapshot {
+    return self.view.snapshot;
+}
+
 - (void)displayAVFrame:(AVFrame &)frame {
     
     GLsizei uvWidth  = frame.width / 2;
@@ -93,7 +97,10 @@
                                       uvHeight,
                                       GL_UNSIGNED_BYTE,
                                       frame.data[2]);
-    /* @Note (查找了一整天的 BUG), 所有纹理数据上传后才能激活, 否则之前的纹理会失效 */
+    /*
+     @Note (查找了一整天的 BUG), 所有纹理数据上传后才能激活, 否则之前的纹理会失效,
+            同问题: 激活纹理完成后, 不能解绑 glBindTexture(GL_TEXTURE_2D, 0), 否则无法出图
+     */
     // 激活纹理单元, 并分配采样器位置
     MSOpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
                                          glHandler->getProgram(),

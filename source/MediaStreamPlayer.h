@@ -10,6 +10,7 @@
 #define MediaStreamPlayer_h
 
 // MSPlayer 播放器组件
+#include "MSMacros.h"
 #include "MSCodecSyncProtocol.h"
 #include "MSCodecAsynProtocol.h"
 #include "MSAsynDataReceiver.h"

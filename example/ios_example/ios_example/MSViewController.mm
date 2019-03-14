@@ -20,7 +20,7 @@ using namespace MS::FFmpeg;
 using namespace MS::APhard;
 
 
-#define condition 1
+#define condition 0
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
@@ -236,9 +236,24 @@ static int i;
 
 
 
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    if ([touches.allObjects.firstObject locationInView:self.view].y > [touches.allObjects.firstObject previousLocationInView:self.view].y) {
+        CGRect rect = self.videoRender.drawRect;
+        rect.size.width += 5;
+        rect.size.height = rect.size.width / 16 * 9;
+        [self.videoRender updateDrawRect:rect];
+    } else if ([touches.allObjects.firstObject locationInView:self.view].y < [touches.allObjects.firstObject previousLocationInView:self.view].y) {
+        CGRect rect = self.videoRender.drawRect;
+        rect.size.width -= 5;
+        rect.size.height = rect.size.width / 16 * 9;
+        [self.videoRender updateDrawRect:rect];
+    }
+}
 
-
-
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
+    UIImage *image = self.videoRender.snapshot;
+    NSLog(@"%@", image);
+}
 
 
 
