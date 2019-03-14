@@ -474,7 +474,7 @@ MSNaluParts::initH265NaluParts(const uint8_t * MSNonnull const nalUnit, const si
     const uint8_t *ptr = nalUnit;
     while (true) {
         if (*ptr++ == 0x01) {
-            switch (*ptr >> 1 & 0x3F) {
+            switch (*ptr >> 1) {
                 case 1: { // 非关键帧数据,不划分片段 (SLICE)
                     _slcRef = ptr;
                     _slcSize = naluSize - (ptr - nalUnit);
@@ -498,7 +498,7 @@ MSNaluParts::initH265NaluParts(const uint8_t * MSNonnull const nalUnit, const si
                     _ppsSize = nextSeparatorOffset(ptr);
                     ptr += _ppsSize;
                 }   break;
-                case 40: { // 补充增强信息（SEI）
+                case 39: { // 补充增强信息（SEI）
                     _seiRef = ptr;
                     _seiSize = nextSeparatorOffset(ptr);
                     ptr += _seiSize;

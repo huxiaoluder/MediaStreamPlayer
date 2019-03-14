@@ -139,7 +139,8 @@ static int i;
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H264);
             player->pushVideoStreamData(data);
         } else {
-//            printf("**********video buffer empty!\n");
+            auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H265);
+            player->pushVideoStreamData(data);
         }
     }
     
@@ -148,7 +149,7 @@ static int i;
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
             player->pushAudioStreamData(data);
         } else {
-//            printf("++++++++++audio buffer empty!\n");
+
         }
     }
 }
@@ -281,8 +282,8 @@ static int i;
                                                object:nil];
     [IotlibTool shareIotlibTool].delegate = self;
     
-    // IOTSHMK000S00004EDA785C
-    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK000S0008EDA1FCDD"
+    // IOTSHMK038L0000419790        IOTSHMK000S0008EDA1FCDD
+    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK038L0000419790"
                                                   callback:^(e_trans_conn_state status,
                                                              int connectId)
      {

@@ -102,17 +102,20 @@ APCodecContext::initVideoFmtDescription(const MSNaluParts &naluParts) {
     if (codecType == APCodecDecoder && isVideoCodec) {
         OSStatus status = 0;
         
-        // MSNaluParts, 此处直接使用 sps, pps 内存引用, 不需要使用 NALUnitHeaderLength 替换开始码.
-        const uint8_t *datas[] = {naluParts.spsRef(),  naluParts.ppsRef()};
-        const size_t lengths[] = {naluParts.spsSize(), naluParts.ppsSize()};
-        
         if (codecID == MSCodecID_H264) {
+            // MSNaluParts, 此处直接使用 sps, pps 内存引用, 不需要使用 NALUnitHeaderLength 替换开始码.
+            const uint8_t *datas[] = {naluParts.spsRef(),  naluParts.ppsRef()};
+            const size_t lengths[] = {naluParts.spsSize(), naluParts.ppsSize()};
+            
             status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault,
                                                                          sizeof(datas)/sizeof(uint8_t *),
                                                                          datas, lengths, 4,
                                                                          &videoFmtDescription);
         } else if (codecID == MSCodecID_HEVC) {
             if (__builtin_available(iOS 11.0, *)) {
+                const uint8_t *datas[] = {naluParts.vpsRef(),  naluParts.spsRef(),  naluParts.ppsRef()};
+                const size_t lengths[] = {naluParts.vpsSize(), naluParts.spsSize(), naluParts.ppsSize()};
+                
                 status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(kCFAllocatorDefault,
                                                                              sizeof(datas)/sizeof(uint8_t *),
                                                                              datas, lengths, 4, nullptr,
