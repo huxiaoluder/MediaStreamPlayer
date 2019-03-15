@@ -16,7 +16,9 @@ MSTimer::MSTimer(const microseconds delayTime,
                  const microseconds timeInterval,
                  const TaskType task)
 :delayTime(delayTime), timeInterval(timeInterval), task(task) {
-
+    if (timeInterval.count() == 0) {
+        this->timeInterval = microseconds(1000000LL);
+    }
 }
 
 MSTimer::~MSTimer() {
@@ -95,6 +97,8 @@ MSTimer::updateDelayTime(const microseconds delayTime) {
 
 MSTimer &
 MSTimer::updateTimeInterval(const microseconds timeInterval) {
-    this->timeInterval = timeInterval;
+    this->timeInterval = (timeInterval.count() ?
+                          timeInterval :
+                          microseconds(1000000LL));
     return *this;
 }

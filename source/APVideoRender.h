@@ -50,15 +50,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (UIImage *)snapshot;
 
 /**
- 渲染 FFmpeg 软解视频数据
+ 渲染 FFmpeg 软解视频数据 YUV420P(YYYY...U...V)
+ AV_PIX_FMT_YUV420P
+ AV_PIX_FMT_YUVJ420P
 
  @param frame AVFrame
  */
 - (void)displayAVFrame:(AVFrame &)frame;
 
 /**
- 渲染 iOS 硬解视频数据
-
+ 渲染 videoToolBox 硬解视频数据 YUV420P(YYYY...U...V)
+ kCVPixelFormatType_420YpCbCr8Planar
+ kCVPixelFormatType_420YpCbCr8PlanarFullRange
+ 
  @param frame APFrame
  */
 - (void)displayAPFrame:(APFrame &)frame;

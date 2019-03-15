@@ -17,6 +17,7 @@ namespace MS {
         class APAudioRender {
             
         public:
+            APAudioRender();
             
         };
         

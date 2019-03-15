@@ -282,7 +282,8 @@ static int i;
                                                object:nil];
     [IotlibTool shareIotlibTool].delegate = self;
     
-    // IOTSHMK038L0000419790        IOTSHMK000S0008EDA1FCDD
+    // 38l(h265): IOTSHMK038L0000419790
+    // 私模(h264): IOTSHMK000S0008EDA1FCDD
     [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK038L0000419790"
                                                   callback:^(e_trans_conn_state status,
                                                              int connectId)

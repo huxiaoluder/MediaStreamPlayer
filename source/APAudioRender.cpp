@@ -7,3 +7,18 @@
 //
 
 #include "APAudioRender.hpp"
+
+using namespace MS::APHard;
+
+APAudioRender::APAudioRender() {
+//    AudioComponent audioComponent;
+//
+//    AudioComponentInstanceNew(<#AudioComponent  _Nonnull inComponent#>, <#AudioComponentInstance  _Nullable * _Nonnull outInstance#>)
+//
+//    AudioUnitRender(<#AudioUnit  _Nonnull inUnit#>,
+//                    <#AudioUnitRenderActionFlags * _Nullable ioActionFlags#>,
+//                    <#const AudioTimeStamp * _Nonnull inTimeStamp#>,
+//                    <#UInt32 inOutputBusNumber#>,
+//                    <#UInt32 inNumberFrames#>,
+//                    <#AudioBufferList * _Nonnull ioData#>);
+}
