@@ -338,7 +338,7 @@ decode_h265_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, 
     int pic_width_in_luma_samples   = ueGolomb(realSps, startLocation);
     int pic_height_in_luma_samples  = ueGolomb(realSps, startLocation);
     
-    int conformance_window_flag = ueGolomb(realSps, startLocation);
+    int conformance_window_flag = getBitsValue(realSps, startLocation, 1);
     if (conformance_window_flag) {
         skipGolombBits(realSps, startLocation, 4);
     }
