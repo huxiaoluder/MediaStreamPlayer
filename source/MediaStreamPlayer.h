@@ -35,7 +35,7 @@
 #include "APDecoder.hpp"
 #include "APEncoder.hpp"
 #include "APVideoRender.h"
-#include "APAudioRender.hpp"
+#include "APAudioRender.h"
 #elif
 // android
 #endif

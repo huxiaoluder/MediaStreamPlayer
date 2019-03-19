@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)displayAVFrame:(AVFrame &)frame;
 
 /**
- 渲染 videoToolBox 硬解视频数据 YUV420P(YYYY...U...V)
+ 渲染 VideoToolBox 硬解视频数据 YUV420P(YYYY...U...V)
  kCVPixelFormatType_420YpCbCr8Planar
  kCVPixelFormatType_420YpCbCr8PlanarFullRange
  

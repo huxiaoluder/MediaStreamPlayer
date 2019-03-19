@@ -511,7 +511,6 @@ namespace MS {
     MSTimer * MSNonnull
     MSPlayer<T>::initAsynDataVideoTimer() {
         return new MSTimer(microseconds(0),intervale(1),[this](){
-//            printf("pixelQueue: %ld------videoQueue: %ld\r",pixelQueue.size(),videoQueue.size());
             if (!pixelQueue.empty()) {
                 const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
                 frameData = pixelQueue.front();
@@ -526,10 +525,7 @@ namespace MS {
                 if (isEncoding) {
                     _asynEncoder->encodeVideo(*frameData);
                 }
-#warning 空数据释放
-                if (frameData->frame) {                
-                    delete frameData;
-                }
+                delete frameData;
             } else {
                 videoThreadCondition.notify_one();
                 this->throwDecodeVideo(MSMedia<MSDecodeMedia,T>::defaultNullMedia);
@@ -541,7 +537,6 @@ namespace MS {
     MSTimer * MSNonnull
     MSPlayer<T>::initAsynDataAudioTimer() {
         return new MSTimer(microseconds(0),intervale(1),[this](){
-//            printf("sampleQueue: %ld\r",sampleQueue.size());
             if (!sampleQueue.empty()) {
                 const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
                 frameData = sampleQueue.front();

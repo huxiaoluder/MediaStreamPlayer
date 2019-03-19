@@ -128,14 +128,14 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
                 .mData = malloc(mDataByteSize)
             }
         };
-        AudioStreamPacketDescription outAspDesc[outPacktNumber];
+//        static AudioStreamPacketDescription outAspDesc[1024];
         
         status = AudioConverterFillComplexBuffer(decoderContext->audioConverter,
                                                  audioConverterInputProc,
                                                  (void *)&naluParts,
                                                  &outPacktNumber,
                                                  &outBufferList,
-                                                 outAspDesc);
+                                                 nullptr); //outAspDesc
         if (status != noErr) {
             OSStatusErrorLocationLog("call AudioConverterFillComplexBuffer fail",status);
             delete audioData;
@@ -278,11 +278,12 @@ APDecoder::audioConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
     ioData->mBuffers->mData = (void *)naluParts.dataRef();
     ioData->mBuffers->mDataByteSize = (UInt32)naluParts.dataSize();
     ioData->mBuffers->mNumberChannels = (UInt32)naluParts.parseAacAdts()->channels;
-    static AudioStreamPacketDescription *aspDesc = new AudioStreamPacketDescription();
-    aspDesc->mStartOffset = 0;
-    aspDesc->mVariableFramesInPacket = 0;
-    aspDesc->mDataByteSize = (UInt32)naluParts.dataSize();
-    *outDataPacketDescription = aspDesc;
+    
+    static AudioStreamPacketDescription aspDesc;
+    aspDesc.mStartOffset = 0;
+    aspDesc.mVariableFramesInPacket = 0;
+    aspDesc.mDataByteSize = (UInt32)naluParts.dataSize();
+    *outDataPacketDescription = &aspDesc;
     
     return noErr;
 }

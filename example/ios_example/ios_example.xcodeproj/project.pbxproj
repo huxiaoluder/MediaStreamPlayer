@@ -38,7 +38,6 @@
 		4F17085F21D6065D00CE476E /* MSBinary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F17085D21D6065D00CE476E /* MSBinary.cpp */; };
 		4F1F3267222E73480022CE66 /* yuv.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3266222E73480022CE66 /* yuv.vsh */; };
 		4F1F3269222E82000022CE66 /* yuv.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3268222E82000022CE66 /* yuv.fsh */; };
-		4F1F708F22277ED300384999 /* APAudioRender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1F708D22277ED300384999 /* APAudioRender.cpp */; };
 		4F207D11223743350098190E /* MSOpenGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F207D0F223743350098190E /* MSOpenGLES.cpp */; };
 		4F226DBA221E40F1006A1046 /* NVPlayViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F226DB4221E40F1006A1046 /* NVPlayViewManager.m */; };
 		4F226DBB221E40F1006A1046 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F226DB5221E40F1006A1046 /* Shader.fsh */; };
@@ -47,6 +46,7 @@
 		4F226DC1221E4638006A1046 /* DDOpenALAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F226DBF221E4637006A1046 /* DDOpenALAudioPlayer.m */; };
 		4F65D95D222931A2008B4B3D /* APVideoRender.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F65D95C222931A2008B4B3D /* APVideoRender.mm */; };
 		4F65D96022293315008B4B3D /* MSGLHanlder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F65D95E22293315008B4B3D /* MSGLHanlder.cpp */; };
+		4F888024223F46190001CA94 /* APAudioRender.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F888023223F46190001CA94 /* APAudioRender.mm */; };
 		4F9ADF0321B7D02900862770 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEEF21B7D02900862770 /* libcrypto.a */; };
 		4F9ADF0421B7D02900862770 /* libpjlib-util.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF121B7D02900862770 /* libpjlib-util.a */; };
 		4F9ADF0521B7D02900862770 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF221B7D02900862770 /* libmxml.a */; };
@@ -231,8 +231,6 @@
 		4F1F3266222E73480022CE66 /* yuv.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.vsh; sourceTree = "<group>"; };
 		4F1F3268222E82000022CE66 /* yuv.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.fsh; sourceTree = "<group>"; };
 		4F1F32742230FD9C0022CE66 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		4F1F708D22277ED300384999 /* APAudioRender.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APAudioRender.cpp; sourceTree = "<group>"; };
-		4F1F708E22277ED300384999 /* APAudioRender.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = APAudioRender.hpp; sourceTree = "<group>"; };
 		4F207D0F223743350098190E /* MSOpenGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSOpenGLES.cpp; sourceTree = "<group>"; };
 		4F207D10223743350098190E /* MSOpenGLES.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSOpenGLES.hpp; sourceTree = "<group>"; };
 		4F226DA8221E35F9006A1046 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
@@ -249,6 +247,8 @@
 		4F65D95E22293315008B4B3D /* MSGLHanlder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSGLHanlder.cpp; sourceTree = "<group>"; };
 		4F65D95F22293315008B4B3D /* MSGLHanlder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSGLHanlder.hpp; sourceTree = "<group>"; };
 		4F81B868221D56A100385B2B /* MediaStreamPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaStreamPlayer.h; sourceTree = "<group>"; };
+		4F888022223F46190001CA94 /* APAudioRender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APAudioRender.h; sourceTree = "<group>"; };
+		4F888023223F46190001CA94 /* APAudioRender.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = APAudioRender.mm; sourceTree = "<group>"; };
 		4F9ADEEF21B7D02900862770 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		4F9ADEF021B7D02900862770 /* iot_comm.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iot_comm.pb.h; sourceTree = "<group>"; };
 		4F9ADEF121B7D02900862770 /* libpjlib-util.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libpjlib-util.a"; sourceTree = "<group>"; };
@@ -397,10 +397,10 @@
 				4F1707B321D3639E00CE476E /* APDecoder.cpp */,
 				4F1707B121D3632300CE476E /* APEncoder.hpp */,
 				4F1707B021D3632300CE476E /* APEncoder.cpp */,
-				4F1F708E22277ED300384999 /* APAudioRender.hpp */,
-				4F1F708D22277ED300384999 /* APAudioRender.cpp */,
 				4F65D95B222931A2008B4B3D /* APVideoRender.h */,
 				4F65D95C222931A2008B4B3D /* APVideoRender.mm */,
+				4F888022223F46190001CA94 /* APAudioRender.h */,
+				4F888023223F46190001CA94 /* APAudioRender.mm */,
 				4F1F3266222E73480022CE66 /* yuv.vsh */,
 				4F1F3268222E82000022CE66 /* yuv.fsh */,
 				4F226DB3221E40F1006A1046 /* VideoDisplayer */,
@@ -888,13 +888,13 @@
 				4F65D96022293315008B4B3D /* MSGLHanlder.cpp in Sources */,
 				4F65D95D222931A2008B4B3D /* APVideoRender.mm in Sources */,
 				4F9ADF1621B7D12F00862770 /* IotlibTool.m in Sources */,
+				4F888024223F46190001CA94 /* APAudioRender.mm in Sources */,
 				4F0A734921B7B3C4000E0E31 /* AppDelegate.m in Sources */,
 				4F226DBA221E40F1006A1046 /* NVPlayViewManager.m in Sources */,
 				4F17085F21D6065D00CE476E /* MSBinary.cpp in Sources */,
 				4F1707B821D3785800CE476E /* APCodecContext.cpp in Sources */,
 				4F226DC1221E4638006A1046 /* DDOpenALAudioPlayer.m in Sources */,
 				4FCF481221F05DFD0030E739 /* MSNaluParts.cpp in Sources */,
-				4F1F708F22277ED300384999 /* APAudioRender.cpp in Sources */,
 				4F1707BA21D4B6C000CE476E /* APEncoder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

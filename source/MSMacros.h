@@ -25,16 +25,16 @@
 #define OSStatus2Str(status) \
 char errStr[5] = {char(status >> 24), char(status >> 16), char(status >> 8), char(status) , 0x00}
 
-#define ErrorLocationLog(reson) \
+#define ErrorLocationLog(reason) \
 printf("\n"\
 "-----------------------------ERROR-----------------------------\n"\
 "| filepath:    %s\n"\
 "| linenumber:  %d\n"\
 "| funcname:    %s\n"\
 "| reson:       %s\n"\
-"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reson)
+"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reason)
 
-#define OSStatusErrorLocationLog(reson,status) \
+#define OSStatusErrorLocationLog(reason,status) \
 OSStatus2Str(status); \
 printf("\n"\
 "-----------------------------ERROR-----------------------------\n"\
@@ -43,13 +43,13 @@ printf("\n"\
 "| funcname:    %s\n"\
 "| reson:       %s\n"\
 "| status:      %d --> %s\n"\
-"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reson,status,errStr)
+"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reason,status,errStr)
 
 #else
 
 #define OSStatus2Str(status)
 #define ErrorLocationLog(reason)
-#define OSStatusErrorLocationLog(reson,status)
+#define OSStatusErrorLocationLog(reason,status)
 
 #endif
 

@@ -36,6 +36,7 @@ using namespace MS::APhard;
 @property (weak, nonatomic) IBOutlet NVGLPlayView *displayView;
 
 @property (nonatomic, strong) APVideoRender *videoRender;
+@property (nonatomic, strong) APAudioRender *audioRender;
 
 @end
 
@@ -59,6 +60,7 @@ static int i;
     [self doSomeSetup];
 //    [self setupRenderView];
     [self setupVideoRender];
+    [self setupAudioRender];
     
     __weak typeof(MSViewController *) weakSelf = self;
     
@@ -73,12 +75,7 @@ static int i;
                                    },
                                    [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
                                        if (data.frame) {
-                                            AVFrame &audio = *data.frame;
-                                            [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:audio.data[0]
-                                                                                         dataSize:audio.linesize[0]
-                                                                                       samplerate:audio.sample_rate
-                                                                                         channels:audio.channels
-                                                                                              bit:16];
+                                           
                                         }
                                    });
 #else
@@ -92,12 +89,9 @@ static int i;
                                    },
                                    [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
                                        if (data.frame) {
-                                           AudioBuffer &audio = *data.frame->audio;
-                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)audio.mData
-                                                                                        dataSize:audio.mDataByteSize
-                                                                                      samplerate:8000
-                                                                                        channels:audio.mNumberChannels
-                                                                                             bit:16];
+                                           const MSAudioParameters *parameter = data.packt->getNaluParts().parseAacAdts();
+                                           [[weakSelf audioRender] updateChannels:parameter->channels frequency:parameter->frequency.value];
+                                           [[weakSelf audioRender] displayAPFrame:*data.frame];
                                        }
                                    });
 #endif
@@ -138,7 +132,7 @@ static int i;
         if (headerMedia->stream_type == e_stream_type_H264) {
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H264);
             player->pushVideoStreamData(data);
-        } else {
+        } else if (headerMedia->stream_type == e_stream_type_H265) {
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H265);
             player->pushVideoStreamData(data);
         }
@@ -148,8 +142,6 @@ static int i;
         if (headerMedia->stream_type == e_stream_type_AAC) {
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
             player->pushAudioStreamData(data);
-        } else {
-
         }
     }
 }
@@ -284,7 +276,7 @@ static int i;
     
     // 38l(h265): IOTSHMK038L0000419790
     // 私模(h264): IOTSHMK000S0008EDA1FCDD
-    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK038L0000419790"
+    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK000S0008EDA1FCDD"
                                                   callback:^(e_trans_conn_state status,
                                                              int connectId)
      {
@@ -306,6 +298,10 @@ static int i;
     CGRect rect = CGRectMake(0, yVtx, width, height);
     NSLock *lock = [NSLock new];
     self.videoRender = [APVideoRender renderTo:self.view drawRect:rect syncLock:lock];
+}
+
+- (void)setupAudioRender {
+    self.audioRender = [APAudioRender renderWithChannels:1 frequency:8000];
 }
 
 @end
