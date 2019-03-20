@@ -18,7 +18,7 @@ using namespace MS::FFmpeg;
 using namespace MS::APhard;
 
 
-#define condition 0
+#define condition 1
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
