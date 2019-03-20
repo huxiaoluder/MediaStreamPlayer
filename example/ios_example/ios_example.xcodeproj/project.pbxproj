@@ -43,6 +43,7 @@
 		4F65D96022293315008B4B3D /* MSGLHanlder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F65D95E22293315008B4B3D /* MSGLHanlder.cpp */; };
 		4F888024223F46190001CA94 /* APAudioRender.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F888023223F46190001CA94 /* APAudioRender.mm */; };
 		4F8C2FAB224222C000531FB2 /* IDETemplateMacros.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4F8C2FAA224222C000531FB2 /* IDETemplateMacros.plist */; };
+		4F8C2FB02242263500531FB2 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C2FAF2242263400531FB2 /* GLKit.framework */; };
 		4F9ADF0321B7D02900862770 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEEF21B7D02900862770 /* libcrypto.a */; };
 		4F9ADF0421B7D02900862770 /* libpjlib-util.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF121B7D02900862770 /* libpjlib-util.a */; };
 		4F9ADF0521B7D02900862770 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9ADEF221B7D02900862770 /* libmxml.a */; };
@@ -238,6 +239,7 @@
 		4F888022223F46190001CA94 /* APAudioRender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APAudioRender.h; sourceTree = "<group>"; };
 		4F888023223F46190001CA94 /* APAudioRender.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = APAudioRender.mm; sourceTree = "<group>"; };
 		4F8C2FAA224222C000531FB2 /* IDETemplateMacros.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = ios_example.xcodeproj/project.xcworkspace/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
+		4F8C2FAF2242263400531FB2 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		4F9ADEEF21B7D02900862770 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		4F9ADEF021B7D02900862770 /* iot_comm.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iot_comm.pb.h; sourceTree = "<group>"; };
 		4F9ADEF121B7D02900862770 /* libpjlib-util.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libpjlib-util.a"; sourceTree = "<group>"; };
@@ -279,6 +281,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F8C2FB02242263500531FB2 /* GLKit.framework in Frameworks */,
 				4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */,
 				4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */,
 				4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */,
@@ -484,6 +487,7 @@
 		4F0A740421B7BC09000E0E31 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F8C2FAF2242263400531FB2 /* GLKit.framework */,
 				4F1F32742230FD9C0022CE66 /* OpenGLES.framework */,
 				4F226DA8221E35F9006A1046 /* CoreAudio.framework */,
 				4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */,

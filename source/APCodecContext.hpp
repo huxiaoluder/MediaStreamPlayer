@@ -25,13 +25,20 @@ extern "C" {
 namespace MS {
     namespace APhard {
         
-        union APFrame {
-            __CVBuffer  * MSNonnull const video;
-            AudioBuffer * MSNonnull const audio;
+        struct APFrame {
+            union {
+                __CVBuffer  * MSNonnull const video;
+                AudioBuffer * MSNonnull const audio;
+            };
             
-            APFrame(__CVBuffer  * MSNonnull const video);
+            union {
+                MSVideoParameters const videoParameters;
+                MSAudioParameters const audioParameters;
+            };
+            
+            APFrame(__CVBuffer  * MSNonnull const video, const MSVideoParameters &videoParameters);
 
-            APFrame(AudioBuffer * MSNonnull const audio);
+            APFrame(AudioBuffer * MSNonnull const audio, const MSAudioParameters &audioParameters);
             
             static void freeVideoFrame(const APFrame * MSNonnull const frame);
             

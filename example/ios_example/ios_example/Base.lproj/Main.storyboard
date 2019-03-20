@@ -177,7 +177,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JsX-hS-QHx" customClass="NVGLPlayView">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JsX-hS-QHx">
                                 <rect key="frame" x="0.0" y="315" width="320" height="180"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
@@ -232,7 +232,6 @@
                     <navigationItem key="navigationItem" id="pWM-oo-XgS"/>
                     <connections>
                         <outlet property="displayLabel" destination="V5B-ny-21c" id="mn1-ya-Wa8"/>
-                        <outlet property="displayView" destination="JsX-hS-QHx" id="nfs-fk-nKQ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="piL-Ao-7Si" userLabel="First Responder" sceneMemberID="firstResponder"/>

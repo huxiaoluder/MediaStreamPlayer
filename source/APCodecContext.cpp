@@ -11,13 +11,13 @@
 using namespace MS;
 using namespace MS::APhard;
 
-APFrame::APFrame(__CVBuffer  * MSNonnull const video)
-:video(video) {
+APFrame::APFrame(__CVBuffer  * MSNonnull const video, const MSVideoParameters &videoParameters)
+:video(video), videoParameters(videoParameters) {
     
 }
 
-APFrame::APFrame(AudioBuffer * MSNonnull const audio)
-:audio(audio) {
+APFrame::APFrame(AudioBuffer * MSNonnull const audio, const MSAudioParameters &audioParameters)
+:audio(audio), audioParameters(audioParameters) {
     
 }
 
@@ -36,7 +36,7 @@ APFrame::freeAudioFrame(const APFrame * MSNonnull const frame) {
 
 APFrame * MSNonnull
 APFrame::copyVideoFrame(const APFrame * MSNonnull const frame) {
-    return new APFrame(CVPixelBufferRetain(frame->video));
+    return new APFrame(CVPixelBufferRetain(frame->video), frame->videoParameters);
 }
 
 APFrame * MSNonnull
@@ -46,7 +46,7 @@ APFrame::copyAudioFrame(const APFrame * MSNonnull const frame) {
     audio->mDataByteSize = frame->audio->mDataByteSize;
     audio->mNumberChannels = frame->audio->mNumberChannels;
     memcpy(audio->mData, frame->audio->mData, audio->mDataByteSize);
-    return new APFrame(audio);
+    return new APFrame(audio, frame->audioParameters);
 }
 
 

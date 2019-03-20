@@ -11,8 +11,6 @@
 #import <MediaStreamPlayer.h>
 
 #import "IotlibTool.h"
-#import "NVGLPlayView.h"
-#import "DDOpenAlAudioPlayer.h"
 
 using namespace std;
 using namespace MS;
@@ -33,7 +31,6 @@ using namespace MS::APhard;
     BOOL updateAudio;
 }
 @property (weak, nonatomic) IBOutlet UILabel *displayLabel;
-@property (weak, nonatomic) IBOutlet NVGLPlayView *displayView;
 
 @property (nonatomic, strong) APVideoRender *videoRender;
 @property (nonatomic, strong) APAudioRender *audioRender;
@@ -58,7 +55,6 @@ static int i;
     [super viewDidLoad];
     
     [self doSomeSetup];
-//    [self setupRenderView];
     [self setupVideoRender];
     [self setupAudioRender];
     
@@ -75,7 +71,9 @@ static int i;
                                    },
                                    [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
                                        if (data.frame) {
-                                           
+                                           [[weakSelf audioRender] updateChannels:data.frame->channels
+                                                                        frequency:data.frame->sample_rate];
+                                           [[weakSelf audioRender] displayAVFrame:*data.frame];
                                         }
                                    });
 #else
@@ -89,8 +87,8 @@ static int i;
                                    },
                                    [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
                                        if (data.frame) {
-                                           const MSAudioParameters *parameter = data.packt->getNaluParts().parseAacAdts();
-                                           [[weakSelf audioRender] updateChannels:parameter->channels frequency:parameter->frequency.value];
+                                           [[weakSelf audioRender] updateChannels:data.frame->audioParameters.channels
+                                                                        frequency:data.frame->audioParameters.frequency.value];
                                            [[weakSelf audioRender] displayAPFrame:*data.frame];
                                        }
                                    });
@@ -282,12 +280,6 @@ static int i;
      {
          printf("------------connectId: %d\n",connectId);
      }];
-}
-
-- (void)setupRenderView {
-    self.displayView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
-    self.displayView.layer.transform = CATransform3DRotate(CATransform3DIdentity, M_PI, UIScreen.mainScreen.bounds.size.width/2, 0, 0);
-    [self.displayView setupGL];
 }
 
 - (void)setupVideoRender {

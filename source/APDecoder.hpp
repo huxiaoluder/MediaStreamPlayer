@@ -20,6 +20,12 @@ namespace MS {
         typedef MSAsynDataReceiver<APFrame>     APAsynDataReceiver;
         typedef MSMedia<MSDecodeMedia,APFrame>  APDecoderOutputMeida;
         
+        // 视频解码回调附加参数(回调透传)
+        struct APVideoAttachment {
+            const MSMedia<MSEncodeMedia> * MSNullable videoSource = nullptr;
+            const MSVideoParameters * MSNullable videoParameters = nullptr;
+        };
+        
         class APDecoder : public APDecoderProtocol {
             static map<APDecoder *, const MSVideoParameters *> videoParametersMap;
             
@@ -32,6 +38,8 @@ namespace MS {
             const CMBlockBufferFlags bufferFlags;
             
             const CFAllocatorRef MSNonnull blockAllocator;
+            
+            APVideoAttachment videoAttachment;
             
             /**
              be related by decodeFlags,

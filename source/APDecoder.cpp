@@ -59,23 +59,26 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
         CMSampleBufferRef sampleBuffer = nullptr;
         size_t sampleSizeArray[] = {tempSize};
         
-        CMSampleTimingInfo sampleTimingArray[] = {{
-            .duration = {
-                .value = 1000000LL / videoParametersMap[this]->frameRate,
-                .timescale = 1000000,
-                .flags = kCMTimeFlags_Valid,
-                .epoch = 0,
-            },
-            .presentationTimeStamp = NULL,
-            .decodeTimeStamp = NULL
-        }};
+        /*
+         // 注: 时间信息附带参数(对解码器并没有影响), 这里因为自定义透传信息 APVideoAttachment 中附带了有效数据, 所以不用传输
+         CMSampleTimingInfo sampleTimingArray[] = {{
+         .duration = {
+         .value = 1000000LL / videoParametersMap[this]->frameRate,
+         .timescale = 1000000,
+         .flags = kCMTimeFlags_Valid,
+         .epoch = 0,
+         },
+         .presentationTimeStamp = NULL,
+         .decodeTimeStamp = NULL
+         }};
+         */
         
         status = CMSampleBufferCreateReady(kCFAllocatorDefault,
                                            blockBuffer,
                                            decoderContext->getVideoFmtDescription(), // 必须传,否则回调报错,且会卡死解码函数(kVTVideoDecoderMalfunctionErr -12911, 文档并不准确)
                                            sizeof(sampleSizeArray) / sizeof(size_t),
-                                           sizeof(sampleTimingArray) / sizeof(CMSampleTimingInfo),
-                                           sampleTimingArray,
+                                           0, // sizeof(sampleTimingArray) / sizeof(CMSampleTimingInfo),
+                                           nullptr, // sampleTimingArray,
                                            sizeof(sampleSizeArray) / sizeof(size_t),
                                            sampleSizeArray,
                                            &sampleBuffer);
@@ -85,12 +88,15 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
             delete videoData;
             return;
         }
+
+        videoAttachment.videoSource = videoData;
+        videoAttachment.videoParameters = videoParametersMap[this];
         
         // VTDecodeInfoFlags infoFlagsOut = NULL;
         status = VTDecompressionSessionDecodeFrame(decoderContext->videoDecodeSession,
                                                    sampleBuffer,
                                                    decodeFlags, // 传入 NULL 则该函数会阻塞到回调函数返回后才返回.
-                                                   (void *)videoData, // 附带参数, 会透传到回调函数
+                                                   &videoAttachment, // 附带参数, 会透传到回调函数
                                                    nullptr);
         if (status != noErr) {
             OSStatusErrorLocationLog("call VTDecompressionSessionDecodeFrame fail",status);
@@ -145,7 +151,7 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         AudioBuffer *audioBuffer = new AudioBuffer();
         *audioBuffer = outBufferList.mBuffers[0];
         
-        APFrame *frame = new APFrame(audioBuffer);
+        APFrame *frame = new APFrame(audioBuffer, audioParameters);
         
         // 不能整除, 需要提升精确度
         long long rate = ((long long)audioParametersMap[this]->frequency.value << 16) / outPacktNumber;
@@ -251,14 +257,15 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
                                        CMTime presentationDuration) {
     if (status == noErr && imageBuffer) {
         const APAsynDataProvider &dataProvider = *(APAsynDataProvider *)decompressionOutputRefCon;
+        const APVideoAttachment  &attachment = *(APVideoAttachment *)sourceFrameRefCon;
         
-        microseconds timeInterval(presentationDuration.value);
+        microseconds timeInterval(1000000LL / attachment.videoParameters->frameRate);
         
-        APFrame *frame = new APFrame(CVPixelBufferRetain(imageBuffer));
+        APFrame *frame = new APFrame(CVPixelBufferRetain(imageBuffer), *attachment.videoParameters);
         
         dataProvider.launchVideoFrameData(new APDecoderOutputMeida(frame,
                                                                    timeInterval,
-                                                                   (MSMedia<MSEncodeMedia> *)sourceFrameRefCon,
+                                                                   attachment.videoSource,
                                                                    APFrame::freeVideoFrame,
                                                                    APFrame::copyVideoFrame));
         
