@@ -2,7 +2,7 @@
 //  MSTimer.hpp
 //  MediaStreamPlayer
 //
-//  Created by 胡校明 on 2018/11/22.
+//  Created by xiaoming on 2018/11/22.
 //  Copyright © 2018 freecoder. All rights reserved.
 //
 

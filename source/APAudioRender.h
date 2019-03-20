@@ -1,8 +1,8 @@
 //
 //  APAudioRender.h
-//  ios_example
+//  MediaStreamPlayer
 //
-//  Created by 胡校明 on 2019/3/18.
+//  Created by xiaoming on 2019/3/18.
 //  Copyright © 2019 freecoder. All rights reserved.
 //
 

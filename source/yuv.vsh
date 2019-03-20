@@ -1,8 +1,8 @@
 /* 
   yuv420p.vsh
-  ios_example
+  MediaStreamPlayer
 
-  Created by 胡校明 on 2019/3/5.
+  Created by xiaoming on 2019/3/5.
   Copyright © 2019 freecoder. All rights reserved.
 */
 

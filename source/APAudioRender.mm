@@ -1,15 +1,12 @@
 //
 //  APAudioRender.m
-//  ios_example
+//  MediaStreamPlayer
 //
-//  Created by 胡校明 on 2019/3/18.
+//  Created by xiaoming on 2019/3/18.
 //  Copyright © 2019 freecoder. All rights reserved.
 //
 
 #import "APAudioRender.h"
-#import <pthread.h>
-#include <queue>
-#include <unistd.h>
 
 @interface APAudioRender ()
 {
@@ -32,17 +29,15 @@ renderCallback(void * inRefCon,
                UInt32 inBusNumber,
                UInt32 inNumberFrames,
                AudioBufferList * MSNullable ioData) {
-    APAudioRender *render = (__bridge APAudioRender *)inRefCon;
+    NSPipe *pipe = (__bridge NSPipe *)inRefCon;
 
     for (UInt32 i = 0; i < ioData->mNumberBuffers; i++) {
         @autoreleasepool {
             AudioBuffer &ioBuffer = ioData->mBuffers[i];
-            NSData *data = [render.pipe.fileHandleForReading readDataOfLength:ioBuffer.mDataByteSize];
-            if (data.length) {
-                memcpy(ioBuffer.mData, data.bytes, data.length);
-            } else {
-                memset(ioBuffer.mData, 0, ioBuffer.mDataByteSize);
-            }
+            // readDataOfLength 管道数据不够 length 时, 会阻塞当前前程, 导致暂停播放, 直到管道写入新数据足够 length 才恢复继续执行
+            NSData *data = [pipe.fileHandleForReading readDataOfLength:ioBuffer.mDataByteSize];
+            // 管道保证了数据来源确定性, 如果其他方式读取数据, 数据不够时, 应该 memset 为 0, 提供静音播放
+            memcpy(ioBuffer.mData, data.bytes, data.length);
         }
     }
     return noErr;
@@ -119,16 +114,16 @@ renderCallback(void * inRefCon,
         OSStatusErrorLocationLog("call AudioUnitSetProperty fail", status);
     }
     
-    AURenderCallbackStruct callBack {
+    AURenderCallbackStruct callBackStruct {
         .inputProc = renderCallback,
-        .inputProcRefCon = (__bridge void *)self,
+        .inputProcRefCon = (__bridge void *)_pipe,
     };
     status = AudioUnitSetProperty(remoteIOUnit,
                                   kAudioUnitProperty_SetRenderCallback,
                                   kAudioUnitScope_Input,
                                   inElement,
-                                  &callBack,
-                                  sizeof(callBack));
+                                  &callBackStruct,
+                                  sizeof(callBackStruct));
     if (status) {
         OSStatusErrorLocationLog("call AudioUnitSetProperty fail", status);
     }
@@ -170,20 +165,26 @@ renderCallback(void * inRefCon,
 }
 
 - (void)displayAVFrame:(AVFrame &)frame {
-   [_pipe.fileHandleForWriting writeData:[NSData dataWithBytes:frame.data[0] length:frame.linesize[0]]];
+    if (_isStarted) {
+        [_pipe.fileHandleForWriting writeData:[NSData dataWithBytes:frame.data[0] length:frame.linesize[0]]];
+    }
 }
 
 - (void)displayAPFrame:(APFrame &)frame {
-    [_pipe.fileHandleForWriting writeData:[NSData dataWithBytes:frame.audio->mData length:frame.audio->mDataByteSize]];
+    if (_isStarted) {
+        [_pipe.fileHandleForWriting writeData:[NSData dataWithBytes:frame.audio->mData length:frame.audio->mDataByteSize]];
+    }
 }
 
 - (void)dealloc {
-    if (remoteIOUnit) {
-        AudioOutputUnitStop(remoteIOUnit);
-        AudioUnitReset(remoteIOUnit, kAudioUnitScope_Global, 0);
-        AudioUnitUninitialize(remoteIOUnit);
-        AudioComponentInstanceDispose(remoteIOUnit);
-    }
+    _isStarted = false;
+    // 先关闭管道, 保证线程不会阻塞
+    [_pipe.fileHandleForWriting closeFile];
+    [_pipe.fileHandleForReading closeFile];
+    AudioOutputUnitStop(remoteIOUnit);
+    AudioUnitReset(remoteIOUnit, kAudioUnitScope_Global, 0);
+    AudioUnitUninitialize(remoteIOUnit);
+    AudioComponentInstanceDispose(remoteIOUnit);
 }
 
 @end

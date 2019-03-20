@@ -1,8 +1,8 @@
 //
 //  MSOpenGLES.hpp
-//  ios_example
+//  MediaStreamPlayer
 //
-//  Created by 胡校明 on 2019/3/12.
+//  Created by xiaoming on 2019/3/12.
 //  Copyright © 2019 freecoder. All rights reserved.
 //
 

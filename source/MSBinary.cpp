@@ -2,7 +2,7 @@
 //  MSBinary.cpp
 //  MediaStreamPlayer
 //
-//  Created by 胡校明 on 2018/12/28.
+//  Created by xiaoming on 2018/12/28.
 //  Copyright © 2018 freecoder. All rights reserved.
 //
 

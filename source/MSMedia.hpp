@@ -2,7 +2,7 @@
 //  MSMedia.hpp
 //  MediaStreamPlayer
 //
-//  Created by 胡校明 on 2018/11/30.
+//  Created by xiaoming on 2018/11/30.
 //  Copyright © 2018 freecoder. All rights reserved.
 //
 

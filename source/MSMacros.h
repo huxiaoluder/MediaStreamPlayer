@@ -1,8 +1,8 @@
 //
 //  MSMacros.h
-//  ios_example
+//  MediaStreamPlayer
 //
-//  Created by 胡校明 on 2019/1/16.
+//  Created by xiaoming on 2019/1/16.
 //  Copyright © 2019 freecoder. All rights reserved.
 //
 
@@ -22,9 +22,6 @@
 
 #if DEBUG
 
-#define OSStatus2Str(status) \
-char errStr[5] = {char(status >> 24), char(status >> 16), char(status >> 8), char(status) , 0x00}
-
 #define ErrorLocationLog(reason) \
 printf("\n"\
 "-----------------------------ERROR-----------------------------\n"\
@@ -33,6 +30,10 @@ printf("\n"\
 "| funcname:    %s\n"\
 "| reson:       %s\n"\
 "---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reason)
+
+// parse OSStatus meaning
+#define OSStatus2Str(status) \
+char errStr[5] = {char(status >> 24), char(status >> 16), char(status >> 8), char(status) , 0x00}
 
 #define OSStatusErrorLocationLog(reason,status) \
 OSStatus2Str(status); \

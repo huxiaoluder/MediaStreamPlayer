@@ -2,7 +2,7 @@
 //  APDecoder.cpp
 //  MediaStreamPlayer
 //
-//  Created by 胡校明 on 2018/12/26.
+//  Created by xiaoming on 2018/12/26.
 //  Copyright © 2018 freecoder. All rights reserved.
 //
 
@@ -17,7 +17,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
     APCodecContext * const decoderContext = getVideoDecoderContext(data);
     
     if (decoderContext) {
-        OSStatus status;
+        OSStatus status = noErr;
         
         assert(*(uint32_t *)data.naluData == 0x01000000);
         
