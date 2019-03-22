@@ -9,7 +9,6 @@
 #ifndef MSEncoder_hpp
 #define MSEncoder_hpp
 
-#include <map>
 #include <string>
 #include <mutex>
 #include "MSCodecSyncProtocol.h"
@@ -63,7 +62,7 @@ namespace MS {
                       const MSCodecID audioCodecID);
             ~FFEncoder();
             
-            bool configureEncoder(const string muxingfilePath,
+            bool configureEncoder(const string &muxingfilePath,
                                   const FFCodecContext * const videoDecoderContext,
                                   const FFCodecContext * const audioDecoderContext);
         };

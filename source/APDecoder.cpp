@@ -62,20 +62,22 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
         /*
          // 注: 时间信息附带参数(对解码器并没有影响), 这里因为自定义透传信息 APVideoAttachment 中附带了有效数据, 所以不用传输
          CMSampleTimingInfo sampleTimingArray[] = {{
-         .duration = {
-         .value = 1000000LL / videoParametersMap[this]->frameRate,
-         .timescale = 1000000,
-         .flags = kCMTimeFlags_Valid,
-         .epoch = 0,
-         },
-         .presentationTimeStamp = NULL,
-         .decodeTimeStamp = NULL
+            .duration = {
+                .value = 1000000LL / videoParametersMap[this]->frameRate,
+                .timescale = 1000000,
+                .flags = kCMTimeFlags_Valid,
+                .epoch = 0,
+            },
+            .presentationTimeStamp = NULL,
+            .decodeTimeStamp = NULL
          }};
          */
         
-        status = CMSampleBufferCreateReady(kCFAllocatorDefault,
-                                           blockBuffer,
-                                           decoderContext->getVideoFmtDescription(), // 必须传,否则回调报错,且会卡死解码函数(kVTVideoDecoderMalfunctionErr -12911, 文档并不准确)
+        // 报: kVTVideoDecoderMalfunctionErr -12911,
+        // API 中(CM_NULLABLE formatDescription)  并不准确. --------------------------------¬
+        status = CMSampleBufferCreateReady(kCFAllocatorDefault,                      //   ¦
+                                           blockBuffer,                              //   ↓
+                                           decoderContext->getVideoFmtDescription(), // 必须传(用于描述blockBuffer),否则回调报错,且会卡死解码函数
                                            sizeof(sampleSizeArray) / sizeof(size_t),
                                            0, // sizeof(sampleTimingArray) / sizeof(CMSampleTimingInfo),
                                            nullptr, // sampleTimingArray,
@@ -216,7 +218,7 @@ APDecoder::getVideoDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
             // 实时更新解码器配置(用新的 sps, pps)
             decoderContext->setVideoFmtDescription(naluParts);
         } else {
-            decoderContext = new APCodecContext(APCodecDecoder, codecID, naluParts, *this);
+            decoderContext = new APCodecContext(codecID, naluParts, *this);
             decoderContexts[codecID] = decoderContext;
         }
         // 解析 sps 基本信息(实时更新宽高帧率)
@@ -240,7 +242,7 @@ APDecoder::getAudioDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
         // 音频一般不会动态更改编码配置, 暂时以首次的 adts 数据为准
         auto audioParameters = audioParametersMap[this] = naluParts.parseAacAdts();
     
-        decoderContext = new APCodecContext(APCodecDecoder, codecID, *audioParameters, *this);
+        decoderContext = new APCodecContext(codecID, *audioParameters, *this);
         decoderContexts[codecID] = decoderContext;
         
     }

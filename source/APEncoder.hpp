@@ -9,6 +9,7 @@
 #ifndef APEncoder_hpp
 #define APEncoder_hpp
 
+#include <string>
 #include "MSCodecAsynProtocol.h"
 #include "APCodecContext.hpp"
 
@@ -19,7 +20,23 @@ namespace MS {
         typedef MSMedia<MSDecodeMedia,__CVBuffer>   APEncoderInputMedia;
 
         class APEncoder : public APEncoderProtocol {
-    
+            
+            typedef function<void(const uint8_t &decodeData)> ThrowEncodeData;
+            
+            bool _isEncoding = false;
+            
+            const MSCodecID videoCodecID;
+            const MSCodecID audioCodecID;
+            
+            APCodecContext *videoEncoderContext = nullptr;
+            APCodecContext *audioEncoderContext = nullptr;
+            
+            APCodecContext * configureVideoEncoderContext(const APCodecContext &videoDecoderContext);
+            APCodecContext * configureAudioEncoderContext(const APCodecContext &audioDecoderContext);
+            
+            const ThrowEncodeData throwEncodeVideo;
+            const ThrowEncodeData throwEncodeAudio;
+            
         public:
             void beginEncode();
             void encodeVideo(const APEncoderInputMedia &pixelData);
@@ -30,6 +47,9 @@ namespace MS {
             APEncoder(const MSCodecID videoCodecID,
                       const MSCodecID audioCodecID);
             ~APEncoder();
+            
+            bool configureEncoder(const APCodecContext * const videoDecoderContext,
+                                  const APCodecContext * const audioDecoderContext);
         };
         
     }

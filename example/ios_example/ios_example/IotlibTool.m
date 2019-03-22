@@ -547,32 +547,3 @@ void stopAll(){
 
 @end
 
-@implementation AlarmInfomations
-
-- (void)setTimeZone:(NSString *)timeZone {
-    if (timeZone.length > 0) {
-        _timeZone = timeZone;
-    } else {
-        _timeZone = @"";
-    }
-}
-
-- (void)setNtpServer1:(NSString *)ntpServer1 {
-    if (ntpServer1.length > 0) {
-        _ntpServer1 = ntpServer1;
-    } else {
-        _ntpServer1 = @"";
-    }
-}
-
-- (void)setNtpServer2:(NSString *)ntpServer2 {
-    if (ntpServer2.length > 0) {
-        _ntpServer2 = ntpServer2;
-    } else {
-        _ntpServer2 = @"";
-    }
-}
-
-
-
-@end

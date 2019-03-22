@@ -40,7 +40,10 @@ MSTimer::start() {
         });
         condition.notify_one();
         while (isRunning) {
+            time_t clock0 = std::clock();
             sleep_for(timeInterval);
+            time_t clock1 = std::clock();
+            printf("^^^^^^^^^^^^ %ld\n", clock1 - clock0);
             if (!isPausing) {
                 condition.notify_one();
             }

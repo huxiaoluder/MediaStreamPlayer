@@ -49,34 +49,41 @@ namespace MS {
             static APFrame * MSNonnull copyAudioFrame(const APFrame * MSNonnull const frame);
         };
         
-        typedef UInt32  APCodecID;
-        typedef bool    IsVideoCodec;
-        typedef tuple<APCodecID,IsVideoCodec>   APCodecInfo;
-        typedef MSAsynDecoderProtocol<APFrame>  APAsynDataProvider;
-
-        enum APCodecType {
-            APCodecDecoder,
-            APCodecEncoder,
-        };
+        typedef UInt32 APCodecID;
         
+        typedef MSAsynDecoderProtocol<APFrame>  APAsynDataProvider;
+        
+        
+        /*
+         用于封装 APPLE 音视频解码器, 因为 APPLE 的密封性, 这里不对编码器进行封装
+         APEncoder 中自行对 APPLE 编码器进行初始化和封装
+         */
         struct APCodecContext {
-            const APCodecType codecType;
-            const MSCodecID codecID;
+            
+            const MSCodecID     codecID;
+            
             const APAsynDataProvider &asynDataProvider;
+            
         private:
             CMVideoFormatDescriptionRef MSNullable videoFmtDescription;
-        public:
-            AudioConverterRef           const MSNullable audioConverter;
-            VTDecompressionSessionRef   const MSNullable videoDecodeSession;
-            VTCompressionSessionRef     const MSNullable videoEncodeSession;
             
-            APCodecContext(const APCodecType codecType,
-                           const MSCodecID codecID,
+        public:
+            union {            
+                AudioConverterRef           const MSNonnull audioConverter;
+                VTDecompressionSessionRef   const MSNonnull videoDecodeSession;
+            };
+            
+            /*
+             音频解码环境构造器
+             */
+            APCodecContext(const MSCodecID codecID,
                            const MSAudioParameters &audioParameters,
                            const APAsynDataProvider &asynDataProvider);
             
-            APCodecContext(const APCodecType codecType,
-                           const MSCodecID codecID,
+            /*
+             视频解码环境构造器
+             */
+            APCodecContext(const MSCodecID codecID,
                            const MSNaluParts &naluParts,
                            const APAsynDataProvider &asynDataProvider);
             
@@ -86,7 +93,7 @@ namespace MS {
             
             CMVideoFormatDescriptionRef MSNullable getVideoFmtDescription() const;
             
-            static APCodecInfo getAPCodecInfo(const MSCodecID codecID);
+            static APCodecID getAPCodecInfo(const MSCodecID codecID);
         private:
             // Note: don't allow copy with (APCodecContext &)obj
             APCodecContext(const APCodecContext &codecContext);

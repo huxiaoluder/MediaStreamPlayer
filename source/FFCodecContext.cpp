@@ -52,6 +52,7 @@ AVCodecContext *
 FFCodecContext::initCodecContext() {
     AVCodecContext *codec_ctx = avcodec_alloc_context3(codec);
     
+    // 这里只打开解码器, 编码器需要额外配置编码参数, 交给 FFEncoder 处理
     if (codecType == FFCodecDecoder) {
         int ret = avcodec_open2(codec_ctx, codec, nullptr);
         

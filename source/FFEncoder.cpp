@@ -77,7 +77,9 @@ FFEncoder::endEncode() {
     avio_flush(outputFormatContext->pb);
     
     int ret = av_write_trailer(outputFormatContext);
+    
     fileWriteMutex.unlock();
+    
     if (ret < 0) {
         ErrorLocationLog(av_err2str(ret));
     }
@@ -97,7 +99,7 @@ FFEncoder::~FFEncoder() {
 }
 
 bool
-FFEncoder::configureEncoder(const string muxingfilePath,
+FFEncoder::configureEncoder(const string &muxingfilePath,
                             const FFCodecContext * const videoDecoderContext,
                             const FFCodecContext * const audioDecoderContext) {
     filePath = muxingfilePath;

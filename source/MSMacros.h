@@ -44,7 +44,7 @@ printf("\n"\
 "| funcname:    %s\n"\
 "| reson:       %s\n"\
 "| status:      %d --> %s\n"\
-"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reason,status,errStr)
+"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reason,(int)status,errStr)
 
 #else
 

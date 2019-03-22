@@ -25,7 +25,7 @@ extern "C" {
 namespace MS {
     namespace FFmpeg {
         
-        void av_frame_free(AVFrame * const frame);
+        void av_frame_free(AVFrame * MSNonnull const frame);
         
         enum FFCodecType {
             FFCodecDecoder,
@@ -37,9 +37,9 @@ namespace MS {
             
             const MSCodecID codecID;
             
-            AVCodec * const codec;
+            AVCodec * MSNonnull const codec;
             
-            AVCodecContext * const codec_ctx;
+            AVCodecContext * MSNonnull const codec_ctx;
             
             /**
              * if codecType == FFCodecEncoder
@@ -55,9 +55,9 @@ namespace MS {
             // Note: don't allow copy with (FFCodecContext &)obj
             FFCodecContext(const FFCodecContext &codecContext);
             
-            AVCodec         * initCodec();
-            AVCodecContext  * initCodecContext();
-            AVFormatContext * initFormatContex();
+            AVCodec         * MSNonnull initCodec();
+            AVCodecContext  * MSNonnull initCodecContext();
+            AVFormatContext * MSNonnull initFormatContex();
         };
         
     }

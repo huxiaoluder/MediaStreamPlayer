@@ -9,6 +9,7 @@
 #import "MSViewController.h"
 #import <iostream>
 #import <MediaStreamPlayer.h>
+#import <time.h>
 
 #import "IotlibTool.h"
 
@@ -18,7 +19,7 @@ using namespace MS::FFmpeg;
 using namespace MS::APhard;
 
 
-#define condition 1
+#define condition 0
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
@@ -78,7 +79,7 @@ static int i;
                                    });
 #else
     auto decoder = new APDecoder();
-    //    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
+//    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
     player = new MSPlayer<APFrame>(decoder,nullptr,
                                    [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
                                        if (data.frame) {
@@ -192,6 +193,7 @@ static int i;
 
 
 - (IBAction)encodeMedia:(UIButton *)sender {
+#if condition
     FFEncoder &encoder = (FFEncoder &)player->syncEncoder();
     FFDecoder &decoder = (FFDecoder &)player->syncDecoder();
     if (encoder.isEncoding()) {
@@ -205,6 +207,7 @@ static int i;
             player->startReEncode();
         }
     }
+#endif
 }
 
 

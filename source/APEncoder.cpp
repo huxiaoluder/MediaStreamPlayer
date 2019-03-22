@@ -37,7 +37,8 @@ APEncoder::isEncoding() {
 }
 
 APEncoder::APEncoder(const MSCodecID videoCodecID,
-          const MSCodecID audioCodecID) {
+                     const MSCodecID audioCodecID)
+:videoCodecID(videoCodecID), audioCodecID(audioCodecID) {
     
 }
 
