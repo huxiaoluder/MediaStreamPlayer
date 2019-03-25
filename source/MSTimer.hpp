@@ -40,6 +40,8 @@ namespace MS {
         
         microseconds timeInterval;
         
+        microseconds deviation;
+        
         TaskType task;
     public:
         MSTimer(const microseconds delayTime,

@@ -7,6 +7,7 @@
 //
 
 #include "MSTimer.hpp"
+#include <sys/time.h>
 
 using namespace MS;
 
@@ -39,11 +40,28 @@ MSTimer::start() {
             }
         });
         condition.notify_one();
+        int *var = new int[1024];
+        int i = 0;
+        timeval time0;
+        timeval time1;
         while (isRunning) {
-            time_t clock0 = std::clock();
+            gettimeofday(&time0, nullptr);
             sleep_for(timeInterval);
-            time_t clock1 = std::clock();
-            printf("^^^^^^^^^^^^ %ld\n", clock1 - clock0);
+            gettimeofday(&time1, nullptr);
+//            printf("-------- %d\n", time1.tv_usec - time0.tv_usec);
+            var[i++] = time1.tv_usec - time0.tv_usec;
+            if (i == 256) {
+                long long num = 0;
+                long long sum = 0;
+                for (int i = 0; i < 256; i++) {
+                    if (var[i] > 40000) {
+                        num++;
+                        sum += var[i];
+                    }
+                }
+                printf(".................. %lld\n", sum / num);
+                i = 0;
+            }
             if (!isPausing) {
                 condition.notify_one();
             }

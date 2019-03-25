@@ -261,12 +261,10 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
         const APAsynDataProvider &dataProvider = *(APAsynDataProvider *)decompressionOutputRefCon;
         const APVideoAttachment  &attachment = *(APVideoAttachment *)sourceFrameRefCon;
         
-        microseconds timeInterval(1000000LL / attachment.videoParameters->frameRate);
-        
         APFrame *frame = new APFrame(CVPixelBufferRetain(imageBuffer), *attachment.videoParameters);
         
         dataProvider.launchVideoFrameData(new APDecoderOutputMeida(frame,
-                                                                   timeInterval,
+                                                                   intervale(attachment.videoParameters->frameRate),
                                                                    attachment.videoSource,
                                                                    APFrame::freeVideoFrame,
                                                                    APFrame::copyVideoFrame));

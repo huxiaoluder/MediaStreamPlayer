@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F0539D621E5F4D300D0AAD0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC47219BF07F00B4B76E /* main.cpp */; };
+		4F0539D621E5F4D300D0AAD0 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CC47219BF07F00B4B76E /* main.mm */; };
 		4F0539D821E5F55D00D0AAD0 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0539D721E5F55D00D0AAD0 /* VideoToolbox.framework */; };
+		4F225AE42248A336008F1C9B /* MSTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F225AE22248A336008F1C9B /* MSTimer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,9 +27,11 @@
 
 /* Begin PBXFileReference section */
 		4F0539D721E5F55D00D0AAD0 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
+		4F225AE22248A336008F1C9B /* MSTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MSTimer.cpp; path = ../../../source/MSTimer.cpp; sourceTree = "<group>"; };
+		4F225AE32248A336008F1C9B /* MSTimer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = MSTimer.hpp; path = ../../../source/MSTimer.hpp; sourceTree = "<group>"; };
 		4F5F6F9F219D47B300FF46D8 /* libdispatch.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libdispatch.tbd; path = usr/lib/system/introspection/libdispatch.tbd; sourceTree = SDKROOT; };
 		4F61CC44219BF07F00B4B76E /* MediaStreamPlayer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MediaStreamPlayer; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F61CC47219BF07F00B4B76E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4F61CC47219BF07F00B4B76E /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		4F61CC60219C16DB00B4B76E /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		4F654E7421A643D600F74803 /* test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test.cpp; sourceTree = "<group>"; };
 		4F8C6EBD21AE8B2000E3443C /* libavresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavresample.a; path = ../../../../../../usr/local/Cellar/ffmpeg/4.0.2_1/lib/libavresample.a; sourceTree = "<group>"; };
@@ -74,7 +77,9 @@
 		4F61CC46219BF07F00B4B76E /* MediaStreamPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				4F61CC47219BF07F00B4B76E /* main.cpp */,
+				4F225AE22248A336008F1C9B /* MSTimer.cpp */,
+				4F225AE32248A336008F1C9B /* MSTimer.hpp */,
+				4F61CC47219BF07F00B4B76E /* main.mm */,
 				4F654E7421A643D600F74803 /* test.cpp */,
 			);
 			path = MediaStreamPlayer;
@@ -155,7 +160,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F0539D621E5F4D300D0AAD0 /* main.cpp in Sources */,
+				4F0539D621E5F4D300D0AAD0 /* main.mm in Sources */,
+				4F225AE42248A336008F1C9B /* MSTimer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
