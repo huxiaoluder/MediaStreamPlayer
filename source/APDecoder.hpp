@@ -60,6 +60,21 @@ namespace MS {
             
             APCodecContext * MSNullable getAudioDecoderContext(const MSMedia<MSEncodeMedia> &sourceData);
             
+            
+            static void decompressionOutputCallback(void * MSNullable decompressionOutputRefCon,
+                                                    void * MSNullable sourceFrameRefCon,
+                                                    OSStatus status,
+                                                    VTDecodeInfoFlags infoFlags,
+                                                    CVImageBufferRef MSNullable imageBuffer,
+                                                    CMTime presentationTimeStamp,
+                                                    CMTime presentationDuration);
+            
+            static OSStatus decompressionConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                                            UInt32 * MSNonnull ioNumberDataPackets,
+                                                            AudioBufferList * MSNonnull ioData,
+                                                            AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                                            void * MSNullable inUserData);
+            
         public:
             void decodeVideo(const MSMedia<MSEncodeMedia> * MSNonnull const videoData);
             void decodeAudio(const MSMedia<MSEncodeMedia> * MSNonnull const audioData);
@@ -71,19 +86,8 @@ namespace MS {
             APDecoder(const VTDecodeFrameFlags decodeFlags = NULL);
             ~APDecoder();
             
-            static void decompressionOutputCallback(void * MSNullable decompressionOutputRefCon,
-                                                    void * MSNullable sourceFrameRefCon,
-                                                    OSStatus status,
-                                                    VTDecodeInfoFlags infoFlags,
-                                                    CVImageBufferRef MSNullable imageBuffer,
-                                                    CMTime presentationTimeStamp,
-                                                    CMTime presentationDuration);
-            
-            static OSStatus audioConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
-                                                    UInt32 * MSNonnull ioNumberDataPackets,
-                                                    AudioBufferList * MSNonnull ioData,
-                                                    AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
-                                                    void * MSNullable inUserData);
+            const MSVideoParameters * MSNullable getCurrentVideoParameters();
+            const MSAudioParameters * MSNullable getCurrentAudioParameters();
         };
         
     }

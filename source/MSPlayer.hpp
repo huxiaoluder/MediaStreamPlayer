@@ -149,7 +149,7 @@ namespace MS {
     
 #pragma mark - MSPlayer<T>(implementation)
     template <typename T>
-    MSPlayer<T>::MSPlayer(MSSyncDecoderProtocol<T> * const MSNonnull decoder,
+    MSPlayer<T>::MSPlayer(MSSyncDecoderProtocol<T> * const MSNonnull  decoder,
                           MSSyncEncoderProtocol<T> * const MSNullable encoder,
                           const ThrowDecodeData throwDecodeVideo,
                           const ThrowDecodeData throwDecodeAudio)
@@ -164,7 +164,7 @@ namespace MS {
     }
     
     template <typename T>
-    MSPlayer<T>::MSPlayer(MSAsynDecoderProtocol<T> * const MSNonnull decoder,
+    MSPlayer<T>::MSPlayer(MSAsynDecoderProtocol<T> * const MSNonnull  decoder,
                           MSAsynEncoderProtocol<T> * const MSNullable encoder,
                           const ThrowDecodeData throwDecodeVideo,
                           const ThrowDecodeData throwDecodeAudio)

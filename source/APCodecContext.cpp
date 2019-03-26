@@ -55,7 +55,7 @@ APCodecContext::APCodecContext(const MSCodecID codecID,
                                const APAsynDataProvider &asynDataProvider)
 :codecID(codecID),
 asynDataProvider(asynDataProvider),
-audioConverter(initAudioConvert(audioParameters)) {
+audioDecoderConvert(initAudioConvert(audioParameters)) {
     
 }
 
@@ -65,16 +65,16 @@ APCodecContext::APCodecContext(const MSCodecID codecID,
 :codecID(codecID),
 asynDataProvider(asynDataProvider),
 videoFmtDescription(initVideoFmtDescription(naluParts)),
-videoDecodeSession(initVideoDecodeSession()) {
+videoDecoderSession(initVideoDecoderSession()) {
     
 }
 
 APCodecContext::~APCodecContext() {
-    if (videoDecodeSession) {
-        VTDecompressionSessionInvalidate(videoDecodeSession);
+    if (videoDecoderSession) {
+        VTDecompressionSessionInvalidate(videoDecoderSession);
     }
-    if (audioConverter) {
-        AudioConverterDispose(audioConverter);
+    if (audioDecoderConvert) {
+        AudioConverterDispose(audioDecoderConvert);
     }
     if (videoFmtDescription) {
         CFRelease(videoFmtDescription);
@@ -193,32 +193,8 @@ APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
     return audioConverter;
 }
 
-VTCompressionSessionRef
-APCodecContext::initVideoEncodeSession() {
-
-    OSStatus status = noErr;
-    
-    VTCompressionSessionRef videoEncoderSession;
-    
-    status = VTCompressionSessionCreate(kCFAllocatorDefault,
-                                        1920,
-                                        1080,
-                                        kCMVideoCodecType_H264,
-                                        nullptr,
-                                        nullptr,
-                                        kCFAllocatorDefault,
-                                        nullptr,
-                                        nullptr,
-                                        &videoEncoderSession);
-    if (status) {
-        OSStatusErrorLocationLog("fail to instance VTDecompressionSessionRef",status);
-    }
-    
-    return videoEncoderSession;
-}
-
 VTDecompressionSessionRef
-APCodecContext::initVideoDecodeSession() {
+APCodecContext::initVideoDecoderSession() {
     
     VTDecompressionSessionRef videoDecoderSession = nullptr;
     
@@ -238,7 +214,8 @@ APCodecContext::initVideoDecodeSession() {
     const void * values[] = { (void *)pixFmtType };
     
     CFDictionaryRef dstBufferAttr = CFDictionaryCreate(kCFAllocatorDefault,
-                                                       keys, values,
+                                                       keys,
+                                                       values,
                                                        sizeof(keys)/sizeof(void *),
                                                        &kCFTypeDictionaryKeyCallBacks,
                                                        &kCFTypeDictionaryValueCallBacks);
@@ -266,7 +243,7 @@ APCodecContext::setVideoFmtDescription(const MSNaluParts &naluParts) {
     }
     videoFmtDescription = initVideoFmtDescription(naluParts);
     
-    bool ret = VTDecompressionSessionCanAcceptFormatDescription(videoDecodeSession, videoFmtDescription);
+    bool ret = VTDecompressionSessionCanAcceptFormatDescription(videoDecoderSession, videoFmtDescription);
     if (!ret) {
         ErrorLocationLog("call VTDecompressionSessionCanAcceptFormatDescription fail");
     }

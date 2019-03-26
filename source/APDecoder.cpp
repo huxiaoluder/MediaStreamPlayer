@@ -95,7 +95,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
         videoAttachment.videoParameters = videoParametersMap[this];
         
         // VTDecodeInfoFlags infoFlagsOut = NULL;
-        status = VTDecompressionSessionDecodeFrame(decoderContext->videoDecodeSession,
+        status = VTDecompressionSessionDecodeFrame(decoderContext->videoDecoderSession,
                                                    sampleBuffer,
                                                    decodeFlags, // 传入 NULL 则该函数会阻塞到回调函数返回后才返回.
                                                    &videoAttachment, // 附带参数, 会透传到回调函数
@@ -138,8 +138,8 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         };
 //        static AudioStreamPacketDescription outAspDesc[1024];
         
-        status = AudioConverterFillComplexBuffer(decoderContext->audioConverter,
-                                                 audioConverterInputProc,
+        status = AudioConverterFillComplexBuffer(decoderContext->audioDecoderConvert,
+                                                 decompressionConverterInputProc,
                                                  (void *)&naluParts,
                                                  &outPacktNumber,
                                                  &outBufferList,
@@ -190,6 +190,16 @@ APDecoder::~APDecoder() {
     }
 }
 
+const MSVideoParameters *
+APDecoder::getCurrentVideoParameters() {
+    return videoParametersMap[this];
+}
+
+const MSAudioParameters *
+APDecoder::getCurrentAudioParameters() {
+    return audioParametersMap[this];
+}
+
 CMBlockBufferFlags
 APDecoder::initBufferFlags() {
     if (decodeFlags) {
@@ -227,7 +237,6 @@ APDecoder::getVideoDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
         } else {
             videoParametersMap[this] = naluParts.parseH265Sps();
         }
-        
     }
     return decoderContext;
 }
@@ -275,11 +284,11 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
 };
 
 OSStatus
-APDecoder::audioConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
-                                   UInt32 * MSNonnull ioNumberDataPackets,
-                                   AudioBufferList * MSNonnull ioData,
-                                   AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
-                                   void * MSNullable inUserData) {
+APDecoder::decompressionConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                           UInt32 * MSNonnull ioNumberDataPackets,
+                                           AudioBufferList * MSNonnull ioData,
+                                           AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                           void * MSNullable inUserData) {
     const MSNaluParts &naluParts = *(MSNaluParts *)inUserData;
     ioData->mNumberBuffers = 1;
     ioData->mBuffers->mData = (void *)naluParts.dataRef();

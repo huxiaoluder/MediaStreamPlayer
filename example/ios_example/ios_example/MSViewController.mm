@@ -79,8 +79,8 @@ static int i;
                                    });
 #else
     auto decoder = new APDecoder();
-//    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
-    player = new MSPlayer<APFrame>(decoder,nullptr,
+    auto encoder = new APEncoder(MSCodecID_H264,MSCodecID_AAC);
+    player = new MSPlayer<APFrame>(decoder,encoder,
                                    [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
                                        if (data.frame) {
                                            [[weakSelf videoRender] displayAPFrame:*data.frame];
@@ -207,6 +207,22 @@ static int i;
             player->startReEncode();
         }
     }
+#else
+    
+    APEncoder &encoder = (APEncoder &)player->asynEncoder();
+    APDecoder &decoder = (APDecoder &)player->asynEncoder();
+    if (encoder.isEncoding()) {
+        player->stopReEncode();
+    } else {
+        NSString *videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"test.mp4"]];
+        bool ret = encoder.configureEncoder(videoPath.UTF8String,
+                                            decoder.getCurrentVideoParameters(),
+                                            decoder.getCurrentAudioParameters());
+        if (ret) {
+            player->startReEncode();
+        }
+    }
+    
 #endif
 }
 

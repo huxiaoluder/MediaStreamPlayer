@@ -53,7 +53,6 @@ namespace MS {
         
         typedef MSAsynDecoderProtocol<APFrame>  APAsynDataProvider;
         
-        
         /*
          用于封装 APPLE 音视频解码器, 因为 APPLE 的密封性, 这里不对编码器进行封装
          APEncoder 中自行对 APPLE 编码器进行初始化和封装
@@ -69,8 +68,8 @@ namespace MS {
             
         public:
             union {            
-                AudioConverterRef           const MSNonnull audioConverter;
-                VTDecompressionSessionRef   const MSNonnull videoDecodeSession;
+                AudioConverterRef         const MSNonnull audioDecoderConvert;
+                VTDecompressionSessionRef const MSNonnull videoDecoderSession;
             };
             
             /*
@@ -100,8 +99,7 @@ namespace MS {
             
             CMVideoFormatDescriptionRef MSNullable  initVideoFmtDescription(const MSNaluParts &naluParts);
             AudioConverterRef           MSNullable  initAudioConvert(const MSAudioParameters &audioParameters);
-            VTCompressionSessionRef     MSNullable  initVideoEncodeSession();
-            VTDecompressionSessionRef   MSNullable  initVideoDecodeSession();
+            VTDecompressionSessionRef   MSNullable  initVideoDecoderSession();
         };
 
     }
