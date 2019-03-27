@@ -79,7 +79,7 @@ FFDecoder::decodeData(const MSMedia<MSEncodeMedia> * const mediaData) {
     microseconds timeInterval;
     
     if (data.codecID <= MSCodecID_HEVC) {
-        rate = ((long long)codec_ctx->framerate.num << 16) / codec_ctx->framerate.den;
+        rate = (long long)codec_ctx->framerate.num / codec_ctx->framerate.den;
         timeInterval = intervale(rate);
     } else {
         rate = ((long long)codec_ctx->sample_rate << 16) / frame->nb_samples;

@@ -192,6 +192,7 @@
 #pragma mark - GLKViewDelegate
 /*
  GLKView --call--> display 时, 会调用该函数然后刷新 OpenGL 缓冲区来刷新屏幕, 本身支持多线程刷新 UI.
+ 实质: 内部自动生成了 帧缓冲区 和 渲染缓冲区, 并渲染到屏幕表面(iOS 必须要使用渲染缓冲区, 使用 Layer 需手动构建)
  @Note: 系统的 GLKViewController 作为 GLKView 的 delegate, 该代理函数为 VC 内部调用(频率为屏幕的刷新频率),
         可以不重写该函数, 刷新缓冲区(call display)在外部手动进行, 但必须在主线程调用, 否则不生效,
         因为 GLKViewController 内部实现限制了子线程访问 EAGLContext 和刷新 UI.

@@ -210,7 +210,7 @@ static int i;
 #else
     
     APEncoder &encoder = (APEncoder &)player->asynEncoder();
-    APDecoder &decoder = (APDecoder &)player->asynEncoder();
+    APDecoder &decoder = (APDecoder &)player->asynDecoder();
     if (encoder.isEncoding()) {
         player->stopReEncode();
     } else {

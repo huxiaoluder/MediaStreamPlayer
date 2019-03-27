@@ -95,6 +95,8 @@ FFEncoder::FFEncoder(const MSCodecID videoCodecID,
 FFEncoder::~FFEncoder() {
     if (_isEncoding) {    
         endEncode();
+    } else {
+        releaseEncoderConfiguration();
     }
 }
 
@@ -162,11 +164,11 @@ FFEncoder::configureVideoEncoderContext(const FFCodecContext &videoDecoderContex
     encoderContext.pix_fmt      = decoderContext.pix_fmt;
     encoderContext.width        = decoderContext.width;
     encoderContext.height       = decoderContext.height;
-    encoderContext.gop_size     = decoderContext.gop_size;
     encoderContext.qmin         = decoderContext.qmin;
     encoderContext.qmax         = decoderContext.qmax;
-    encoderContext.bit_rate     = decoderContext.bit_rate;
-    encoderContext.max_b_frames = decoderContext.max_b_frames;
+    encoderContext.bit_rate     = decoderContext.width * decoderContext.height * 3 * 2;
+    encoderContext.gop_size     = 100;
+    encoderContext.max_b_frames = 0;
     encoderContext.time_base    = av_inv_q(decoderContext.framerate);
     encoderContext.sample_aspect_ratio = decoderContext.sample_aspect_ratio;
     if (outputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {

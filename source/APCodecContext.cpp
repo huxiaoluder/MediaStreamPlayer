@@ -124,7 +124,7 @@ APCodecContext::initVideoFmtDescription(const MSNaluParts &naluParts) {
 AudioConverterRef
 APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
 
-    AudioFormatID audioFormatID = getAPCodecInfo(codecID);
+    AudioFormatID audioFormatID = getAPCodecId(codecID);
     
     AudioConverterRef audioConverter = nullptr;
     
@@ -255,7 +255,7 @@ APCodecContext::getVideoFmtDescription() const {
 }
 
 APCodecID
-APCodecContext::getAPCodecInfo(const MSCodecID codecID) {
+APCodecContext::getAPCodecId(const MSCodecID codecID) {
     APCodecID codec_id;
     switch (codecID) {
         case MSCodecID_H264:    codec_id = kCMVideoCodecType_H264;  break;

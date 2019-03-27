@@ -9,7 +9,6 @@
 #import "ViewController.h"
 #import "IotlibTool.h"
 #include <math.h>
-#include <APVideoRender.h>
 
 @interface ViewController ()
 

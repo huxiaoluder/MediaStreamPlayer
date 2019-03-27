@@ -92,7 +92,7 @@ namespace MS {
             
             CMVideoFormatDescriptionRef MSNullable getVideoFmtDescription() const;
             
-            static APCodecID getAPCodecInfo(const MSCodecID codecID);
+            static APCodecID getAPCodecId(const MSCodecID codecID);
         private:
             // Note: don't allow copy with (APCodecContext &)obj
             APCodecContext(const APCodecContext &codecContext);

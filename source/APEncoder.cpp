@@ -13,7 +13,10 @@ using namespace MS::APhard;
 
 void
 APEncoder::beginEncode() {
-    
+    if (videoEncoderSession) {
+        VTCompressionSessionPrepareToEncodeFrames(videoEncoderSession);
+    }
+    _isEncoding = true;
 }
 
 void
@@ -28,12 +31,13 @@ APEncoder::encodeAudio(const APEncoderInputMedia &sampleData) {
 
 void
 APEncoder::endEncode() {
-    
+    _isEncoding = false;
+    releaseEncoderConfiguration();
 }
 
 bool
 APEncoder::isEncoding() {
-    return false;
+    return _isEncoding;
 }
 
 APEncoder::APEncoder(const MSCodecID videoCodecID,
@@ -52,11 +56,44 @@ APEncoder::configureEncoder(const string &muxingfilePath,
                             const MSAudioParameters * MSNullable const audioParameters) {
     filePath = muxingfilePath;
     
-    videoEncoderSession = configureVideoEncoderSession(*videoParameters);
+    outputFormatContext = configureOutputFormatContext();
+    if (!outputFormatContext) {
+        releaseEncoderConfiguration();
+        return false;
+    }
     
-    audioEncoderConvert = configureAudioEncoderConvert(*audioParameters);
+    if (videoParameters) {
+        videoEncoderSession = configureVideoEncoderSession(*videoParameters);
+        if (!videoEncoderSession) {
+            releaseEncoderConfiguration();
+            return false;
+        }
+    }
+    
+    if (audioParameters) {
+        audioEncoderConvert = configureAudioEncoderConvert(*audioParameters);
+        if (!audioParameters) {
+            releaseEncoderConfiguration();
+            return false;
+        }
+    }
     
     return true;
+}
+
+AVFormatContext *
+APEncoder::configureOutputFormatContext() {
+    AVFormatContext *outputFormatContext = nullptr;
+    int ret = avformat_alloc_output_context2(&outputFormatContext, nullptr, nullptr, filePath.c_str());
+    if (ret < 0) {
+        ErrorLocationLog(av_err2str(ret));
+        return nullptr;
+    }
+    
+    outputFormatContext->oformat->video_codec = FFmpeg::FFCodecContext::getAVCodecId(videoCodecID);
+    outputFormatContext->oformat->audio_codec = FFmpeg::FFCodecContext::getAVCodecId(audioCodecID);
+    
+    return outputFormatContext;
 }
 
 VTCompressionSessionRef
@@ -96,14 +133,15 @@ APEncoder::configureVideoEncoderSession(const MSVideoParameters &videoParameters
     CFNumberRef fpsRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &framerate);
     VTSessionSetProperty(videoEncoderSession, kVTCompressionPropertyKey_ExpectedFrameRate, fpsRef);
     
-    // 码率最大值，单位: bits per second
-    int bitRateLimit = videoParameters.width * videoParameters.height * 3 * 4;
+    // 恒定码率编码 CBR
+    // 码率最大值，单位: bytes per second
+    int bitRateLimit = videoParameters.width * videoParameters.height * 3 * 2;
     CFNumberRef bitRateLimitRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &bitRateLimit);
     VTSessionSetProperty(videoEncoderSession, kVTCompressionPropertyKey_DataRateLimits, bitRateLimitRef);
     
-    // 码率平均值，单位: bytes per second
-    int bitRate = bitRateLimit * 8;
-    CFNumberRef bitRateRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &bitRate);
+    // 码率平均值，单位: bits per second
+    int bitRateAvera = bitRateLimit * 8;
+    CFNumberRef bitRateRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &bitRateAvera);
     VTSessionSetProperty(videoEncoderSession, kVTCompressionPropertyKey_AverageBitRate, bitRateRef);
     
     return videoEncoderSession;
@@ -113,6 +151,22 @@ AudioConverterRef
 APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters) {
     AudioConverterRef audioEncoderConvert = nullptr;
     return audioEncoderConvert;
+}
+
+void
+APEncoder::releaseEncoderConfiguration() {
+    if (videoEncoderSession) {
+        VTCompressionSessionInvalidate(videoEncoderSession);
+        videoEncoderSession = nullptr;
+    }
+    if (audioEncoderConvert) {
+        AudioConverterDispose(audioEncoderConvert);
+        audioEncoderConvert = nullptr;
+    }
+    if (outputFormatContext) {
+        avformat_free_context(outputFormatContext);
+        outputFormatContext = nullptr;
+    }
 }
 
 void

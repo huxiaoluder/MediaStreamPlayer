@@ -12,6 +12,7 @@
 #include <string>
 #include "MSCodecAsynProtocol.h"
 #include "APCodecContext.hpp"
+#include "FFCodecContext.hpp"
 
 namespace MS {
     namespace APhard {
@@ -30,11 +31,15 @@ namespace MS {
             const MSCodecID videoCodecID;
             const MSCodecID audioCodecID;
             
+            AVFormatContext       * MSNullable outputFormatContext = nullptr;
             VTCompressionSessionRef MSNullable videoEncoderSession = nullptr;
             AudioConverterRef       MSNullable audioEncoderConvert = nullptr;
             
+            AVFormatContext      *  MSNullable configureOutputFormatContext();
             VTCompressionSessionRef MSNullable configureVideoEncoderSession(const MSVideoParameters &videoParameters);
             AudioConverterRef       MSNullable configureAudioEncoderConvert(const MSAudioParameters &audioParameters);
+            
+            void releaseEncoderConfiguration();
             
             const ThrowEncodeData throwEncodeVideo;
             const ThrowEncodeData throwEncodeAudio;
