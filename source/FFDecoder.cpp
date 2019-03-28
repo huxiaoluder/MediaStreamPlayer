@@ -49,10 +49,7 @@ FFDecoder::decodeData(const MSMedia<MSEncodeMedia> * const mediaData) {
     const FFCodecContext &decoderContext = getDecoderContext(data.codecID);
     AVCodecContext *codec_ctx = decoderContext.codec_ctx;
     
-    AVPacket packet{
-        .data = nullptr,
-        .size = 0
-    };
+    AVPacket packet;
     av_init_packet(&packet);
     
     packet.data = data.naluData;

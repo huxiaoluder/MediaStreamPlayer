@@ -62,13 +62,13 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
         /*
          // 注: 时间信息附带参数(对解码器并没有影响), 这里因为自定义透传信息 APVideoAttachment 中附带了有效数据, 所以不用传输
          CMSampleTimingInfo sampleTimingArray[] = {{
-            .duration = {
-                .value = 1000000LL / videoParametersMap[this]->frameRate,
-                .timescale = 1000000,
+            .presentationTimeStamp = {
+                .value = 1,
+                .timescale = videoParametersMap[this]->frameRate,
                 .flags = kCMTimeFlags_Valid,
                 .epoch = 0,
             },
-            .presentationTimeStamp = NULL,
+            .duration = NULL,
             .decodeTimeStamp = NULL
          }};
          */
@@ -84,7 +84,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
                                            sizeof(sampleSizeArray) / sizeof(size_t),
                                            sampleSizeArray,
                                            &sampleBuffer);
-        if (status != noErr) {
+        if (status) {
             OSStatusErrorLocationLog("call CMSampleBufferCreateReady fail",status);
             CFRelease(blockBuffer);
             delete videoData;
@@ -269,7 +269,7 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
     if (status == noErr && imageBuffer) {
         const APAsynDataProvider &dataProvider = *(APAsynDataProvider *)decompressionOutputRefCon;
         const APVideoAttachment  &attachment = *(APVideoAttachment *)sourceFrameRefCon;
-        
+
         APFrame *frame = new APFrame(CVPixelBufferRetain(imageBuffer), *attachment.videoParameters);
         
         dataProvider.launchVideoFrameData(new APDecoderOutputMeida(frame,

@@ -15,8 +15,8 @@
 #include "MSMacros.h"
 #include "MSTimer.hpp"
 #include "MSAsynDataReceiver.h"
-#include "MSCodecSyncProtocol.h"
-#include "MSCodecAsynProtocol.h"
+#include "MSDecoderProtocol.h"
+#include "MSEncoderProtocol.h"
 
 namespace MS {
     
@@ -29,13 +29,11 @@ namespace MS {
     class MSPlayer : public MSAsynDataReceiver<T> {
         typedef function<void(const MSMedia<MSDecodeMedia,T> &decodeData)> ThrowDecodeData;
         
-        MSSyncDecoderProtocol<T> * MSNullable  _syncDecoder = nullptr;
+        MSSyncDecoderProtocol<T> * MSNullable const _syncDecoder;
         
-        MSSyncEncoderProtocol<T> * MSNullable  _syncEncoder = nullptr;
+        MSAsynDecoderProtocol<T> * MSNullable const _asynDecoder;
         
-        MSAsynDecoderProtocol<T> * MSNullable  _asynDecoder = nullptr;
-        
-        MSAsynEncoderProtocol<T> * MSNullable  _asynEncoder = nullptr;
+        MSEncoderProtocol<T> * MSNullable const _reEncoder;
         
         MSTimer * MSNonnull const videoTimer;
         
@@ -94,12 +92,12 @@ namespace MS {
         
     public:
         MSPlayer(MSSyncDecoderProtocol<T> * MSNonnull const decoder,
-                 MSSyncEncoderProtocol<T> * MSNullable const encoder,
+                 MSEncoderProtocol<T> * MSNullable const encoder,
                  const ThrowDecodeData throwDecodeVideo,
                  const ThrowDecodeData throwDecodeAudio);
         
         MSPlayer(MSAsynDecoderProtocol<T> * MSNonnull const decoder,
-                 MSAsynEncoderProtocol<T> * MSNullable const encoder,
+                 MSEncoderProtocol<T> * MSNullable const encoder,
                  const ThrowDecodeData throwDecodeVideo,
                  const ThrowDecodeData throwDecodeAudio);
         
@@ -107,11 +105,9 @@ namespace MS {
         
         MSSyncDecoderProtocol<T> & syncDecoder();
         
-        MSSyncEncoderProtocol<T> & syncEncoder();
-        
         MSAsynDecoderProtocol<T> & asynDecoder();
         
-        MSAsynEncoderProtocol<T> & asynEncoder();
+        MSEncoderProtocol<T> & reEncoder();
         
         void startPlayVideo();
         
@@ -149,11 +145,12 @@ namespace MS {
     
 #pragma mark - MSPlayer<T>(implementation)
     template <typename T>
-    MSPlayer<T>::MSPlayer(MSSyncDecoderProtocol<T> * const MSNonnull  decoder,
-                          MSSyncEncoderProtocol<T> * const MSNullable encoder,
+    MSPlayer<T>::MSPlayer(MSSyncDecoderProtocol<T> * const MSNonnull decoder,
+                          MSEncoderProtocol<T> * const MSNullable encoder,
                           const ThrowDecodeData throwDecodeVideo,
                           const ThrowDecodeData throwDecodeAudio)
-    :_syncDecoder(decoder), _syncEncoder(encoder),
+    :_syncDecoder(decoder), _reEncoder(encoder),
+    _asynDecoder(nullptr),
     throwDecodeVideo(throwDecodeVideo),
     throwDecodeAudio(throwDecodeAudio),
     videoTimer(initSyncDataVideoTimer()),
@@ -164,11 +161,12 @@ namespace MS {
     }
     
     template <typename T>
-    MSPlayer<T>::MSPlayer(MSAsynDecoderProtocol<T> * const MSNonnull  decoder,
-                          MSAsynEncoderProtocol<T> * const MSNullable encoder,
+    MSPlayer<T>::MSPlayer(MSAsynDecoderProtocol<T> * const MSNonnull decoder,
+                          MSEncoderProtocol<T> * const MSNullable encoder,
                           const ThrowDecodeData throwDecodeVideo,
                           const ThrowDecodeData throwDecodeAudio)
-    :_asynDecoder(decoder), _asynEncoder(encoder),
+    :_asynDecoder(decoder), _reEncoder(encoder),
+    _syncDecoder(nullptr),
     throwDecodeVideo(throwDecodeVideo),
     throwDecodeAudio(throwDecodeAudio),
     videoTimer(initAsynDataVideoTimer()),
@@ -184,6 +182,8 @@ namespace MS {
         stopPlayVideo();
         stopPlayAudio();
         isDecoding = false;
+        delete videoTimer;
+        delete audioTimer;
         videoThreadCondition.notify_one();
         if (videoDecodeThread.joinable()) {
             videoDecodeThread.join();
@@ -195,17 +195,12 @@ namespace MS {
         if (_syncDecoder) {
             delete _syncDecoder;
         }
-        if (_syncEncoder) {
-            delete _syncEncoder;
-        }
         if (_asynDecoder) {
             delete _asynDecoder;
         }
-        if (_asynEncoder) {
-            delete _asynEncoder;
+        if (_reEncoder) {
+            delete _reEncoder;
         }
-        delete videoTimer;
-        delete audioTimer;
     }
     
     template <typename T>
@@ -215,21 +210,15 @@ namespace MS {
     }
     
     template <typename T>
-    MSSyncEncoderProtocol<T> &
-    MSPlayer<T>::syncEncoder() {
-        return *_syncEncoder;
+    MSEncoderProtocol<T> &
+    MSPlayer<T>::reEncoder() {
+        return *_reEncoder;
     }
     
     template <typename T>
     MSAsynDecoderProtocol<T> &
     MSPlayer<T>::asynDecoder() {
         return *_asynDecoder;
-    }
-    
-    template <typename T>
-    MSAsynEncoderProtocol<T> &
-    MSPlayer<T>::asynEncoder() {
-        return *_asynEncoder;
     }
     
     template <typename T>
@@ -320,8 +309,8 @@ namespace MS {
     
     template <typename T>
     void MSPlayer<T>::startReEncode() {
-        assert(_syncEncoder->isEncoding() == false);
-        _syncEncoder->beginEncode();
+        assert(_reEncoder->isEncoding() == false);
+        _reEncoder->beginEncode();
         isEncoding = true;
     }
     
@@ -338,7 +327,7 @@ namespace MS {
     template <typename T>
     void MSPlayer<T>::stopReEncode() {
         isEncoding = false;
-        _syncEncoder->endEncode();
+        _reEncoder->endEncode();
     }
     
     template <typename T>
@@ -471,7 +460,7 @@ namespace MS {
                 videoTimer->updateTimeInterval(frameData->timeInterval);
                 this->throwDecodeVideo(*frameData);
                 if (isEncoding) {
-                    _syncEncoder->encodeVideo(*frameData);
+                    _reEncoder->encodeVideo(*frameData);
                 }
                 delete frameData;
             } else {
@@ -497,7 +486,7 @@ namespace MS {
                 audioTimer->updateTimeInterval(frameData->timeInterval);
                 this->throwDecodeAudio(*frameData);
                 if (isEncoding) {
-                    _syncEncoder->encodeAudio(*frameData);
+                    _reEncoder->encodeAudio(*frameData);
                 }
                 delete frameData;
             } else {
@@ -523,7 +512,7 @@ namespace MS {
                 videoTimer->updateTimeInterval(frameData->timeInterval);
                 this->throwDecodeVideo(*frameData);
                 if (isEncoding) {
-                    _asynEncoder->encodeVideo(*frameData);
+                    _reEncoder->encodeVideo(*frameData);
                 }
                 delete frameData;
             } else {
@@ -549,7 +538,7 @@ namespace MS {
                 audioTimer->updateTimeInterval(frameData->timeInterval);
                 this->throwDecodeAudio(*frameData);
                 if (isEncoding) {
-                    _asynEncoder->encodeAudio(*frameData);
+                    _reEncoder->encodeAudio(*frameData);
                 }
                 delete frameData;
             } else {

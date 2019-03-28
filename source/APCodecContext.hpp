@@ -20,7 +20,7 @@ extern "C" {
 
 #include "MSMedia.hpp"
 #include "MSBinary.hpp"
-#include "MSCodecAsynProtocol.h"
+#include "MSDecoderProtocol.h"
 
 namespace MS {
     namespace APhard {

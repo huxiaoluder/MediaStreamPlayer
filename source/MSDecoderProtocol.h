@@ -1,18 +1,30 @@
 //
-//  MSCodecAsynProtocol.h
+//  MSDecoderProtocol.h
 //  MediaStreamPlayer
 //
-//  Created by xiaoming on 2019/1/2.
-//  Copyright © 2019 freecoder. All rights reserved.
+//  Created by xiaoming on 2018/11/14.
+//  Copyright © 2018 freecoder. All rights reserved.
 //
 
-#ifndef MSCodecAsynProtocol_h
-#define MSCodecAsynProtocol_h
+#ifndef MSDecoderProtocol_h
+#define MSDecoderProtocol_h
 
-#include "MSAsynDataReceiver.h"
 #include "MSMedia.hpp"
+#include "MSAsynDataReceiver.h"
 
 namespace MS {
+    
+    template <typename T,
+    typename = typename enable_if<!is_pointer<T>::value,T>::type>
+    class MSSyncDecoderProtocol {
+    public:
+        virtual ~MSSyncDecoderProtocol() {};
+        // videoData free by heir
+        virtual const MSMedia<MSDecodeMedia,T> * MSNullable decodeVideo(const MSMedia<MSEncodeMedia> * MSNonnull const videoData) = 0;
+        // audioData free by heir
+        virtual const MSMedia<MSDecodeMedia,T> * MSNullable decodeAudio(const MSMedia<MSEncodeMedia> * MSNonnull const audioData) = 0;
+    };
+    
     
     template <typename T,
     typename = typename enable_if<!is_pointer<T>::value,T>::type>
@@ -26,12 +38,12 @@ namespace MS {
     public:
         MSAsynDecoderProtocol(const void * MSNonnull const asynCallBack)
         :_asynCallBack(asynCallBack) {};
-        
+         
         const void * MSNonnull asynCallBack() const {
             return _asynCallBack;
         };
         
-        // if unnecessary, not allow be called bu user 
+        // if unnecessary, not allow be called by user
         // default be called by MSAsynDataReceiver(player) inner when MSAsynDecoderProtocol(decoder) pass for MSAsynDataReceiver(player)
         void setDataReceiver(MSAsynDataReceiver<T> * MSNonnull dataReceiver) {
             _dataReceiver = dataReceiver;
@@ -54,18 +66,7 @@ namespace MS {
         virtual void decodeAudio(const MSMedia<MSEncodeMedia> * MSNonnull const audioData) = 0;
     };
     
-    template <typename T,
-    typename = typename enable_if<!is_pointer<T>::value,T>::type>
-    class MSAsynEncoderProtocol {
-    public:
-        virtual ~MSAsynEncoderProtocol() {};
-        virtual void beginEncode() = 0;
-        virtual void encodeVideo(const MSMedia<MSDecodeMedia,T> &pixelData) = 0;
-        virtual void encodeAudio(const MSMedia<MSDecodeMedia,T> &sampleData) = 0;
-        virtual void endEncode() = 0;
-        virtual bool isEncoding() = 0;
-    };
-    
 }
 
-#endif /* MSCodecAsynProtocol_h */
+
+#endif /* MSDecoderProtocol_h */

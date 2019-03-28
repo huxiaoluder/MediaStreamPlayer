@@ -10,7 +10,7 @@
 #define APDecoder_hpp
 
 #include <map>
-#include "MSCodecAsynProtocol.h"
+#include "MSDecoderProtocol.h"
 #include "APCodecContext.hpp"
 
 namespace MS {

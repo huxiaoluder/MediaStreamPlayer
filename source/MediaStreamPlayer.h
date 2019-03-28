@@ -11,8 +11,8 @@
 
 // MSPlayer 播放器组件
 #include "MSMacros.h"
-#include "MSCodecSyncProtocol.h"
-#include "MSCodecAsynProtocol.h"
+#include "MSDecoderProtocol.h"
+#include "MSEncoderProtocol.h"
 #include "MSAsynDataReceiver.h"
 #include "MSPlayer.hpp"
 #include "MSTimer.hpp"

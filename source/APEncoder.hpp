@@ -10,14 +10,14 @@
 #define APEncoder_hpp
 
 #include <string>
-#include "MSCodecAsynProtocol.h"
+#include "MSEncoderProtocol.h"
 #include "APCodecContext.hpp"
 #include "FFCodecContext.hpp"
 
 namespace MS {
     namespace APhard {
         
-        typedef MSAsynEncoderProtocol<APFrame>   APEncoderProtocol;
+        typedef MSEncoderProtocol<APFrame>   APEncoderProtocol;
         typedef MSMedia<MSDecodeMedia,APFrame>   APEncoderInputMedia;
 
         class APEncoder : public APEncoderProtocol {
@@ -31,11 +31,14 @@ namespace MS {
             const MSCodecID videoCodecID;
             const MSCodecID audioCodecID;
             
+            long long videoPts;
+            long long audioPts;
+            
             AVFormatContext       * MSNullable outputFormatContext = nullptr;
             VTCompressionSessionRef MSNullable videoEncoderSession = nullptr;
             AudioConverterRef       MSNullable audioEncoderConvert = nullptr;
             
-            AVFormatContext      *  MSNullable configureOutputFormatContext();
+            AVFormatContext       * MSNullable configureOutputFormatContext();
             VTCompressionSessionRef MSNullable configureVideoEncoderSession(const MSVideoParameters &videoParameters);
             AudioConverterRef       MSNullable configureAudioEncoderConvert(const MSAudioParameters &audioParameters);
             

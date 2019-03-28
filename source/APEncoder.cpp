@@ -13,15 +13,40 @@ using namespace MS::APhard;
 
 void
 APEncoder::beginEncode() {
+    videoPts = 0;
+    audioPts = 0;
+
     if (videoEncoderSession) {
         VTCompressionSessionPrepareToEncodeFrames(videoEncoderSession);
     }
+    
     _isEncoding = true;
 }
 
 void
 APEncoder::encodeVideo(const APEncoderInputMedia &pixelData) {
+    assert(_isEncoding);
+    
+    if (videoEncoderSession) {
+        
+        CMTime presentationTimeStamp {
+            .value = (int)videoPts,
+            .timescale = pixelData.frame->videoParameters.frameRate,
+            .flags = kCMTimeFlags_Valid,
+            .epoch = 0
+        };
 
+        OSStatus status = VTCompressionSessionEncodeFrame(videoEncoderSession,
+                                                          CVPixelBufferRetain(pixelData.frame->video),
+                                                          presentationTimeStamp,
+                                                          kCMTimeInvalid,
+                                                          nullptr,
+                                                          pixelData.frame->video,
+                                                          nullptr);
+        if (status) {
+            OSStatusErrorLocationLog("call VTCompressionSessionEncodeFrame fail",status);
+        }
+    }
 }
 
 void
@@ -156,6 +181,7 @@ APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters
 void
 APEncoder::releaseEncoderConfiguration() {
     if (videoEncoderSession) {
+        VTCompressionSessionCompleteFrames(videoEncoderSession, kCMTimeInvalid);
         VTCompressionSessionInvalidate(videoEncoderSession);
         videoEncoderSession = nullptr;
     }
@@ -169,11 +195,84 @@ APEncoder::releaseEncoderConfiguration() {
     }
 }
 
+/**
+ 获取 CMSampleBufferRef 是否是 I-frame
+
+ @param sampleBuffer sampleBuffer
+ @return 是否为关键帧
+ */
+static inline bool CMSampleBufferIsKeyFrame(CMSampleBufferRef sampleBuffer) {
+    /*
+     返回值描述: one dictionary per sample in the CMSampleBuffer ==> 返回值长度长度最大为 1
+     注意: 1. 第二个参数为真, 不论 buffer 中是否有附件, 都返回一个含有对应 sampleBuffer 个数个 CFMutableDictionaryRef 的 CFArrayref,
+                其中 CFMutableDictionaryRef 中内容可能为空(不含附件时)
+          2. 反之, 若 buffer 中没有附件, 则返回 null.
+     */
+    CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, false);
+    
+    if (attachments) {
+        CFMutableDictionaryRef attachment = (CFMutableDictionaryRef)CFArrayGetValueAtIndex(attachments, 0);
+        return CFDictionaryGetValue(attachment, kCMSampleAttachmentKey_DependsOnOthers) == kCFBooleanFalse;
+    }
+    return false;
+}
+
+/**
+ 获取 CMSampleBufferRef 的数据编码信息
+
+ @param sampleBuffer    sampleBuffer
+ @param dataTypeNameOut 数据编码格式名, need not free
+ @param spsDataOut  sps 拷贝指针, need free
+ @param ppsDataOut  pps 拷贝指针, need free
+ @param spsLenOut   sps 长度
+ @param ppsLenOut   pps 长度
+ */
+static inline void CMSampleBufferGetEncodeInfo(CMSampleBufferRef const sampleBuffer,
+                                               CFStringRef * const dataTypeNameOut,
+                                               const uint8_t * * const spsDataOut,
+                                               const uint8_t * * const ppsDataOut,
+                                               int * const spsLenOut,
+                                               int * const ppsLenOut) {
+    CMFormatDescriptionRef fmtDesc = CMSampleBufferGetFormatDescription(sampleBuffer);
+    
+    CFDictionaryRef extensions = CMFormatDescriptionGetExtensions(fmtDesc);
+    *dataTypeNameOut = (CFStringRef)CFDictionaryGetValue(extensions, kCMFormatDescriptionExtension_FormatName);
+}
+
 void
 APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                                      void * MSNullable sourceFrameRefCon,
                                      OSStatus status,
                                      VTEncodeInfoFlags infoFlags,
                                      CMSampleBufferRef MSNullable sampleBuffer) {
-    
+    CVPixelBufferRelease((CVPixelBufferRef)sourceFrameRefCon);
+
+    if (status) {
+        OSStatusErrorLocationLog("APEncode frame fail",status);
+        return;
+    }
+    if (CMSampleBufferDataIsReady(sampleBuffer)) {
+        
+        
+        bool isKeyFrame = CMSampleBufferIsKeyFrame(sampleBuffer);
+        
+        
+        CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
+        size_t dataLen;
+        char * dataPtr;
+        CMBlockBufferGetDataPointer(blockBuffer, 0, nullptr, &dataLen, &dataPtr);
+        printf("_______________ success encode: %zu\n", dataLen);
+        /*
+        APEncoder &encoder = *(APEncoder *)outputCallbackRefCon;
+        
+        AVPacket packet;
+        av_init_packet(&packet);
+        
+        packet.data = (uint8_t *)dataPtr;
+        packet.size = (int)dataLen;
+        packet.pts  = encoder.videoPts++;
+        
+        av_interleaved_write_frame(encoder.outputFormatContext, &packet);
+         */
+    }
 }

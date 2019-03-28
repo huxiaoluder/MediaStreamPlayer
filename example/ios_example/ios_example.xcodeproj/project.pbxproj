@@ -76,7 +76,7 @@
 		4F0A735321B7B3C6000E0E31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4F0A735521B7B3C6000E0E31 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F0A735621B7B3C6000E0E31 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		4F0A735E21B7B462000E0E31 /* MSCodecSyncProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSCodecSyncProtocol.h; sourceTree = "<group>"; };
+		4F0A735E21B7B462000E0E31 /* MSDecoderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSDecoderProtocol.h; sourceTree = "<group>"; };
 		4F0A735F21B7B462000E0E31 /* FFCodecContext.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FFCodecContext.hpp; sourceTree = "<group>"; };
 		4F0A736121B7B462000E0E31 /* FFDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFDecoder.cpp; sourceTree = "<group>"; };
 		4F0A736221B7B462000E0E31 /* MSPlayer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MSPlayer.hpp; sourceTree = "<group>"; };
@@ -273,7 +273,7 @@
 		4FCF481021F05DFD0030E739 /* MSNaluParts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSNaluParts.cpp; sourceTree = "<group>"; };
 		4FCF481121F05DFD0030E739 /* MSNaluParts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSNaluParts.hpp; sourceTree = "<group>"; };
 		4FF055DD21DC53AD00339CDF /* MSAsynDataReceiver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSAsynDataReceiver.h; sourceTree = "<group>"; };
-		4FF055DF21DC936700339CDF /* MSCodecAsynProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSCodecAsynProtocol.h; sourceTree = "<group>"; };
+		4FF055DF21DC936700339CDF /* MSEncoderProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSEncoderProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -363,8 +363,8 @@
 			children = (
 				4F81B868221D56A100385B2B /* MediaStreamPlayer.h */,
 				4F0E550221EF255900302D45 /* MSMacros.h */,
-				4F0A735E21B7B462000E0E31 /* MSCodecSyncProtocol.h */,
-				4FF055DF21DC936700339CDF /* MSCodecAsynProtocol.h */,
+				4F0A735E21B7B462000E0E31 /* MSDecoderProtocol.h */,
+				4FF055DF21DC936700339CDF /* MSEncoderProtocol.h */,
 				4FF055DD21DC53AD00339CDF /* MSAsynDataReceiver.h */,
 				4F0A736221B7B462000E0E31 /* MSPlayer.hpp */,
 				4F0A736321B7B462000E0E31 /* MSMedia.hpp */,

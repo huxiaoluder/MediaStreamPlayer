@@ -10,7 +10,7 @@
 #define MSDecoder_hpp
 
 #include <map>
-#include "MSCodecSyncProtocol.h"
+#include "MSDecoderProtocol.h"
 #include "FFCodecContext.hpp"
 
 namespace MS {

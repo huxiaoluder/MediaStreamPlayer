@@ -194,7 +194,7 @@ static int i;
 
 - (IBAction)encodeMedia:(UIButton *)sender {
 #if condition
-    FFEncoder &encoder = (FFEncoder &)player->syncEncoder();
+    FFEncoder &encoder = (FFEncoder &)player->reEncoder();
     FFDecoder &decoder = (FFDecoder &)player->syncDecoder();
     if (encoder.isEncoding()) {
         player->stopReEncode();
@@ -209,7 +209,7 @@ static int i;
     }
 #else
     
-    APEncoder &encoder = (APEncoder &)player->asynEncoder();
+    APEncoder &encoder = (APEncoder &)player->reEncoder();
     APDecoder &decoder = (APDecoder &)player->asynDecoder();
     if (encoder.isEncoding()) {
         player->stopReEncode();

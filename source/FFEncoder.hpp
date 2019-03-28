@@ -11,13 +11,13 @@
 
 #include <string>
 #include <mutex>
-#include "MSCodecSyncProtocol.h"
+#include "MSEncoderProtocol.h"
 #include "FFCodecContext.hpp"
 
 namespace MS {
     namespace FFmpeg {
       
-        typedef MSSyncEncoderProtocol<AVFrame>  FFEncoderProtocol;
+        typedef MSEncoderProtocol<AVFrame>  FFEncoderProtocol;
         typedef MSMedia<MSDecodeMedia,AVFrame>  FFEncoderInputMedia;
         
         class FFEncoder : public FFEncoderProtocol {
@@ -31,8 +31,8 @@ namespace MS {
             const MSCodecID videoCodecID;
             const MSCodecID audioCodecID;
             
-            long long videoPts = 0;
-            long long audioPts = 0;
+            long long videoPts;
+            long long audioPts;
             
             AVFormatContext *outputFormatContext = nullptr;
             FFCodecContext  *videoEncoderContext = nullptr;
