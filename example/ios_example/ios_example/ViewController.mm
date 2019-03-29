@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "IotlibTool.h"
 #include <math.h>
+#include <AVFoundation/AVFoundation.h>
 
 @interface ViewController ()
 
@@ -20,7 +21,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+//    AVAssetWriterInput *input = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:nullptr];
+//    [input appendSampleBuffer:nullptr];
 }
 
 - (IBAction)yellow:(UIButton *)sender {

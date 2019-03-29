@@ -33,10 +33,14 @@ namespace MS {
             
             long long videoPts;
             long long audioPts;
+            int nalUnitHeaderLen;
             
             AVFormatContext       * MSNullable outputFormatContext = nullptr;
             VTCompressionSessionRef MSNullable videoEncoderSession = nullptr;
             AudioConverterRef       MSNullable audioEncoderConvert = nullptr;
+            
+            AVStream * MSNullable videoStream = nullptr;
+            AVStream * MSNullable audioStream = nullptr;
             
             AVFormatContext       * MSNullable configureOutputFormatContext();
             VTCompressionSessionRef MSNullable configureVideoEncoderSession(const MSVideoParameters &videoParameters);

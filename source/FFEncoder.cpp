@@ -251,15 +251,19 @@ FFEncoder::releaseEncoderConfiguration() {
         delete videoEncoderContext;
         videoEncoderContext = nullptr;
     }
-    
     if (audioEncoderContext) {
         delete audioEncoderContext;
         audioEncoderContext = nullptr;
     }
-    
     if (outputFormatContext) {
         avformat_free_context(outputFormatContext);
         outputFormatContext = nullptr;
+    }
+    if (videoStream) {
+        videoStream = nullptr;
+    }
+    if (audioStream) {
+        audioStream = nullptr;
     }
 }
 
