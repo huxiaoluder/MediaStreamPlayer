@@ -139,7 +139,7 @@ decode_h264_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameR
     if(timing_info_present_flag) {
         int num_units_in_tick = getBitsValue(spsRef, startLocation, 32);
         int time_scale = getBitsValue(spsRef, startLocation, 32);
-        frameRate = time_scale / (2 * num_units_in_tick);
+        frameRate = time_scale / (num_units_in_tick << 1);
     }
 }
 
@@ -307,9 +307,12 @@ decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, 
         decode_h264_vui(realSps, startLocation, videoParameter.frameRate);
     }
     
-    videoParameter.width    = (pic_width_in_mbs_minus1 + 1) * 16;
+    videoParameter.width  = (pic_width_in_mbs_minus1 + 1) * 16;
     // (主流的 1080p, 720p, 360p)按16字节对齐, 可能会产生8位的冗余长度, 需要去除
-    videoParameter.height   = (pic_height_in_map_units_minus1 + 1) * 16 ^ 8;
+    videoParameter.height = (pic_height_in_map_units_minus1 + 1) * 16;
+    if (videoParameter.height == 1088) {
+        videoParameter.height = 1080;
+    }
     
     delete [] realSps;
 }

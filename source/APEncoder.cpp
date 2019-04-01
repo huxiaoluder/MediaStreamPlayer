@@ -45,10 +45,12 @@ setupVideoSessionProperties(const VTCompressionSessionRef videoEncoderSession,
         kVTCompressionPropertyKey_RealTime,
         kVTCompressionPropertyKey_ProfileLevel,         // 编码器配置级别
         kVTCompressionPropertyKey_MaxKeyFrameInterval,  // 编码 GOP 大小
+        // 注: 并没有卵用(只用于提示编码器初始化内部配置, 可以不配置), 生成的 SPS 中不会带有帧率信息
+        // 注: 实际帧速率将取决于帧持续时间，并且可能会有所不同。
         kVTCompressionPropertyKey_ExpectedFrameRate,    // 编码期望帧率
         // 以下两值相同 ==> 恒定码率编码 CBR
         kVTCompressionPropertyKey_DataRateLimits,       // 码率最大值，单位: bytes per second
-        kVTCompressionPropertyKey_AverageBitRate        // 码率平均值，单位: bits per second
+        kVTCompressionPropertyKey_AverageBitRate        // 码率平均值，单位: bits  per second
     };
     const void *values[] = {
         kCFBooleanTrue,
@@ -155,7 +157,7 @@ CMSampleBufferGetEncodeInfo(CMSampleBufferRef const MSNonnull sampleBuffer,
                                                        nullptr);
     return true;
 }
-
+static FILE *file = nullptr;
 void
 APEncoder::beginEncode() {
     videoPts = 0;
@@ -164,7 +166,7 @@ APEncoder::beginEncode() {
     if (videoEncoderSession) {
         VTCompressionSessionPrepareToEncodeFrames(videoEncoderSession);
     }
-    
+    file = fopen(filePath.c_str(), "wb");
     _isEncoding = true;
 }
 
@@ -174,8 +176,16 @@ APEncoder::encodeVideo(const APEncoderInputMedia &pixelData) {
     
     if (videoEncoderSession) {
         
-        CMTime presentationTimeStamp {
+        CMTime presentationTimeStamp { // 帧显示时间戳 pts
             .value = (int)videoPts,
+            .timescale = 0,
+            .flags = kCMTimeFlags_Valid,
+            .epoch = 0
+        };
+        
+        // 实际控制帧率的属性, 附带在 buffer 的时间信息中, 对编码器无用, 可以传 kCMTimeInvalid
+        CMTime duration { // 帧播放持续时间
+            .value = 1,
             .timescale = pixelData.frame->videoParameters.frameRate,
             .flags = kCMTimeFlags_Valid,
             .epoch = 0
@@ -184,7 +194,7 @@ APEncoder::encodeVideo(const APEncoderInputMedia &pixelData) {
         OSStatus status = VTCompressionSessionEncodeFrame(videoEncoderSession,
                                                           CVPixelBufferRetain(pixelData.frame->video),
                                                           presentationTimeStamp,
-                                                          kCMTimeInvalid,
+                                                          duration,
                                                           nullptr,
                                                           pixelData.frame->video,
                                                           nullptr);
@@ -240,13 +250,13 @@ APEncoder::configureEncoder(const string &muxingfilePath,
         }
     }
     
-    if (audioParameters) {
-        audioEncoderConvert = configureAudioEncoderConvert(*audioParameters);
-        if (!audioParameters) {
-            releaseEncoderConfiguration();
-            return false;
-        }
-    }
+//    if (audioParameters) {
+//        audioEncoderConvert = configureAudioEncoderConvert(*audioParameters);
+//        if (!audioParameters) {
+//            releaseEncoderConfiguration();
+//            return false;
+//        }
+//    }
     
     return true;
 }
@@ -292,52 +302,47 @@ APEncoder::configureVideoEncoderSession(const MSVideoParameters &videoParameters
     }
     
     {
-        using namespace FFmpeg;
-
-        FFCodecContext *videoEncoderContext = new FFCodecContext(FFCodecEncoder,videoCodecID);
-        AVCodecContext &encoderContext = *videoEncoderContext->codec_ctx;
-
-        // 编码器参数配置
-        AVDictionary *dict = nullptr;
-        if (outputFormatContext->oformat->video_codec == AV_CODEC_ID_H264) {
-            av_dict_set(&dict, "preset", "medium", 0);
-            av_dict_set(&dict, "tune", "zerolatency", 0);
-
-            encoderContext.profile  = FF_PROFILE_H264_HIGH;
-        }
-
-        encoderContext.pix_fmt      = AV_PIX_FMT_YUVJ420P;
-        encoderContext.width        = videoParameters.width;
-        encoderContext.height       = videoParameters.height;
-        encoderContext.bit_rate     = videoParameters.width * videoParameters.height * 3 * 2;
-        encoderContext.gop_size     = 100;
-        encoderContext.max_b_frames = 0;
-        encoderContext.time_base    = { 1, 20};
-        encoderContext.sample_aspect_ratio = { 16, 9};
-        if (outputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
-            encoderContext.flags   |= AV_CODEC_FLAG_GLOBAL_HEADER;
-        }
-
-        int ret = avcodec_open2(&encoderContext, videoEncoderContext->codec, &dict);
-        if (ret < 0) {
-            ErrorLocationLog(av_err2str(ret));
-            delete videoEncoderContext;
-            return nullptr;
-        }
-
-        av_dict_free(&dict);
-
-        AVStream &outStream = *avformat_new_stream(outputFormatContext, videoEncoderContext->codec);
-
-        ret = avcodec_parameters_from_context(outStream.codecpar, &encoderContext);
-        if (ret < 0) {
-            ErrorLocationLog(av_err2str(ret));
-            delete videoEncoderContext;
-            return nullptr;
-        }
-        outStream.time_base = encoderContext.time_base;
-
-        videoStream = &outStream;
+//        using namespace FFmpeg;
+//
+//        FFCodecContext *videoEncoderContext = new FFCodecContext(FFCodecEncoder,videoCodecID);
+//        AVCodecContext &encoderContext = *videoEncoderContext->codec_ctx;
+//
+//        // 编码器参数配置
+//        AVDictionary *dict = nullptr;
+//        if (outputFormatContext->oformat->video_codec == AV_CODEC_ID_H264) {
+//            av_dict_set(&dict, "preset", "medium", 0);
+//            av_dict_set(&dict, "tune", "zerolatency", 0);
+//
+//            encoderContext.profile  = FF_PROFILE_H264_HIGH;
+//        }
+//
+//        encoderContext.pix_fmt      = AV_PIX_FMT_YUVJ420P;
+//        encoderContext.width        = videoParameters.width;
+//        encoderContext.height       = videoParameters.height;
+//        encoderContext.bit_rate     = videoParameters.width * videoParameters.height * 3 * 2;
+//        encoderContext.gop_size     = 100;
+//        encoderContext.max_b_frames = 0;
+//        encoderContext.time_base    = { 1, 20 };
+//        encoderContext.sample_aspect_ratio = { 16, 9 };
+//        if (outputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
+//            encoderContext.flags   |= AV_CODEC_FLAG_GLOBAL_HEADER;
+//        }
+//
+//        av_dict_free(&dict);
+//
+//        AVStream &outStream = *avformat_new_stream(outputFormatContext, videoEncoderContext->codec);
+//
+//        int ret = avcodec_parameters_from_context(outStream.codecpar, &encoderContext);
+//        if (ret < 0) {
+//            ErrorLocationLog(av_err2str(ret));
+//            delete videoEncoderContext;
+//            return nullptr;
+//        }
+//        delete videoEncoderContext;
+//
+//        outStream.time_base = encoderContext.time_base;
+//
+//        videoStream = &outStream;
     }
     
     return videoEncoderSession;
@@ -366,6 +371,219 @@ APEncoder::releaseEncoderConfiguration() {
     }
 }
 
+static inline bool
+detectBitValue(const uint8_t * const dataRef, const size_t &startLocation) {
+    return dataRef[startLocation / 8] & (0x80 >> (startLocation % 8));
+}
+
+static inline void
+skipBits(size_t &starLocation, const size_t skipLen) {
+    starLocation += skipLen;
+}
+
+static void
+skipGolombBits(const uint8_t * const dataRef, size_t &startLocation, const int times) {
+    for (int i = 0; i < times; i++) {
+        // 指数
+        int index = 0;
+        while (!detectBitValue(dataRef, startLocation)) {
+            index++;
+            startLocation++;
+        }
+        startLocation += (index + 1);
+    }
+}
+
+static int
+getBitsValue(const uint8_t * const dataRef, size_t &startLocation, const int bitsCount) {
+    int value = 0;
+    for (int i = 0; i < bitsCount; i++) {
+        value <<= 1;
+        if (detectBitValue(dataRef, startLocation)) {
+            value |= 1;
+        }
+        startLocation++;
+    }
+    return value;
+}
+
+static int
+ueGolomb(const uint8_t * const dataRef, size_t &startLocation) {
+    // 指数
+    int index = 0;
+    while (!detectBitValue(dataRef, startLocation)) {
+        index++;
+        startLocation++;
+    }
+    
+    // 跳过对称位 1
+    startLocation++;
+    
+    // 去除指数的余值
+    int value = getBitsValue(dataRef, startLocation, index);
+    
+    return (1 << index | value) - 1;
+}
+
+static int
+seGolomb(const uint8_t * const dataRef, size_t &startLocation) {
+    int ueValue = ueGolomb(dataRef, startLocation);
+    double k = ueValue;
+    // ceil函数求不小于给定实数的最小整数
+    int newValue = ceil(k/2);
+    return ueValue % 2 == 0 ? -newValue : newValue;
+}
+
+static void
+skipH264ScalingList(const uint8_t * const spsRef, size_t &startLocation, size_t sizeOfScalingList) {
+    int lastScale = 8;
+    int nextScale = 8;
+    int delta_scale;
+    for (int i = 0; i < sizeOfScalingList; i++) {
+        if (nextScale != 0) {
+            delta_scale = seGolomb(spsRef, startLocation);
+            nextScale = (lastScale + delta_scale + 256) % 256;
+        }
+        lastScale = nextScale == 0 ? lastScale : nextScale;
+    }
+}
+
+static const uint8_t *
+discardEmulationCode(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize) {
+    uint8_t * const realSps = new uint8_t[sourceSpsSize]{0};
+    
+    uint8_t * tempStart = realSps;
+    int lastStartIdx = 0;
+    size_t tempSize;
+    
+    for (int i = 3; i < sourceSpsSize; i++) {
+        if (sourceSpsRef[i] == 0x03 &&
+            *(uint32_t *)(sourceSpsRef + i - 2) << 8 == 0x03000000) {
+            tempSize = i - lastStartIdx;
+            memcpy(tempStart, sourceSpsRef+lastStartIdx, tempSize);
+            tempStart += tempSize;
+            lastStartIdx = i + 1;
+            i += 2;
+        }
+    }
+    
+    tempSize = sourceSpsSize - lastStartIdx;
+    memcpy(tempStart, sourceSpsRef+lastStartIdx, tempSize);
+    return realSps;
+}
+
+static void
+decode_h264_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameRate) {
+    int aspect_ratio_info_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if(aspect_ratio_info_present_flag) {
+        int aspect_ratio_idc = getBitsValue(spsRef, startLocation, 8);
+        if(aspect_ratio_idc == 255/* Extended_SAR = 255 */) {
+            skipBits(startLocation, 32);
+        }
+    }
+    int overscan_info_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if(overscan_info_present_flag) {
+        skipBits(startLocation, 1);
+    }
+    int video_signal_type_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if(video_signal_type_present_flag) {
+        skipBits(startLocation, 4);
+        int colour_description_present_flag = getBitsValue(spsRef, startLocation, 1);
+        if(colour_description_present_flag) {
+            skipBits(startLocation, 24);
+        }
+    }
+    int chroma_loc_info_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if (chroma_loc_info_present_flag) {
+        skipGolombBits(spsRef, startLocation, 2);
+    }
+    int timing_info_present_flag = getBitsValue(spsRef, startLocation, 1);
+    if(timing_info_present_flag) {
+        int num_units_in_tick = getBitsValue(spsRef, startLocation, 32);
+        int time_scale = getBitsValue(spsRef, startLocation, 32);
+        frameRate = time_scale / (2 * num_units_in_tick);
+    }
+}
+
+static void
+decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, MSVideoParameters &videoParameter) {
+    
+    const uint8_t * const realSps = discardEmulationCode(sourceSpsRef, sourceSpsSize);
+    
+    size_t startLocation = 0;
+    
+    skipBits(startLocation, 8);
+    
+    int profile_idc = getBitsValue(realSps, startLocation, 8);
+    skipBits(startLocation, 16);
+    skipGolombBits(realSps, startLocation, 1);
+    
+    if (profile_idc == 100 ||
+        profile_idc == 110 ||
+        profile_idc == 122 ||
+        profile_idc == 144) {
+        
+        int chroma_format_idc = ueGolomb(realSps, startLocation);
+        if(chroma_format_idc == 3) {
+            skipBits(startLocation, 1);
+        }
+        skipGolombBits(realSps, startLocation, 2);
+        skipBits(startLocation, 1);
+        
+        int seq_scaling_matrix_present_flag = getBitsValue(realSps, startLocation, 1);
+        if(seq_scaling_matrix_present_flag) {
+            for (int i = 0; i < 8; i++) {
+                if (getBitsValue(realSps, startLocation, 1)) {
+                    if (i < 6) {
+                        skipH264ScalingList(realSps, startLocation, 16);
+                    } else {
+                        skipH264ScalingList(realSps, startLocation, 64);
+                    }
+                }
+            }
+        }
+    }
+    skipGolombBits(realSps, startLocation, 1);
+    
+    int pic_order_cnt_type = ueGolomb(realSps, startLocation);
+    if(pic_order_cnt_type == 0) {
+        skipGolombBits(realSps, startLocation, 1);
+    } else if (pic_order_cnt_type == 1) {
+        skipBits(startLocation, 1);
+        skipGolombBits(realSps, startLocation, 2);
+        skipGolombBits(realSps, startLocation, ueGolomb(realSps, startLocation));
+    }
+    skipGolombBits(realSps, startLocation, 1);
+    skipBits(startLocation, 1);
+    
+    int pic_width_in_mbs_minus1         = ueGolomb(realSps, startLocation);
+    int pic_height_in_map_units_minus1  = ueGolomb(realSps, startLocation);
+    
+    int frame_mbs_only_flag = getBitsValue(realSps, startLocation, 1);
+    if(!frame_mbs_only_flag) {
+        skipBits(startLocation, 1);
+    }
+    skipBits(startLocation, 1);
+    
+    int frame_cropping_flag = getBitsValue(realSps, startLocation, 1);
+    if(frame_cropping_flag) {
+        skipGolombBits(realSps, startLocation, 4);
+    }
+    
+    int vui_parameters_present_flag = getBitsValue(realSps, startLocation, 1);
+    if(vui_parameters_present_flag) {
+        decode_h264_vui(realSps, startLocation, videoParameter.frameRate);
+    }
+    
+    videoParameter.width  = (pic_width_in_mbs_minus1 + 1) * 16;
+    // (主流的 1080p, 720p, 360p)按16字节对齐, 可能会产生8位的冗余长度, 需要去除
+    videoParameter.height = (pic_height_in_map_units_minus1 + 1) * 16;
+    if (videoParameter.height == 1088) {
+        videoParameter.height = 1080;
+    }
+    
+    delete [] realSps;
+}
 void
 APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                                      void * MSNullable sourceFrameRefCon,
@@ -378,18 +596,20 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
         OSStatusErrorLocationLog("APEncode frame fail",status);
         return;
     }
+
+    uint8_t separator[] = {0x00,0x00,0x00,0x01};
+    
     if (CMSampleBufferDataIsReady(sampleBuffer)) {
         
         APEncoder &encoder = *(APEncoder *)outputCallbackRefCon;
-        
+    
         bool isKeyFrame = CMSampleBufferIsKeyFrame(sampleBuffer);
-        if (isKeyFrame && !encoder.audioStream) {
-            encoder.audioStream = (AVStream *)0x111;
+        if (isKeyFrame) {
+            
             const uint8_t *spsData;
             const uint8_t *ppsData;
             size_t spsLen;
             size_t ppsLen;
-            
             bool ret = CMSampleBufferGetEncodeInfo(sampleBuffer,
                                                    nullptr,
                                                    &spsData,
@@ -398,50 +618,13 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                                                    &ppsLen,
                                                    &encoder.nalUnitHeaderLen);
             if (ret) {
-//                AVStream &outStream = *encoder.videoStream;//*avformat_new_stream(encoder.outputFormatContext, nullptr);
-        
-//                outStream.codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
-//                outStream.codecpar->codec_id = FFmpeg::FFCodecContext::getAVCodecId(encoder.videoCodecID);
-//                outStream.codecpar->codec_tag = 0;
-//                outStream.codecpar->format = AV_PIX_FMT_YUVJ420P;
-//                outStream.codecpar->bit_rate = 1920 * 1080 * 3 * 2 * 8;
-//                outStream.codecpar->width = 1920;
-//                outStream.codecpar->height = 1080;
-//                outStream.codecpar->sample_aspect_ratio = {16, 9};
-//                size_t extradataLen = 4 + 4 + spsLen + ppsLen;
-//                outStream.codecpar->extradata = (uint8_t *)av_malloc(extradataLen);
-//                outStream.codecpar->extradata_size = (int)extradataLen;
-//
-//                uint8_t separator[] = {0x00,0x00,0x00,0x01};
-//                int offset = 0;
-//                memcpy(outStream.codecpar->extradata+offset, separator, 4);
-//                offset += 4;
-//                memcpy(outStream.codecpar->extradata+offset, spsData, spsLen);
-//                offset += spsLen;
-//                memcpy(outStream.codecpar->extradata+offset, separator, 4);
-//                offset += 4;
-//                memcpy(outStream.codecpar->extradata+offset, separator, ppsLen);
-                
-//                CMTime presentTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-                
-//                outStream.time_base = { 1, presentTime.timescale };
-//                outStream.r_frame_rate = { presentTime.timescale, 1 };
-                
-//                encoder.videoStream = &outStream;
-                
-                int ret = avio_open(&encoder.outputFormatContext->pb, encoder.filePath.c_str(), AVIO_FLAG_READ_WRITE);
-                if (ret < 0) {
-                    ErrorLocationLog(av_err2str(ret));
-                    encoder.releaseEncoderConfiguration();
-                    return;
-                }
-                av_dump_format(encoder.outputFormatContext, 0, encoder.filePath.c_str(), 1);
-                ret = avformat_write_header(encoder.outputFormatContext, nullptr);
-                if (ret < 0) {
-                    ErrorLocationLog(av_err2str(ret));
-                    encoder.releaseEncoderConfiguration();
-                    return;
-                }
+                fwrite(separator, sizeof(separator), 1, file);
+                fwrite(spsData, spsLen, 1, file);
+                fwrite(separator, sizeof(separator), 1, file);
+                fwrite(ppsData, ppsLen, 1, file);
+                MSVideoParameters vp;
+                decode_h264_sps(spsData, spsLen, vp);
+                printf("+++++++++++++ %p\n", spsData);
             }
         }
 
@@ -449,42 +632,24 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
         size_t dataLen;
         char * dataPtr;
         CMBlockBufferGetDataPointer(blockBuffer, 0, nullptr, &dataLen, &dataPtr);
-//        printf("_______________ success encode: %zu\n", dataLen);
-        AVPacket packet;
-        av_init_packet(&packet);
         
-        uint8_t * const newData = new uint8_t[dataLen];
-        memcpy(newData, dataPtr, dataLen);
-        
-        uint32_t len = *(uint32_t *)newData;
-        len = CFSwapInt32BigToHost(len);
-        *(uint32_t *)newData = 0x01000000;
-        if (len < dataLen - encoder.nalUnitHeaderLen) {
-            len += encoder.nalUnitHeaderLen;
-            *(uint32_t *)(newData + len) = 0x01000000;
-        }
-        
-        packet.data = newData;
-        packet.size = (int)dataLen;
-        packet.pts  = encoder.videoPts++;
-        packet.stream_index = encoder.videoStream->index;
-        
-        int ret = av_interleaved_write_frame(encoder.outputFormatContext, &packet);
-        if (ret < 0) {
-            ErrorLocationLog(av_err2str(ret));
-        }
-        
-        delete [] newData;
-        
-        if (encoder.videoPts == 200) {
-            avio_flush(encoder.outputFormatContext->pb);
+        uint32_t len = 0;
+        do {
+            len = CFSwapInt32BigToHost(*(uint32_t *)dataPtr);
+            fwrite(separator, sizeof(separator), 1, file);
             
-            int ret = av_write_trailer(encoder.outputFormatContext);
-            if (ret < 0) {
-                ErrorLocationLog(av_err2str(ret));
-            }
+            dataPtr += 4;
+            fwrite(dataPtr, len, 1, file);
+            
+            dataPtr += len;
+            dataLen -= (4 + len);
+        } while (dataLen);
+        
+        printf("------------- %lld\n", encoder.videoPts);
+        
+        if (encoder.videoPts++ == 399) {
+            fclose(file);
             exit(0);
         }
-         
     }
 }

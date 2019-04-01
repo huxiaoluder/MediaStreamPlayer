@@ -89,7 +89,8 @@ typedef enum
     e_trans_mode_invalid,
     e_trans_mode_local,         // local server
     e_trans_mode_p2p,           // p2p
-    e_trans_mode_relay          // relay
+    e_trans_mode_relay,          // relay
+    e_trans_mode_conn3
 } e_trans_conn_mode;
 
 typedef enum
@@ -309,11 +310,16 @@ typedef void (*cb_on_iotgw_run_iot_cmd)(IOTCMD* cmd);
 
 typedef void (*cb_on_iotgw_iot_cmd_resp)(IOTCMD* cmd);
 
+typedef void (*cb_on_iotgw_run_mqtt_cmd)(YCMD* cmd);
+
 typedef void (*cb_on_rom_update)(
         uint32_t conn_id,
+        int code_id,
+        const char* code_msg,
         const char *rom_ver,            // 当前最新固件的版本号
         const char *md5,                // 当前最新固件的md5值
-        const char *url                 // 当前最新固件的url下载地
+        const char *url,                // 当前最新固件的url下载地
+        int force_update
 );
 
 typedef void (*cb_on_send_message)(uint32_t conn_id,
@@ -394,7 +400,8 @@ typedef enum
     e_cloud_status_begin_get_resource = 1,
     e_cloud_status_loading,
     e_cloud_status_playing,
-    e_cloud_status_stop
+    e_cloud_status_download_stop,
+    e_cloud_status_play_stop,
 } e_cloud_play_status;
 
 typedef enum
@@ -439,12 +446,26 @@ typedef struct   {
     uint32_t start_time ;   // 开始时间.
     uint32_t end_time ;     // 结束时间.
     uint32_t status ;       // 状态： 0关闭；1开启
-}rec_plan_t;
+} rec_plan_t;
 
+typedef struct {
+    uint32_t  week[7] ;     // [数字只能是1-7,分别代表周一到周日]
+    uint32_t  week_count;   //
+
+    uint32_t start_time ;   // 开始时间.
+    uint32_t end_time ;     // 结束时间.
+    uint32_t status ;       // 状态： 0关闭；1开启
+
+    uint32_t push_status;
+    uint32_t jingle_status;
+
+} dont_disturb_cfg_t;
 
 /////////////////////////////////////////////////////////////////////////////////////
 // for ipc
 #ifdef mk_compile_ipc
+
+typedef bool (*cb_ipc_conn_sync) (uint32_t conn_id);
 
 typedef bool (*cb_ipc_start_video)(uint32_t conn_id,
                                    uint32_t ch_no,
@@ -669,7 +690,8 @@ typedef bool (*cb_ipc_rec_list)(uint32_t conn_id,
 );
 typedef bool (*cb_ipc_rec_list_day)(uint32_t conn_id,
                                     uint32_t ch_no,      //  通道数.
-                                    char *day_list[20],  //  调用者释放内存
+                                    const char* start_day, // 开始查询的日期
+                                    char *day_list[50],  //  调用者释放内存
                                     uint32_t *day_count
 );
 
@@ -723,7 +745,7 @@ typedef bool (*cb_ipc_storage_format_rate)(
 typedef bool (*cb_ipc_storage_info)(
         uint32_t conn_id,           // 连接ID
         uint32_t ch_no,             // 通道数
-        uint32_t *status,           // 存储设备当前状态(0: 正常使用; 1: 未格式化; 2: 存储卡损坏)
+        uint32_t *status,           // 存储设备当前状态(0: 正常使用; 1: 未格式化; 2: 存储卡损坏; 3:未插卡)
         uint32_t *total_size,       // 存储设备总大小(MB), 当只有 status = (0|1) 时返回后续两个参数
         uint32_t *use_size          // 存储设备使用空间(MB)
 );
@@ -844,6 +866,36 @@ typedef bool (*cb_ipc_get_battery_status)(
         uint32_t ch_no,
         uint32_t* power_percent,     // 电量百分比
         uint32_t* status             // 1 正常, 2 充电
+);
+
+typedef bool (*cb_ipc_get_dont_disturb)(
+        uint32_t conn_id,
+        uint32_t ch_no,
+        dont_disturb_cfg_t *cfg
+);
+
+typedef bool (*cb_ipc_set_dont_disturb)(
+        uint32_t conn_id,
+        uint32_t ch_no,
+        dont_disturb_cfg_t *cfg
+);
+
+typedef bool (*cb_ipc_get_motion_detection)(
+        uint32_t conn_id,
+        uint32_t ch_no,
+        uint32_t* left,
+        uint32_t* top,
+        uint32_t* right,
+        uint32_t* bottom
+);
+
+typedef bool (*cb_ipc_set_motion_detection)(
+        uint32_t conn_id,
+        uint32_t ch_no,
+        uint32_t left,
+        uint32_t top,
+        uint32_t right,
+        uint32_t bottom
 );
 
 #endif

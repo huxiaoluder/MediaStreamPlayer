@@ -43,6 +43,10 @@ NP_EXPORT void iotsdk_debug(bool);     // 设置是否是测试模式
     NP_EXPORT const char* iotsdk_version(void); // return the sdk version string
     NP_EXPORT int         iotsdk_build(void);
 
+
+NP_EXPORT void iotsdk_set_proto(int ver);
+    NP_EXPORT int  iotsdk_get_proto(void);
+
 ///////////////////////////////////////////////////////////////////////////////
 // for common
 /**
@@ -129,6 +133,13 @@ NP_EXPORT int iotsdk_set_retry_conn_gw_limit(uint64_t min_wait_ms,
                                              uint64_t max_wait_ms);
 
 /**
+ * 设置是否使用tcp连接iotgw
+ * @param use_tcp
+ * @return
+ */
+NP_EXPORT int iotsdk_set_conn_use_tcp(bool use_tcp);
+
+/**
  * 添加服务器域名(当ip连不上时,会尝试用域名进行连接)
  * @param domain            [in]
  * @param port              [in]
@@ -171,6 +182,7 @@ NP_EXPORT void iotsdk_set_max_send_queue_size(uint32_t max_cmd_count,
  * @param level
  */
 NP_EXPORT void iotsdk_set_log_level(e_log_level level);
+NP_EXPORT void iotsdk_set_log_async(bool async);
 
 // for debug(调试时使用,将状态id转换成字符串)
 NP_EXPORT const char* iotsdk_get_app_state_name(e_app_state state);
@@ -207,6 +219,11 @@ NP_EXPORT int iotsdk_dev_start_sleep(bool use_tcp, cb_on_sleep_ready cb);
 NP_EXPORT int iotsdk_dev_quick_init(const char* restart_data_ptr,   // restart --> after wakeup
                                     uint32_t    restart_data_len);
 
+/**
+ * 门铃发起接听请求
+ * @return
+ */
+    NP_EXPORT int iotsdk_dev_send_acs_request(void);
 
 // for device
 ///////////////////////////////////////////////////////////////////////////////
@@ -229,6 +246,11 @@ NP_EXPORT void* iotsdk_get_user_data_by_id(uint32_t conn_id);
  * @return
  */
 NP_EXPORT bool iotsdk_set_user_data_by_id(uint32_t conn_id, void *user_data);
+
+/**
+ * 通过设备ID获取连接信息描述信息（例如conn3的详细信息）
+ */
+NP_EXPORT int iotsdk_get_conn_info_by_did(const char * did, char *buf, int len);
 
 /**
  * 通过回调的方式操作连接信息(内部加锁,不能在回调里再调用其它api)
@@ -352,6 +374,13 @@ NP_EXPORT int iotsdk_iot_run_iot_cmd(
  * @return
  */
 NP_EXPORT int iotsdk_iot_set_run_iot_cmd_cb(cb_on_iotgw_run_iot_cmd cb);
+
+/**
+ * 设置处理mqtt run cmd命令的回调
+ * @param cb                        [in] cb
+ * @return
+ */
+NP_EXPORT int iotsdk_iot_set_run_mqtt_cmd_cb(cb_on_iotgw_run_mqtt_cmd cb);
 
 /**
  * 设置处理iot cmd resp命令的回调
@@ -559,6 +588,12 @@ NP_EXPORT void iotsdk_user_set_wait_timeo(uint64_t wait_ms);
  * @return
  */
     NP_EXPORT uint64_t iotsdk_user_get_wait_timeo(void);
+
+/**
+ * sync conn (liteos can update sleep time)
+ * @param conn_id
+ */
+NP_EXPORT int iotsdk_user_sync_conn(uint32_t conn_id);
 
 /**
  * 开启视频
@@ -1101,12 +1136,14 @@ NP_EXPORT int iotsdk_user_rec_list(uint32_t conn_id,
  * 获得本地录像记录
  * @param conn_id               [in] 连接ID
  * @param ch_no                 [in] 通道数.
+ * @param start_day            [in] 查询的开始时期,从该日期往前查询,格式: 20170801 (YYYYMMDD)
  * @param day_list              [out] 日期字符串数组,调用者释放内存(存在录像的日期,格式: 20170801 (YYYYMMDD))
  * @param day_count             [in out] 数组个数[in out]
  * @return
  */
 NP_EXPORT int iotsdk_user_rec_list_day(uint32_t conn_id,
                                        uint32_t ch_no,      //  通道数.
+                                       const char* start_day,
                                        char *day_list[50],  //  调用者释放内存
                                        uint32_t *day_count
 );
@@ -1225,17 +1262,17 @@ NP_EXPORT int iotsdk_user_storage_format_rate(uint32_t conn_id,         // 连�
  * 获取存储设备状态
  * @param conn_id               [in] 连接ID
  * @param ch_no                 [in] 通道数.
- * @param status                [out] 存储设备当前状态(0: 正常使用; 1: 未格式化; 2: 存储卡损坏)
+ * @param status                [out] 存储设备当前状态(0: 正常使用; 1: 未格式化; 2: 存储卡损坏; 3:未插卡)
  * @param total_size            [out] 存储设备总大小(MB), 当只有 status = (0|1) 时返回后续两个参数
  * @param use_size              [out] 存储设备使用空间(MB)
  * @return
  */
 NP_EXPORT int iotsdk_user_storage_info(
-        uint32_t conn_id,           // 连接ID
-        uint32_t ch_no,             // 通道数
-        uint32_t *status,           // 存储设备当前状态(0: 正常使用; 1: 未格式化; 2: 存储卡损坏)
-        uint32_t *total_size,       // 存储设备总大小(MB), 当只有 status = (0|1) 时返回后续两个参数
-        uint32_t *use_size          // 存储设备使用空间(MB)
+        uint32_t conn_id,
+        uint32_t ch_no,
+        uint32_t *status,
+        uint32_t *total_size,
+        uint32_t *use_size
 );
 
 /**
@@ -1319,12 +1356,26 @@ NP_EXPORT int iotsdk_user_set_irlight(
         uint32_t flag              // 1 常开；2 常关； 3 自动
 );
 
+/**
+ * 设置事件触发后的录像时长
+ * @param conn_id
+ * @param ch_no
+ * @param rec_time
+ * @return
+ */
 NP_EXPORT int iotsdk_user_set_event_rec_time(
         uint32_t conn_id,           // 连接ID
         uint32_t ch_no,             // 通道数
         uint32_t rec_time           // 单信秒
 );
 
+/**
+ * 获取事件触发后的录像时长
+ * @param conn_id
+ * @param ch_no
+ * @param rec_time
+ * @return
+ */
 NP_EXPORT int iotsdk_user_get_event_rec_time(
         uint32_t conn_id,           // 连接ID
         uint32_t ch_no,             // 通道数
@@ -1360,6 +1411,48 @@ NP_EXPORT int iotsdk_user_get_battery_status(
         uint32_t ch_no,             // 通道数
         uint32_t *power_percent,     // 电量百分比
         uint32_t *status             // 1 正常, 2 充电
+);
+
+/**
+ *
+ * @param conn_id
+ * @param ch_no
+ * @param cfg                   [in]
+ * @return
+ */
+NP_EXPORT int iotsdk_user_get_dont_disturb(
+        uint32_t conn_id,           // 连接ID
+        uint32_t ch_no,             // 通道数
+        dont_disturb_cfg_t *cfg     //
+);
+
+/**
+ *
+ * @param conn_id
+ * @param ch_no
+ * @param cfg                   [out]
+ * @return
+ */
+NP_EXPORT int iotsdk_user_set_dont_disturb(
+        uint32_t conn_id,           // 连接ID
+        uint32_t ch_no,             // 通道数
+        dont_disturb_cfg_t *cfg     //
+);
+
+NP_EXPORT int iotsdk_user_get_motion_detection(uint32_t conn_id,           // 连接ID
+                                               uint32_t ch_no,             // 通道数
+                                               uint32_t* left,
+                                               uint32_t* top,
+                                               uint32_t* right,
+                                               uint32_t* bottom
+);
+
+NP_EXPORT int iotsdk_user_set_motion_detection(uint32_t conn_id,           // 连接ID
+                                               uint32_t ch_no,             // 通道数
+                                               uint32_t left,
+                                               uint32_t top,
+                                               uint32_t right,
+                                               uint32_t bottom
 );
 
 #endif
@@ -1472,7 +1565,8 @@ NP_EXPORT int iotsdk_user_cloud_storage_play(
         uint32_t ch_no,            // [stream play] channel no
         uint64_t timestamp_ms,     // [stream play] true; 开始时间戳, 单位ms
         const char* cloud_file_name,    // [file play] 文件名
-        uint64_t file_offset            // [file play] 文件偏移
+        uint64_t file_offset,           // [file play] 文件偏移
+        uint64_t file_size              // [file play] 文件大小
 );
 
 /**
@@ -1646,6 +1740,8 @@ NP_EXPORT void iotsdk_dev_notice_online_chans(uint32_t conn_id,
  */
 NP_EXPORT void iotsdk_dev_set_lan_auth_info(const char *auth_user,
                                             const char *auth_pass);
+
+NP_EXPORT void iotsdk_dev_set_cb_ipc_conn_sync(cb_ipc_conn_sync cb);
 
 /**
  * 设置开启视频回调
@@ -1922,6 +2018,13 @@ NP_EXPORT void iotsdk_dev_set_cb_ipc_set_talkback_volume(cb_ipc_set_talkback_vol
 NP_EXPORT void iotsdk_dev_set_cb_ipc_get_taskback_volume(cb_ipc_get_talkback_volume);
 
 NP_EXPORT void iotsdk_dev_set_cb_ipc_get_battery_status(cb_ipc_get_battery_status);
+
+NP_EXPORT void iotsdk_dev_set_cb_ipc_set_dont_disturb(cb_ipc_set_dont_disturb );
+NP_EXPORT void iotsdk_dev_set_cb_ipc_get_dont_disturb(cb_ipc_get_dont_disturb );
+
+NP_EXPORT void iotsdk_dev_set_cb_ipc_set_motion_detection(cb_ipc_set_motion_detection );
+NP_EXPORT void iotsdk_dev_set_cb_ipc_get_motion_detection(cb_ipc_get_motion_detection );
+
 
 #endif
 

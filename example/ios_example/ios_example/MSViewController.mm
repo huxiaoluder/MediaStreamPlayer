@@ -214,7 +214,7 @@ static int i;
     if (encoder.isEncoding()) {
         player->stopReEncode();
     } else {
-        NSString *videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"test.mp4"]];
+        NSString *videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"test.h264"]];
         bool ret = encoder.configureEncoder(videoPath.UTF8String,
                                             decoder.getCurrentVideoParameters(),
                                             decoder.getCurrentAudioParameters());
@@ -292,7 +292,7 @@ static int i;
     [IotlibTool shareIotlibTool].delegate = self;
     
     // 38l(h265): IOTSHMK038L0000419790
-    // 私模(h264): IOTSHMK000S0008EDA1FCDD
+    // 私模(h264): IOTSHMK000S0008EDA1FCDD  IOTSHMK000S0008DEB486FC
     [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK000S0008EDA1FCDD"
                                                   callback:^(e_trans_conn_state status,
                                                              int connectId)
