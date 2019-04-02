@@ -87,7 +87,7 @@ MS::appendBitsValue(const uint32_t value, uint8_t * const dataRef, size_t &start
     *(uint32_t *)writePtr |= writeValue << modNum;
     
     // 填充剩余数据
-    uint32_t remainValue = writeValue >> 32 - modNum;
+    uint32_t remainValue = writeValue >> (32 - modNum);
     if (remainValue) {
         writePtr[4] |= remainValue << (8 - modNum);
     }
