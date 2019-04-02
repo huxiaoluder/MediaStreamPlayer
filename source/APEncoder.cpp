@@ -371,219 +371,6 @@ APEncoder::releaseEncoderConfiguration() {
     }
 }
 
-static inline bool
-detectBitValue(const uint8_t * const dataRef, const size_t &startLocation) {
-    return dataRef[startLocation / 8] & (0x80 >> (startLocation % 8));
-}
-
-static inline void
-skipBits(size_t &starLocation, const size_t skipLen) {
-    starLocation += skipLen;
-}
-
-static void
-skipGolombBits(const uint8_t * const dataRef, size_t &startLocation, const int times) {
-    for (int i = 0; i < times; i++) {
-        // 指数
-        int index = 0;
-        while (!detectBitValue(dataRef, startLocation)) {
-            index++;
-            startLocation++;
-        }
-        startLocation += (index + 1);
-    }
-}
-
-static int
-getBitsValue(const uint8_t * const dataRef, size_t &startLocation, const int bitsCount) {
-    int value = 0;
-    for (int i = 0; i < bitsCount; i++) {
-        value <<= 1;
-        if (detectBitValue(dataRef, startLocation)) {
-            value |= 1;
-        }
-        startLocation++;
-    }
-    return value;
-}
-
-static int
-ueGolomb(const uint8_t * const dataRef, size_t &startLocation) {
-    // 指数
-    int index = 0;
-    while (!detectBitValue(dataRef, startLocation)) {
-        index++;
-        startLocation++;
-    }
-    
-    // 跳过对称位 1
-    startLocation++;
-    
-    // 去除指数的余值
-    int value = getBitsValue(dataRef, startLocation, index);
-    
-    return (1 << index | value) - 1;
-}
-
-static int
-seGolomb(const uint8_t * const dataRef, size_t &startLocation) {
-    int ueValue = ueGolomb(dataRef, startLocation);
-    double k = ueValue;
-    // ceil函数求不小于给定实数的最小整数
-    int newValue = ceil(k/2);
-    return ueValue % 2 == 0 ? -newValue : newValue;
-}
-
-static void
-skipH264ScalingList(const uint8_t * const spsRef, size_t &startLocation, size_t sizeOfScalingList) {
-    int lastScale = 8;
-    int nextScale = 8;
-    int delta_scale;
-    for (int i = 0; i < sizeOfScalingList; i++) {
-        if (nextScale != 0) {
-            delta_scale = seGolomb(spsRef, startLocation);
-            nextScale = (lastScale + delta_scale + 256) % 256;
-        }
-        lastScale = nextScale == 0 ? lastScale : nextScale;
-    }
-}
-
-static const uint8_t *
-discardEmulationCode(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize) {
-    uint8_t * const realSps = new uint8_t[sourceSpsSize]{0};
-    
-    uint8_t * tempStart = realSps;
-    int lastStartIdx = 0;
-    size_t tempSize;
-    
-    for (int i = 3; i < sourceSpsSize; i++) {
-        if (sourceSpsRef[i] == 0x03 &&
-            *(uint32_t *)(sourceSpsRef + i - 2) << 8 == 0x03000000) {
-            tempSize = i - lastStartIdx;
-            memcpy(tempStart, sourceSpsRef+lastStartIdx, tempSize);
-            tempStart += tempSize;
-            lastStartIdx = i + 1;
-            i += 2;
-        }
-    }
-    
-    tempSize = sourceSpsSize - lastStartIdx;
-    memcpy(tempStart, sourceSpsRef+lastStartIdx, tempSize);
-    return realSps;
-}
-
-static void
-decode_h264_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameRate) {
-    int aspect_ratio_info_present_flag = getBitsValue(spsRef, startLocation, 1);
-    if(aspect_ratio_info_present_flag) {
-        int aspect_ratio_idc = getBitsValue(spsRef, startLocation, 8);
-        if(aspect_ratio_idc == 255/* Extended_SAR = 255 */) {
-            skipBits(startLocation, 32);
-        }
-    }
-    int overscan_info_present_flag = getBitsValue(spsRef, startLocation, 1);
-    if(overscan_info_present_flag) {
-        skipBits(startLocation, 1);
-    }
-    int video_signal_type_present_flag = getBitsValue(spsRef, startLocation, 1);
-    if(video_signal_type_present_flag) {
-        skipBits(startLocation, 4);
-        int colour_description_present_flag = getBitsValue(spsRef, startLocation, 1);
-        if(colour_description_present_flag) {
-            skipBits(startLocation, 24);
-        }
-    }
-    int chroma_loc_info_present_flag = getBitsValue(spsRef, startLocation, 1);
-    if (chroma_loc_info_present_flag) {
-        skipGolombBits(spsRef, startLocation, 2);
-    }
-    int timing_info_present_flag = getBitsValue(spsRef, startLocation, 1);
-    if(timing_info_present_flag) {
-        int num_units_in_tick = getBitsValue(spsRef, startLocation, 32);
-        int time_scale = getBitsValue(spsRef, startLocation, 32);
-        frameRate = time_scale / (2 * num_units_in_tick);
-    }
-}
-
-static void
-decode_h264_sps(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, MSVideoParameters &videoParameter) {
-    
-    const uint8_t * const realSps = discardEmulationCode(sourceSpsRef, sourceSpsSize);
-    
-    size_t startLocation = 0;
-    
-    skipBits(startLocation, 8);
-    
-    int profile_idc = getBitsValue(realSps, startLocation, 8);
-    skipBits(startLocation, 16);
-    skipGolombBits(realSps, startLocation, 1);
-    
-    if (profile_idc == 100 ||
-        profile_idc == 110 ||
-        profile_idc == 122 ||
-        profile_idc == 144) {
-        
-        int chroma_format_idc = ueGolomb(realSps, startLocation);
-        if(chroma_format_idc == 3) {
-            skipBits(startLocation, 1);
-        }
-        skipGolombBits(realSps, startLocation, 2);
-        skipBits(startLocation, 1);
-        
-        int seq_scaling_matrix_present_flag = getBitsValue(realSps, startLocation, 1);
-        if(seq_scaling_matrix_present_flag) {
-            for (int i = 0; i < 8; i++) {
-                if (getBitsValue(realSps, startLocation, 1)) {
-                    if (i < 6) {
-                        skipH264ScalingList(realSps, startLocation, 16);
-                    } else {
-                        skipH264ScalingList(realSps, startLocation, 64);
-                    }
-                }
-            }
-        }
-    }
-    skipGolombBits(realSps, startLocation, 1);
-    
-    int pic_order_cnt_type = ueGolomb(realSps, startLocation);
-    if(pic_order_cnt_type == 0) {
-        skipGolombBits(realSps, startLocation, 1);
-    } else if (pic_order_cnt_type == 1) {
-        skipBits(startLocation, 1);
-        skipGolombBits(realSps, startLocation, 2);
-        skipGolombBits(realSps, startLocation, ueGolomb(realSps, startLocation));
-    }
-    skipGolombBits(realSps, startLocation, 1);
-    skipBits(startLocation, 1);
-    
-    int pic_width_in_mbs_minus1         = ueGolomb(realSps, startLocation);
-    int pic_height_in_map_units_minus1  = ueGolomb(realSps, startLocation);
-    
-    int frame_mbs_only_flag = getBitsValue(realSps, startLocation, 1);
-    if(!frame_mbs_only_flag) {
-        skipBits(startLocation, 1);
-    }
-    skipBits(startLocation, 1);
-    
-    int frame_cropping_flag = getBitsValue(realSps, startLocation, 1);
-    if(frame_cropping_flag) {
-        skipGolombBits(realSps, startLocation, 4);
-    }
-    
-    int vui_parameters_present_flag = getBitsValue(realSps, startLocation, 1);
-    if(vui_parameters_present_flag) {
-        decode_h264_vui(realSps, startLocation, videoParameter.frameRate);
-    }
-    
-    videoParameter.width  = (pic_width_in_mbs_minus1 + 1) * 16;
-    // (主流的 1080p, 720p, 360p)按16字节对齐, 可能会产生8位的冗余长度, 需要去除
-    videoParameter.height = (pic_height_in_map_units_minus1 + 1) * 16;
-    if (videoParameter.height == 1088) {
-        videoParameter.height = 1080;
-    }
-    
-    delete [] realSps;
-}
 void
 APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                                      void * MSNullable sourceFrameRefCon,
@@ -618,12 +405,14 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                                                    &ppsLen,
                                                    &encoder.nalUnitHeaderLen);
             if (ret) {
+                const uint8_t *newSpsData;
+                size_t newSpsLen;
+                insertFramerateToSps(20, spsData, spsLen, &newSpsData, &newSpsLen);
+                
                 fwrite(separator, sizeof(separator), 1, file);
-                fwrite(spsData, spsLen, 1, file);
+                fwrite(newSpsData, newSpsLen, 1, file);
                 fwrite(separator, sizeof(separator), 1, file);
                 fwrite(ppsData, ppsLen, 1, file);
-                MSVideoParameters vp;
-                decode_h264_sps(spsData, spsLen, vp);
                 printf("+++++++++++++ %p\n", spsData);
             }
         }
@@ -635,7 +424,7 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
         
         uint32_t len = 0;
         do {
-            len = CFSwapInt32BigToHost(*(uint32_t *)dataPtr);
+            len = getReverse4Bytes(*(uint32_t *)dataPtr);
             fwrite(separator, sizeof(separator), 1, file);
             
             dataPtr += 4;

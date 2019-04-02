@@ -39,6 +39,7 @@
 		4F1F3267222E73480022CE66 /* yuv.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3266222E73480022CE66 /* yuv.vsh */; };
 		4F1F3269222E82000022CE66 /* yuv.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3268222E82000022CE66 /* yuv.fsh */; };
 		4F207D11223743350098190E /* MSOpenGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F207D0F223743350098190E /* MSOpenGLES.cpp */; };
+		4F270B462252F5F700DBB3BB /* MSUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F270B442252F5F700DBB3BB /* MSUtil.cpp */; };
 		4F65D95D222931A2008B4B3D /* APVideoRender.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F65D95C222931A2008B4B3D /* APVideoRender.mm */; };
 		4F65D96022293315008B4B3D /* MSGLHanlder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F65D95E22293315008B4B3D /* MSGLHanlder.cpp */; };
 		4F888024223F46190001CA94 /* APAudioRender.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F888023223F46190001CA94 /* APAudioRender.mm */; };
@@ -231,6 +232,8 @@
 		4F207D0F223743350098190E /* MSOpenGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSOpenGLES.cpp; sourceTree = "<group>"; };
 		4F207D10223743350098190E /* MSOpenGLES.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSOpenGLES.hpp; sourceTree = "<group>"; };
 		4F226DA8221E35F9006A1046 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		4F270B442252F5F700DBB3BB /* MSUtil.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSUtil.cpp; sourceTree = "<group>"; };
+		4F270B452252F5F700DBB3BB /* MSUtil.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSUtil.hpp; sourceTree = "<group>"; };
 		4F65D95B222931A2008B4B3D /* APVideoRender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APVideoRender.h; sourceTree = "<group>"; };
 		4F65D95C222931A2008B4B3D /* APVideoRender.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = APVideoRender.mm; sourceTree = "<group>"; };
 		4F65D95E22293315008B4B3D /* MSGLHanlder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSGLHanlder.cpp; sourceTree = "<group>"; };
@@ -363,6 +366,8 @@
 			children = (
 				4F81B868221D56A100385B2B /* MediaStreamPlayer.h */,
 				4F0E550221EF255900302D45 /* MSMacros.h */,
+				4F270B452252F5F700DBB3BB /* MSUtil.hpp */,
+				4F270B442252F5F700DBB3BB /* MSUtil.cpp */,
 				4F0A735E21B7B462000E0E31 /* MSDecoderProtocol.h */,
 				4FF055DF21DC936700339CDF /* MSEncoderProtocol.h */,
 				4FF055DD21DC53AD00339CDF /* MSAsynDataReceiver.h */,
@@ -862,6 +867,7 @@
 				4F1707B821D3785800CE476E /* APCodecContext.cpp in Sources */,
 				4FCF481221F05DFD0030E739 /* MSNaluParts.cpp in Sources */,
 				4F1707BA21D4B6C000CE476E /* APEncoder.cpp in Sources */,
+				4F270B462252F5F700DBB3BB /* MSUtil.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

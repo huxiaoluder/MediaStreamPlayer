@@ -9,9 +9,8 @@
 #ifndef MSNaluParts_hpp
 #define MSNaluParts_hpp
 
-#include <cstring>
-#include <cstdint>
 #include "MSMacros.h"
+#include "MSUtil.hpp"
 
 namespace MS {
     
@@ -24,25 +23,6 @@ namespace MS {
         MSCodecID_AAC,
         MSCodecID_OPUS,
         MSCodecID_ALAW,//G711A
-    };
-    
-    static const int adtsFrequencyList[] = {
-        96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350
-    };
-    
-    struct MSVideoParameters {
-        int width       = 0;
-        int height      = 0;
-        int frameRate   = 0;
-    };
-    
-    struct MSAudioParameters {
-        int profile     = 0; // == MPEG-4 Audio Object Types (APPLE ENUM: MPEG4ObjectID) - 1
-        int channels    = 0;
-        struct {
-            int index   = 0;  // index of adtsFrequencyList
-            int value   = 0; // value of index in adtsFrequencyList
-        } frequency;
     };
     
     /**
@@ -131,8 +111,6 @@ namespace MS {
         
         const MSAudioParameters * MSNonnull parseAacAdts() const;
     };
-    
-    
     
 }
 

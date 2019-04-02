@@ -31,11 +31,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
         tempRef -= 1;
         
         // atom 型: 替换开始码为数据长度(小端存储)
-        *tempRef &= 0;
-        *tempRef |= (tempSize << 24);
-        *tempRef |= (tempSize >> 24);
-        *tempRef |= (tempSize & 0x0000FF00) << 8;
-        *tempRef |= (tempSize & 0x00FF0000) >> 8;
+        *tempRef = getReverse4Bytes((uint32_t)tempSize);
         
         // atom 型: nalu 数据长度
         tempSize += 4;
