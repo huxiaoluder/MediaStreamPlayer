@@ -63,14 +63,14 @@ namespace MS {
     int getBitsValue(const uint8_t * const dataRef, size_t &startLocation, const int bitsCount);
     
     /**
-     按位拼值, 数据源缓冲区需保证空间足够(dataSize >= startLocation / 8 + 4), 否则错误未知
+     按位拼值, 数据源缓冲区需保证空间足够, 初始数据为 0.
 
      @param value [in] 拼入数据
      @param dataRef [in] 拼入数据源
      @param startLocation [inout] 拼入位置
      @param bitsCount [in] 拼入位数
      */
-    void appendBitsValue(const uint32_t value, uint8_t * const dataRef, size_t &startLocation, const int bitsCount);
+    void appendBitsValue(const uint32_t value, uint8_t * const dataRef, size_t &startLocation, const size_t bitsCount);
     
     /**
      哥伦布编码取值(无符号)

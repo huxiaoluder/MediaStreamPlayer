@@ -69,27 +69,37 @@ MS::getBitsValue(const uint8_t * const dataRef, size_t &startLocation, const int
 }
 
 void
-MS::appendBitsValue(const uint32_t value, uint8_t * const dataRef, size_t &startLocation, const int bitsCount) {
-    assert(bitsCount > 0 && bitsCount <= 32 && value >> bitsCount == 0);
+MS::appendBitsValue(const uint32_t value, uint8_t * const dataRef, size_t &startLocation, const size_t bitsCount) {
+    // 注: 右移高位补全, C 标准未定义, 但是大部分编译器, 正数右移为补 0, 负数右移位位补 1.
+    // 注: 移位操作位数必须小于数据类型宽度且大于零, 否则移位无效
+    assert(bitsCount > 0 &&                 // bitsCount 最小值
+           bitsCount <= 32 &&               // bitsCount 最大值
+           (value >> (bitsCount-1)) <= 1);  // 有效值一定包含在 bitsCount 中
     
-    // 反转字节
-    uint32_t writeValue = getReverse4Bytes(value);
-    // 去除冗余 0 位, 右移高位补全, C 标准未定义, 但是大部分编译器, 正数右移都为补 0.
-    while ((writeValue & 0x01) == 0) {
-        writeValue >>= 1;
+    if (value == 0) {
+        startLocation += bitsCount;
+        return;
     }
     
     size_t offset = startLocation / 8;
     size_t modNum = startLocation % 8;
     
-    uint8_t *writePtr = dataRef + offset;
+    uint32_t *writePtr = (uint32_t *)(dataRef + offset);
     
-    *(uint32_t *)writePtr |= writeValue << modNum;
+    // 去除冗余 0 位, 注: 有效值一定包含在 bitsCount 中
+    uint32_t writeValue = value << (32 - bitsCount);
     
-    // 填充剩余数据
-    uint32_t remainValue = writeValue >> (32 - modNum);
-    if (remainValue) {
-        writePtr[4] |= remainValue << (8 - modNum);
+    // 让出 modNum 位空间
+    writeValue >>= modNum;
+    
+    // 反转字节, 并写入目标内存
+    writePtr[0] |= getReverse4Bytes(writeValue);
+    
+    // 以 4 字节写入时, 当 bitsCount + modNum > 32, 会产生数据溢出, 还需要填充溢出的数据
+    int remainBitsCount = int(bitsCount + modNum) - 32;
+    if (remainBitsCount > 0) {
+        uint32_t remainValue = value << (32 - remainBitsCount);
+        writePtr[1] |= getReverse4Bytes(remainValue);
     }
     
     startLocation += bitsCount;
@@ -349,9 +359,17 @@ MS::decode_h264_sps(const uint8_t * const sourceSpsRef,
     }
     skipBits(startLocation, 1);
     
+    int frame_crop_left_offset   = 0;
+    int frame_crop_right_offset  = 0;
+    int frame_crop_top_offset    = 0;
+    int frame_crop_bottom_offset = 0;
+    
     int frame_cropping_flag = getBitsValue(realSps, startLocation, 1);
     if(frame_cropping_flag) {
-        skipGolombBits(realSps, startLocation, 4);
+        frame_crop_left_offset   = ueGolomb(realSps, startLocation);
+        frame_crop_right_offset  = ueGolomb(realSps, startLocation);
+        frame_crop_top_offset    = ueGolomb(realSps, startLocation);
+        frame_crop_bottom_offset = ueGolomb(realSps, startLocation);
     }
     
     int vui_parameters_present_flag = getBitsValue(realSps, startLocation, 1);
@@ -359,12 +377,8 @@ MS::decode_h264_sps(const uint8_t * const sourceSpsRef,
         decode_h264_vui(realSps, startLocation, videoParameter.frameRate);
     }
     
-    videoParameter.width  = (pic_width_in_mbs_minus1 + 1) * 16;
-    // (主流的 1080p, 720p, 360p)按16字节对齐, 可能会产生8位的冗余长度, 需要去除
-    videoParameter.height = (pic_height_in_map_units_minus1 + 1) * 16;
-    if (videoParameter.height == 1088) {
-        videoParameter.height = 1080;
-    }
+    videoParameter.width  = (pic_width_in_mbs_minus1 + 1) * 16 - (frame_crop_left_offset + frame_crop_right_offset) * 2;
+    videoParameter.height = (pic_height_in_map_units_minus1 + 1) * 16 - (frame_crop_top_offset + frame_crop_bottom_offset) * 2;
     
     delete [] realSps;
 }
@@ -567,7 +581,7 @@ MS::insertFramerateToSps(const int framerate,
         int timing_info_present_flag = getBitsValue(realSps, startLocation, 1);
         if(!timing_info_present_flag) {
             startLocation -= 1;
-            appendBitsValue(1, newSps, startLocation, 1);
+            appendBitsValue(0x123456ff, newSps, startLocation, 32);
             
             size_t offset = startLocation / 8;
             size_t modBit = startLocation % 8;
