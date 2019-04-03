@@ -377,8 +377,10 @@ MS::decode_h264_sps(const uint8_t * const sourceSpsRef,
         decode_h264_vui(realSps, startLocation, videoParameter.frameRate);
     }
     
-    videoParameter.width  = (pic_width_in_mbs_minus1 + 1) * 16 - (frame_crop_left_offset + frame_crop_right_offset) * 2;
-    videoParameter.height = (pic_height_in_map_units_minus1 + 1) * 16 - (frame_crop_top_offset + frame_crop_bottom_offset) * 2;
+    videoParameter.width  = ((pic_width_in_mbs_minus1 + 1) * 16 -
+                             ((frame_crop_left_offset + frame_crop_right_offset) << 1)); // 左右间距
+    videoParameter.height = ((pic_height_in_map_units_minus1 + 1) * 16 -
+                             ((frame_crop_top_offset + frame_crop_bottom_offset) << 1)); // 上下间距
     
     delete [] realSps;
 }
