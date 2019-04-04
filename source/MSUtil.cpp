@@ -56,9 +56,9 @@ MS::getReverse4Bytes(const uint32_t target) {
 }
 
 int
-MS::getBitsValue(const uint8_t * const dataRef, size_t &startLocation, const int bitsCount) {
+MS::getBitsValue(const uint8_t * const dataRef, size_t &startLocation, const size_t bitsCount) {
     int value = 0;
-    for (int i = 0; i < bitsCount; i++) {
+    for (size_t i = 0; i < bitsCount; i++) {
         value <<= 1;
         if (detectBitValue(dataRef, startLocation)) {
             value |= 1;
@@ -69,7 +69,7 @@ MS::getBitsValue(const uint8_t * const dataRef, size_t &startLocation, const int
 }
 
 void
-MS::appendBitsValue(const uint32_t value, uint8_t * const dataRef, size_t &startLocation, const size_t bitsCount) {
+MS::putBitsValue(const uint32_t value, uint8_t * const dataRef, size_t &startLocation, const size_t bitsCount) {
     // 注: 右移高位补全, C 标准未定义, 但是大部分编译器, 正数右移为补 0, 负数右移位位补 1.
     // 注: 移位操作位数必须小于数据类型宽度且大于零, 否则移位无效
     assert(bitsCount > 0 &&                 // bitsCount 最小值
@@ -274,8 +274,9 @@ profile_tier_level(const uint8_t * const spsRef, size_t &startLocation, int sps_
 }
 
 static const uint8_t *
-discardEmulationCode(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize) {
-    uint8_t * const realSps = new uint8_t[sourceSpsSize]{0};
+discardEmulationCode(const uint8_t * const sourceSpsRef, const size_t sourceSpsSize, size_t &realSpsSize) {
+    realSpsSize = sourceSpsSize;
+    uint8_t * const realSps = new uint8_t[realSpsSize]{0};
     
     uint8_t * tempStart = realSps;
     int lastStartIdx = 0;
@@ -289,6 +290,7 @@ discardEmulationCode(const uint8_t * const sourceSpsRef, const size_t sourceSpsS
             tempStart += tempSize;
             lastStartIdx = i + 1;
             i += 2;
+            realSpsSize--;
         }
     }
     
@@ -297,12 +299,28 @@ discardEmulationCode(const uint8_t * const sourceSpsRef, const size_t sourceSpsS
     return realSps;
 }
 
+static void
+insertEmulationCode(uint8_t * const sourceSpsRef, size_t &sourceSpsSize) {
+    for (int i = 3; i < sourceSpsSize; i++) {
+        if (sourceSpsRef[i] == 0x01 &&
+            *(uint32_t *)(sourceSpsRef + i - 2) << 8 == 0x01000000) {
+            // 数据后移 1 个字节, 并插入 0x03.
+            // C++ 函数: wmemmove 支持空间重叠, 内部会先拷贝到临时空间
+            wmemmove((wchar_t *)sourceSpsRef + i + 1,
+                     (wchar_t *)sourceSpsRef + i,
+                     sourceSpsSize-i);
+            sourceSpsSize++;
+            i++;
+        }
+    }
+}
+
 void
 MS::decode_h264_sps(const uint8_t * const sourceSpsRef,
                     const size_t          sourceSpsSize,
                     MSVideoParameters     &videoParameter) {
-    
-    const uint8_t * const realSps = discardEmulationCode(sourceSpsRef, sourceSpsSize);
+    size_t realSpsLen;
+    const uint8_t * const realSps = discardEmulationCode(sourceSpsRef, sourceSpsSize, realSpsLen);
     
     size_t startLocation = 0;
     
@@ -389,7 +407,8 @@ void
 MS::decode_h265_sps(const uint8_t * const sourceSpsRef,
                     const size_t          sourceSpsSize,
                     MSVideoParameters     &videoParameter) {
-    const uint8_t * const realSps = discardEmulationCode(sourceSpsRef, sourceSpsSize);
+    size_t realSpsLen;
+    const uint8_t * const realSps = discardEmulationCode(sourceSpsRef, sourceSpsSize, realSpsLen);
     
     size_t startLocation = 0;
     
@@ -487,7 +506,8 @@ MS::insertFramerateToSps(const int framerate,
                          const size_t           inSize,
                          const uint8_t ** const outSps,
                          size_t * const         outSize) {
-    const uint8_t * const realSps = discardEmulationCode(inSps, inSize);
+    size_t realSpsLen;
+    const uint8_t * const realSps = discardEmulationCode(inSps, inSize, realSpsLen);
     
     size_t startLocation = 0;
     
@@ -576,22 +596,49 @@ MS::insertFramerateToSps(const int framerate,
             skipGolombBits(realSps, startLocation, 2);
         }
         
-        *outSize = inSize + 2 * 4;
-        uint8_t * const newSps = new uint8_t[*outSize]{0};
+        *outSize = realSpsLen + 4 * 2 + 1; // 字节对齐扩展
+        // 预留 8 个字节(用来插入 0x03 防分隔符歧义字符)
+        uint8_t * const newSps = new uint8_t[*outSize + 8]{0};
         *outSps = newSps;
         
         int timing_info_present_flag = getBitsValue(realSps, startLocation, 1);
         if(!timing_info_present_flag) {
+            size_t preLen  = startLocation / 8;
+            size_t modNum  = startLocation % 8;
+            
+            size_t postLocation  = startLocation; // 后向数据起始位置
+            size_t postBitsCount = realSpsLen * 8 - postLocation;// 剩余后向数据长度
+            
+            // 拷贝前向数据
+            memcpy(newSps, realSps, preLen);
+            if (modNum) { // 拷贝前向剩余数据
+                newSps[preLen] = (realSps[preLen] & (-1 << (8 - modNum)));
+            }
+            
+            uint32_t num_units_in_tick = 1;                 // u(32)
+            uint32_t time_scale = (uint32_t)framerate << 1; // u(32)
+            uint32_t fixed_frame_rate_flag = 0;             // u(1)
+            
+            // 修改 timing_info_present_flag 标志位
             startLocation -= 1;
-            appendBitsValue(0x123456ff, newSps, startLocation, 32);
+            putBitsValue(1, newSps, startLocation, 1);
             
-            size_t offset = startLocation / 8;
-            size_t modBit = startLocation % 8;
-            const uint8_t *tempPtr = realSps + offset;
+            // 插入数据
+            putBitsValue(num_units_in_tick, newSps, startLocation, 32);
+            putBitsValue(time_scale, newSps, startLocation, 32);
+            putBitsValue(fixed_frame_rate_flag, newSps, startLocation, 1);
             
-            uint32_t num_units_in_tick = 1;
-            uint32_t time_scale = (uint32_t)framerate << 1;
+            // 拷贝后向数据
+            while (postBitsCount > 32) {
+                uint32_t value = (uint32_t)getBitsValue(realSps, postLocation, 32);
+                putBitsValue(value, newSps, startLocation, 32);
+                postBitsCount -= 32;
+            }
+            uint32_t value = getBitsValue(realSps, postLocation, postBitsCount);
+            putBitsValue(value, newSps, startLocation, postBitsCount);
         }
+        
+        insertEmulationCode(newSps, *outSize);
     }
     
     delete [] realSps;

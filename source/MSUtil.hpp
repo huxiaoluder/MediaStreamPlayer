@@ -60,17 +60,18 @@ namespace MS {
      @param bitsCount [in] 读取位数
      @return 读取值
      */
-    int getBitsValue(const uint8_t * const dataRef, size_t &startLocation, const int bitsCount);
+    int getBitsValue(const uint8_t * const dataRef, size_t &startLocation, const size_t bitsCount);
     
     /**
-     按位拼值, 数据源缓冲区需保证空间足够, 初始数据为 0.
-
-     @param value [in] 拼入数据
-     @param dataRef [in] 拼入数据源
-     @param startLocation [inout] 拼入位置
-     @param bitsCount [in] 拼入位数
+     按位写值(最多支持 32 bits), 数据源缓冲区需保证空间足够, 初始数据为 0.
+     注: 不能用于在已有数据中间插入数据, 可能会出现插入数据错误, 除非你确定不会出现错误
+     
+     @param value [in] 写入数据
+     @param dataRef [in] 写入数据源
+     @param startLocation [inout] 写入位置
+     @param bitsCount [in] 写入位数
      */
-    void appendBitsValue(const uint32_t value, uint8_t * const dataRef, size_t &startLocation, const size_t bitsCount);
+    void putBitsValue(const uint32_t value, uint8_t * const dataRef, size_t &startLocation, const size_t bitsCount);
     
     /**
      哥伦布编码取值(无符号)

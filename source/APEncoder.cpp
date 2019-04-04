@@ -407,13 +407,12 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
             if (ret) {
                 const uint8_t *newSpsData;
                 size_t newSpsLen;
+                // 硬编码出来的数据中, sps 里不含 framerate, 需要自己添加(大坑一个!!!)
                 insertFramerateToSps(20, spsData, spsLen, &newSpsData, &newSpsLen);
-                
                 fwrite(separator, sizeof(separator), 1, file);
                 fwrite(newSpsData, newSpsLen, 1, file);
                 fwrite(separator, sizeof(separator), 1, file);
                 fwrite(ppsData, ppsLen, 1, file);
-                printf("+++++++++++++ %p\n", spsData);
             }
         }
 
