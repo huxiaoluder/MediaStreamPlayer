@@ -214,7 +214,7 @@ static int i;
     if (encoder.isEncoding()) {
         player->stopReEncode();
     } else {
-        NSString *videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"test.h264"]];
+        NSString *videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"test.mp4"]];
         bool ret = encoder.configureEncoder(videoPath.UTF8String,
                                             decoder.getCurrentVideoParameters(),
                                             decoder.getCurrentAudioParameters());

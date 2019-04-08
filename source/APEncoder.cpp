@@ -157,16 +157,22 @@ CMSampleBufferGetEncodeInfo(CMSampleBufferRef const MSNonnull sampleBuffer,
                                                        nullptr);
     return true;
 }
-static FILE *file = nullptr;
+
 void
 APEncoder::beginEncode() {
     videoPts = 0;
     audioPts = 0;
 
+    int ret = avio_open(&outputFormatContext->pb, filePath.c_str(), AVIO_FLAG_READ_WRITE);
+    if (ret < 0) {
+        ErrorLocationLog(av_err2str(ret));
+        return;
+    }
+    
     if (videoEncoderSession) {
         VTCompressionSessionPrepareToEncodeFrames(videoEncoderSession);
     }
-    file = fopen(filePath.c_str(), "wb");
+    
     _isEncoding = true;
 }
 
@@ -377,6 +383,8 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                                      OSStatus status,
                                      VTEncodeInfoFlags infoFlags,
                                      CMSampleBufferRef MSNullable sampleBuffer) {
+    int width = (int)CVPixelBufferGetWidth((CVPixelBufferRef)sourceFrameRefCon);
+    int height = (int)CVPixelBufferGetHeight((CVPixelBufferRef)sourceFrameRefCon);
     CVPixelBufferRelease((CVPixelBufferRef)sourceFrameRefCon);
 
     if (status) {
@@ -391,7 +399,11 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
         APEncoder &encoder = *(APEncoder *)outputCallbackRefCon;
     
         bool isKeyFrame = CMSampleBufferIsKeyFrame(sampleBuffer);
-        if (isKeyFrame) {
+        if (isKeyFrame && encoder.videoStream == nullptr) {
+            
+            encoder.videoStream = avformat_new_stream(encoder.outputFormatContext, nullptr);
+            encoder.videoStream->time_base = {1, 20};
+            AVCodecParameters &codecpar = *encoder.videoStream->codecpar;
             
             const uint8_t *spsData;
             const uint8_t *ppsData;
@@ -409,10 +421,36 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                 size_t newSpsLen;
                 // 硬编码出来的数据中, sps 里不含 framerate, 需要自己添加(大坑一个!!!)
                 insertFramerateToSps(20, spsData, spsLen, &newSpsData, &newSpsLen);
-                fwrite(separator, sizeof(separator), 1, file);
-                fwrite(newSpsData, newSpsLen, 1, file);
-                fwrite(separator, sizeof(separator), 1, file);
-                fwrite(ppsData, ppsLen, 1, file);
+
+                codecpar.codec_type = AVMEDIA_TYPE_VIDEO;
+                codecpar.codec_id = FFmpeg::FFCodecContext::getAVCodecId(encoder.videoCodecID);
+                codecpar.codec_tag = 0;
+                codecpar.extradata_size = (int)newSpsLen + 4 * 2 + (int)ppsLen;
+                codecpar.extradata = (uint8_t *)av_malloc(codecpar.extradata_size);
+                codecpar.format = AV_PIX_FMT_YUVJ420P;
+                codecpar.bit_rate = width * height * 3 * 2 * 8;
+                codecpar.profile = FF_PROFILE_H264_HIGH;
+                codecpar.width = width;
+                codecpar.height = height;
+                
+                int offset = 0;
+                memcpy(codecpar.extradata + offset, separator, 4);
+                offset += 4;
+                memcpy(codecpar.extradata + offset, newSpsData, newSpsLen);
+                offset += newSpsLen;
+                memcpy(codecpar.extradata + offset, separator, 4);
+                offset += 4;
+                memcpy(codecpar.extradata + offset, ppsData, ppsLen);
+                
+                delete [] newSpsData;
+                
+                av_dump_format(encoder.outputFormatContext, 0, encoder.filePath.c_str(), 1);
+                
+                int ret = avformat_write_header(encoder.outputFormatContext, nullptr);
+                if (ret < 0) {
+                    ErrorLocationLog(av_err2str(ret));
+                    return;
+                }
             }
         }
 
@@ -422,21 +460,38 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
         CMBlockBufferGetDataPointer(blockBuffer, 0, nullptr, &dataLen, &dataPtr);
         
         uint32_t len = 0;
+        uint32_t offset = 0;
         do {
-            len = getReverse4Bytes(*(uint32_t *)dataPtr);
-            fwrite(separator, sizeof(separator), 1, file);
-            
-            dataPtr += 4;
-            fwrite(dataPtr, len, 1, file);
-            
-            dataPtr += len;
-            dataLen -= (4 + len);
-        } while (dataLen);
+            len = getReverse4Bytes(*(uint32_t *)(dataPtr + offset));
+            memcpy(dataPtr + offset, separator, 4);
+            offset = offset + 4 + len;
+        } while (offset < dataLen);
         
+        AVPacket packet;
+        av_init_packet(&packet);
+        packet.data = (uint8_t *)dataPtr;
+        packet.size = (int)dataLen;
+//        packet.pts = encoder.videoPts;
+//        packet.dts = encoder.videoPts;
+        packet.pos = -1;
+        packet.pts = av_rescale_q_rnd(encoder.videoPts,
+                                      encoder.videoStream->time_base,
+                                      encoder.videoStream->time_base,
+                                      AVRounding(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
+        packet.dts = packet.pts;
+        packet.duration = 0;
+        
+        int ret = av_interleaved_write_frame(encoder.outputFormatContext, &packet);
+        if (ret < 0) {
+            ErrorLocationLog(av_err2str(ret));
+        }
         printf("------------- %lld\n", encoder.videoPts);
         
         if (encoder.videoPts++ == 399) {
-            fclose(file);
+            avio_flush(encoder.outputFormatContext->pb);
+            int ret = av_write_trailer(encoder.outputFormatContext);
+            avio_closep(&encoder.outputFormatContext->pb);
+            avformat_free_context(encoder.outputFormatContext);
             exit(0);
         }
     }

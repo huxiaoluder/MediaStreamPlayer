@@ -256,6 +256,7 @@ FFEncoder::releaseEncoderConfiguration() {
         audioEncoderContext = nullptr;
     }
     if (outputFormatContext) {
+        avio_closep(&outputFormatContext->pb);
         avformat_free_context(outputFormatContext);
         outputFormatContext = nullptr;
     }
@@ -271,10 +272,7 @@ void
 FFEncoder::encodeData(AVFrame * const frame,
                       AVStream * const outStream,
                       AVCodecContext * const encoderContext) {
-    AVPacket packet{
-        .data = nullptr,
-        .size = 0
-    };
+    AVPacket packet;
     av_init_packet(&packet);
     
     int ret = avcodec_send_frame(encoderContext, frame);
