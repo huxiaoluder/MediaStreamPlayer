@@ -24,6 +24,7 @@ namespace MS {
     public:
         MSGLHanlder(const char * MSNonnull const vshFilePath,
                     const char * MSNonnull const fshFilePath);
+        
         ~MSGLHanlder();
         
         GLuint getProgram() const;

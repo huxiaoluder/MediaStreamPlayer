@@ -76,21 +76,21 @@
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
     // 提交纹理数据
-    MSOpenGLES::commitTexture2DPixels(glHandler->getYtexture(),
+    OpenGLES::commitTexture2DPixels(glHandler->getYtexture(),
                                       GL_LUMINANCE,
                                       GL_LUMINANCE,
                                       frame.width,
                                       frame.height,
                                       GL_UNSIGNED_BYTE,
                                       frame.data[0]);
-    MSOpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
+    OpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
                                       GL_LUMINANCE,
                                       GL_LUMINANCE,
                                       uvWidth,
                                       uvHeight,
                                       GL_UNSIGNED_BYTE,
                                       frame.data[1]);
-    MSOpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
+    OpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
                                       GL_LUMINANCE,
                                       GL_LUMINANCE,
                                       uvWidth,
@@ -102,15 +102,15 @@
             同问题: 激活纹理完成后, 不能解绑 glBindTexture(GL_TEXTURE_2D, 0), 否则无法出图
      */
     // 激活纹理单元, 并分配采样器位置
-    MSOpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
+    OpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
                                          glHandler->getProgram(),
                                          GL_TEXTURE0,
                                          "ySampler2D");
-    MSOpenGLES::activeTexture2DToProgram(glHandler->getUtexture(),
+    OpenGLES::activeTexture2DToProgram(glHandler->getUtexture(),
                                          glHandler->getProgram(),
                                          GL_TEXTURE1,
                                          "uSampler2D");
-    MSOpenGLES::activeTexture2DToProgram(glHandler->getVtexture(),
+    OpenGLES::activeTexture2DToProgram(glHandler->getVtexture(),
                                          glHandler->getProgram(),
                                          GL_TEXTURE2,
                                          "vSampler2D");
@@ -138,21 +138,21 @@
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
     
-    MSOpenGLES::commitTexture2DPixels(glHandler->getYtexture(),
+    OpenGLES::commitTexture2DPixels(glHandler->getYtexture(),
                                       GL_LUMINANCE,
                                       GL_LUMINANCE,
                                       yWidth,
                                       yHeight,
                                       GL_UNSIGNED_BYTE,
                                       yData);
-    MSOpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
+    OpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
                                       GL_LUMINANCE,
                                       GL_LUMINANCE,
                                       uvWidth,
                                       uvHeight,
                                       GL_UNSIGNED_BYTE,
                                       uData);
-    MSOpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
+    OpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
                                       GL_LUMINANCE,
                                       GL_LUMINANCE,
                                       uvWidth,
@@ -160,15 +160,15 @@
                                       GL_UNSIGNED_BYTE,
                                       vData);
     
-    MSOpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
+    OpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
                                          glHandler->getProgram(),
                                          GL_TEXTURE0,
                                          "ySampler2D");
-    MSOpenGLES::activeTexture2DToProgram(glHandler->getUtexture(),
+    OpenGLES::activeTexture2DToProgram(glHandler->getUtexture(),
                                          glHandler->getProgram(),
                                          GL_TEXTURE1,
                                          "uSampler2D");
-    MSOpenGLES::activeTexture2DToProgram(glHandler->getVtexture(),
+    OpenGLES::activeTexture2DToProgram(glHandler->getVtexture(),
                                          glHandler->getProgram(),
                                          GL_TEXTURE2,
                                          "vSampler2D");

@@ -34,24 +34,24 @@ MSGLHanlder::MSGLHanlder(const char * const vshFilePath,
     string vshCode = vshStream.str();
     string fshCode = fshStream.str();
     
-    GLuint vertexShader     = MSOpenGLES::loadShader(GL_VERTEX_SHADER,    vshCode.c_str());
-    GLuint fragmentShader   = MSOpenGLES::loadShader(GL_FRAGMENT_SHADER,  fshCode.c_str());
+    GLuint vertexShader     = OpenGLES::loadShader(GL_VERTEX_SHADER,    vshCode.c_str());
+    GLuint fragmentShader   = OpenGLES::loadShader(GL_FRAGMENT_SHADER,  fshCode.c_str());
     
-    program = MSOpenGLES::linkProgram(vertexShader, fragmentShader);
+    program = OpenGLES::linkProgram(vertexShader, fragmentShader);
     
     glUseProgram(program);
     
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
     
-    attrBuffer = MSOpenGLES::bindFullViewportAttrBuffer();
+    attrBuffer = OpenGLES::bindFullViewportAttrBuffer();
     
     // 指定纹理在 OpenGL 中的内存对齐方式
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     
-    yTexture = MSOpenGLES::generateEmptyTexture2D();
-    uTexture = MSOpenGLES::generateEmptyTexture2D();
-    vTexture = MSOpenGLES::generateEmptyTexture2D();
+    yTexture = OpenGLES::generateEmptyTexture2D();
+    uTexture = OpenGLES::generateEmptyTexture2D();
+    vTexture = OpenGLES::generateEmptyTexture2D();
 }
 
 MSGLHanlder::~MSGLHanlder() {

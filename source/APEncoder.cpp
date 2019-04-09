@@ -45,6 +45,7 @@ setupVideoSessionProperties(const VTCompressionSessionRef videoEncoderSession,
         kVTCompressionPropertyKey_RealTime,
         kVTCompressionPropertyKey_ProfileLevel,         // 编码器配置级别
         kVTCompressionPropertyKey_MaxKeyFrameInterval,  // 编码 GOP 大小
+        kVTCompressionPropertyKey_AllowFrameReordering, // 是否允许打乱顺序(是否允许编码 B 帧)
         // 注: 并没有卵用(只用于提示编码器初始化内部配置, 可以不配置), 生成的 SPS 中不会带有帧率信息
         // 注: 实际帧速率将取决于帧持续时间，并且可能会有所不同。
         kVTCompressionPropertyKey_ExpectedFrameRate,    // 编码期望帧率
@@ -56,6 +57,7 @@ setupVideoSessionProperties(const VTCompressionSessionRef videoEncoderSession,
         kCFBooleanTrue,
         kVTProfileLevel_H264_High_AutoLevel,
         frameIntervalRef,
+        kCFBooleanFalse,
         framerateRef,
         bitRateLimitRef,
         bitRateAveraRef
@@ -399,8 +401,8 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
         APEncoder &encoder = *(APEncoder *)outputCallbackRefCon;
     
         bool isKeyFrame = CMSampleBufferIsKeyFrame(sampleBuffer);
-        if (isKeyFrame && encoder.videoStream == nullptr) {
-            
+        if (encoder.videoStream == nullptr) {
+            if (!isKeyFrame) { return; }
             encoder.videoStream = avformat_new_stream(encoder.outputFormatContext, nullptr);
             encoder.videoStream->time_base = {1, 20};
             AVCodecParameters &codecpar = *encoder.videoStream->codecpar;
@@ -432,6 +434,7 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                 codecpar.profile = FF_PROFILE_H264_HIGH;
                 codecpar.width = width;
                 codecpar.height = height;
+                codecpar.color_range = AVCOL_RANGE_JPEG;
                 
                 int offset = 0;
                 memcpy(codecpar.extradata + offset, separator, 4);
@@ -467,19 +470,19 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
             offset = offset + 4 + len;
         } while (offset < dataLen);
         
+        encoder.videoPts += 1;
+        
         AVPacket packet;
         av_init_packet(&packet);
         packet.data = (uint8_t *)dataPtr;
         packet.size = (int)dataLen;
-//        packet.pts = encoder.videoPts;
-//        packet.dts = encoder.videoPts;
-        packet.pos = -1;
-        packet.pts = av_rescale_q_rnd(encoder.videoPts,
-                                      encoder.videoStream->time_base,
-                                      encoder.videoStream->time_base,
-                                      AVRounding(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
-        packet.dts = packet.pts;
-        packet.duration = 0;
+        packet.pts = encoder.videoPts;
+        packet.dts = encoder.videoPts;
+        AVRational time_base{1,20};
+        av_packet_rescale_ts(&packet, time_base, encoder.videoStream->time_base);
+        if (isKeyFrame) {
+            packet.flags = AV_PKT_FLAG_KEY;
+        }
         
         int ret = av_interleaved_write_frame(encoder.outputFormatContext, &packet);
         if (ret < 0) {
@@ -487,7 +490,7 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
         }
         printf("------------- %lld\n", encoder.videoPts);
         
-        if (encoder.videoPts++ == 399) {
+        if (encoder.videoPts == 400) {
             avio_flush(encoder.outputFormatContext->pb);
             int ret = av_write_trailer(encoder.outputFormatContext);
             avio_closep(&encoder.outputFormatContext->pb);

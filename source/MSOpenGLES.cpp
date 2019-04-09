@@ -11,8 +11,8 @@
 using namespace MS;
 
 GLuint
-MSOpenGLES::loadShader(GLenum shaderType, const GLchar * const shaderStr) {
-   
+OpenGLES::loadShader(GLenum shaderType, const GLchar * const shaderStr) {
+    
     GLuint shader = 0;
     shader = glCreateShader(shaderType);
     
@@ -40,7 +40,7 @@ MSOpenGLES::loadShader(GLenum shaderType, const GLchar * const shaderStr) {
 }
 
 GLuint
-MSOpenGLES::linkProgram(const GLuint vertexShader, const GLuint fragmentShader) {
+OpenGLES::linkProgram(const GLuint vertexShader, const GLuint fragmentShader) {
     
     GLuint program = 0;
     program = glCreateProgram();
@@ -70,7 +70,7 @@ MSOpenGLES::linkProgram(const GLuint vertexShader, const GLuint fragmentShader) 
 }
 
 GLuint
-MSOpenGLES::bindFullViewportAttrBuffer() {
+OpenGLES::bindFullViewportAttrBuffer() {
     // 纹理的坐标原点是在左下角的, 但纹理数据流是从左上角开始的, 为了不使用 CPU 调整数据, 直接修改顶点属性纹理坐标位置
     // 采用结构数组的方式组织数据, 前三列顶点坐标属性, 后两列 2D纹理坐标属性
     GLfloat coordinates[] = {
@@ -129,7 +129,7 @@ MSOpenGLES::bindFullViewportAttrBuffer() {
 }
 
 GLuint
-MSOpenGLES::generateEmptyTexture2D() {
+OpenGLES::generateEmptyTexture2D() {
     GLuint texture;
     glGenTextures(1, &texture);// 分配纹理对象
     glBindTexture(GL_TEXTURE_2D, texture);// 绑定纹理对象到 GL_TEXTURE_2D 目标
@@ -149,13 +149,13 @@ MSOpenGLES::generateEmptyTexture2D() {
 }
 
 GLvoid
-MSOpenGLES::commitTexture2DPixels(const GLuint  texture,
-                                  const GLint   innerformat,
-                                  const GLenum  pixelformat,
-                                  const GLsizei width,
-                                  const GLsizei height,
-                                  const GLenum  type,
-                                  const GLvoid * MSNonnull const pixels) {
+OpenGLES::commitTexture2DPixels(const GLuint  texture,
+                                const GLint   innerformat,
+                                const GLenum  pixelformat,
+                                const GLsizei width,
+                                const GLsizei height,
+                                const GLenum  type,
+                                const GLvoid * MSNonnull const pixels) {
     // 绑定纹理对象到 GL_TEXTURE_2D 目标
     glBindTexture(GL_TEXTURE_2D, texture);
     // CPU -交换数据-> GPU
@@ -175,10 +175,10 @@ MSOpenGLES::commitTexture2DPixels(const GLuint  texture,
 }
 
 GLvoid
-MSOpenGLES::activeTexture2DToProgram(const GLuint texture,
-                                     const GLuint program,
-                                     const GLenum textureUnit,
-                                     const GLchar *const MSNonnull samplerName) {
+OpenGLES::activeTexture2DToProgram(const GLuint texture,
+                                   const GLuint program,
+                                   const GLenum textureUnit,
+                                   const GLchar *const MSNonnull samplerName) {
     
     /*
      激活纹理单元, 纹理单元数量有上限(每个平台可能不同, 但是协议规定最少提供16个 GL_TEXTURE0 ~> GL_TEXTURE15), 它们是连续分配的

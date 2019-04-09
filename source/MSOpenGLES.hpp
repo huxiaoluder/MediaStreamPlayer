@@ -13,7 +13,7 @@
 #include "MSMacros.h"
 
 namespace MS {
-    namespace MSOpenGLES {
+    namespace OpenGLES {
         
         /**
          加载编译着色器
