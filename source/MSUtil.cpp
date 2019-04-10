@@ -12,6 +12,33 @@
 
 using namespace MS;
 
+MSAdtsForAAC &
+MSAdtsForAAC::initialize() {
+    memset(this, 0, sizeof(MSAdtsForAAC));
+    syncword = -1;
+    protectionAbsent = 1;
+    bufferFullness = -1;
+    return *this;
+}
+
+MSBinary *
+MSAdtsForAAC::getBinary() {
+    MSBinary *binary = new MSBinary((uint8_t *)this, (this->protectionAbsent ? 7 : 9));
+    return binary;
+}
+
+MSAdtsForMp4 &
+MSAdtsForMp4::initialize() {
+    memset(this, 0, sizeof(MSAdtsForMp4));
+    return *this;
+}
+
+MSBinary *
+MSAdtsForMp4::getBinary() {
+    MSBinary *binary = new MSBinary((uint8_t *)this, sizeof(MSAdtsForMp4));
+    return binary;
+}
+
 static inline bool
 detectBitValue(const uint8_t * const dataRef, const size_t &startLocation) {
     return dataRef[startLocation / 8] & (0x80 >> (startLocation % 8));

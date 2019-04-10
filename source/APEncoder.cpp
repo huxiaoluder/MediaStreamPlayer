@@ -309,56 +309,71 @@ APEncoder::configureVideoEncoderSession(const MSVideoParameters &videoParameters
         setupVideoSessionProperties(videoEncoderSession, videoParameters);
     }
     
-    {
-//        using namespace FFmpeg;
-//
-//        FFCodecContext *videoEncoderContext = new FFCodecContext(FFCodecEncoder,videoCodecID);
-//        AVCodecContext &encoderContext = *videoEncoderContext->codec_ctx;
-//
-//        // 编码器参数配置
-//        AVDictionary *dict = nullptr;
-//        if (outputFormatContext->oformat->video_codec == AV_CODEC_ID_H264) {
-//            av_dict_set(&dict, "preset", "medium", 0);
-//            av_dict_set(&dict, "tune", "zerolatency", 0);
-//
-//            encoderContext.profile  = FF_PROFILE_H264_HIGH;
-//        }
-//
-//        encoderContext.pix_fmt      = AV_PIX_FMT_YUVJ420P;
-//        encoderContext.width        = videoParameters.width;
-//        encoderContext.height       = videoParameters.height;
-//        encoderContext.bit_rate     = videoParameters.width * videoParameters.height * 3 * 2;
-//        encoderContext.gop_size     = 100;
-//        encoderContext.max_b_frames = 0;
-//        encoderContext.time_base    = { 1, 20 };
-//        encoderContext.sample_aspect_ratio = { 16, 9 };
-//        if (outputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
-//            encoderContext.flags   |= AV_CODEC_FLAG_GLOBAL_HEADER;
-//        }
-//
-//        av_dict_free(&dict);
-//
-//        AVStream &outStream = *avformat_new_stream(outputFormatContext, videoEncoderContext->codec);
-//
-//        int ret = avcodec_parameters_from_context(outStream.codecpar, &encoderContext);
-//        if (ret < 0) {
-//            ErrorLocationLog(av_err2str(ret));
-//            delete videoEncoderContext;
-//            return nullptr;
-//        }
-//        delete videoEncoderContext;
-//
-//        outStream.time_base = encoderContext.time_base;
-//
-//        videoStream = &outStream;
-    }
-    
     return videoEncoderSession;
 }
 
 AudioConverterRef
 APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters) {
+    
+    OSStatus status = noErr;
+    
     AudioConverterRef audioEncoderConvert = nullptr;
+    
+    AudioStreamBasicDescription sourceFormat = {
+        .mSampleRate        = (Float64)audioParameters.frequency.value,
+        .mFormatID          = kAudioFormatLinearPCM,
+        .mFormatFlags       = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
+        .mBytesPerPacket    = 1 * 2 * (UInt32)audioParameters.channels,
+        .mFramesPerPacket   = 1, // 只支持 1 pack 1 frame, 否则报错(code: -50)
+        .mBytesPerFrame     = 2 * (UInt32)audioParameters.channels,
+        .mChannelsPerFrame  = (UInt32)audioParameters.channels,
+        .mBitsPerChannel    = 16,
+        .mReserved          = 0
+    };
+    
+    AudioStreamBasicDescription destinationFormat = {
+        .mSampleRate        = (Float64)audioParameters.frequency.value,
+        .mFormatID          = kAudioFormatMPEG4AAC,
+        .mFormatFlags       = (UInt32)audioParameters.profile + 1,//kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger,
+        .mBytesPerPacket    = 0,
+        .mFramesPerPacket   = 1024,
+        .mBytesPerFrame     = 0,
+        .mChannelsPerFrame  = (UInt32)audioParameters.channels,
+        .mBitsPerChannel    = 0,
+        .mReserved          = 0
+    };
+    
+    status = AudioConverterNew(&sourceFormat, &destinationFormat, &audioEncoderConvert);
+    if (status) {
+        OSStatusErrorLocationLog("fail to instance AudioConverterRef", status);
+    }
+    
+    audioStream = avformat_new_stream(outputFormatContext, nullptr);
+    audioStream->time_base = {1, audioParameters.frequency.value};
+    AVCodecParameters &codecpar = *audioStream->codecpar;
+    
+    MSAdtsForMp4 adts;
+    adts.initialize();
+    adts.profile = audioParameters.profile;
+    adts.frequencyIndex = audioParameters.frequency.index;
+    adts.channelConfiguration = audioParameters.channels;
+    MSBinary *adtsBinary = adts.getBinary();
+    
+    codecpar.codec_type = AVMEDIA_TYPE_AUDIO;
+    codecpar.codec_id = FFmpeg::FFCodecContext::getAVCodecId(audioCodecID);
+    codecpar.codec_tag = 0;
+    codecpar.extradata = (uint8_t *)av_malloc(adtsBinary->size);
+    codecpar.extradata_size = (int)adtsBinary->size;
+    codecpar.format = AV_SAMPLE_FMT_S16;
+    codecpar.bit_rate = audioParameters.frequency.value * 2 * 8;
+    codecpar.channel_layout = 4;
+    codecpar.channels = audioParameters.channels;
+    codecpar.sample_rate = audioParameters.frequency.value;
+    codecpar.frame_size = 1024;
+    
+    memcpy(codecpar.extradata, adtsBinary->bytes, adtsBinary->size);
+    delete adtsBinary;
+    
     return audioEncoderConvert;
 }
 

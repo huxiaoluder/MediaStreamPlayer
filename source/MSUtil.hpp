@@ -16,10 +16,78 @@
 #include <cmath>
 #include <algorithm>
 
+#include "MSBinary.hpp"
+
 namespace MS {
     
     static const int adtsFrequencyList[] = {
         96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350
+    };
+    
+    /**
+     Reference: https://wiki.multimedia.cx/index.php?title=ADTS
+     AAAAAAAA AAAABCCD EEFFFFGH HHIJKLMM MMMMMMMM MMMOOOOO OOOOOOPP (QQQQQQQQ QQQQQQQQ)
+     Header consists of 7 or 9 bytes (without or with CRC).
+     
+     @syncword  all bits must be 1
+     @version  0 for MPEG-4, 1 for MPEG-2
+     @layer always 0
+     @protectionAbsent  Warning, set to 1 if there is no CRC and 0 if there is CRC
+     @profile  the MPEG-4 Audio Object Type minus 1
+     @frequencyIndex  15 is forbidden
+     @privateBit  guaranteed never to be used by MPEG, set to 0 when encoding, ignore when decoding
+     @channelConfiguration  in the case of 0, the channel configuration is sent via an inband PCE
+     @originality  set to 0 when encoding, ignore when decoding
+     @home  set to 0 when encoding, ignore when decoding
+     @copyrightIdBit  the next bit of a centrally registered copyright identifier, set to 0 when encoding, ignore when decoding
+     @copyrightIdStart  signals that this frame's copyright id bit is the first bit of the copyright id, set to 0 when encoding, ignore when decoding
+     @frameLength  this value must include 7 or 9 bytes of header length: FrameLength = (ProtectionAbsent == 1 ? 7 : 9) + size(AACFrame)
+     @bufferFullness
+     @numberOfFrames  (RDBs) in ADTS frame minus 1, for maximum compatibility always use 1 AAC frame per ADTS frame
+     @CRC  if protection absent is 0
+     */
+    struct MSAdtsForAAC {
+        unsigned int syncword            :12;
+        unsigned int version             :1;
+        unsigned int layer               :2;
+        unsigned int protectionAbsent    :1;
+        unsigned int profile             :2;
+        unsigned int frequencyIndex      :4;
+        unsigned int privateBit          :1;
+        unsigned int channelConfiguration:3;
+        unsigned int originality         :1;
+        unsigned int home                :1;
+        unsigned int copyrightIdBit      :1;
+        unsigned int copyrightIdStart    :1;
+        unsigned int frameLength         :13;
+        unsigned int bufferFullness      :11;
+        unsigned int numberOfFrames      :2;
+        unsigned int CRC                 :16;
+        
+        MSAdtsForAAC & initialize();
+        
+        /**
+         获取二进制数据流
+
+         @return 二进制流, free by caller
+         */
+        MSBinary * getBinary();
+    };
+    
+    struct MSAdtsForMp4 {
+        unsigned int profile             :5;
+        unsigned int frequencyIndex      :4;
+        unsigned int channelConfiguration:4;
+        unsigned int reserve             :3;
+        
+        MSAdtsForMp4 & initialize();
+        
+        /**
+         获取二进制数据流
+         
+         @return 二进制流, free by caller
+         */
+        MSBinary * getBinary();
     };
     
     struct MSVideoParameters {
