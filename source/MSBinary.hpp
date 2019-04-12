@@ -20,16 +20,15 @@ namespace MS {
         
         const size_t size;
         
-        MSBinary(const uint8_t * MSNonnull const bytes,
-                 const size_t size,
-                 const bool allowAllocate = true);
+        MSBinary(const uint8_t * MSNonnull const bytes, const size_t size);
+        
+        MSBinary(const size_t size);
         
         MSBinary(const MSBinary &data);
         
         ~MSBinary();
         
-    private:
-        const bool allowAllocate;
+        MSBinary & initialize(const uint8_t value);
     };
 
 }

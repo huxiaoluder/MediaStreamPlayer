@@ -22,8 +22,15 @@ MSAdtsForAAC::initialize() {
 }
 
 MSBinary *
-MSAdtsForAAC::getBinary() {
-    MSBinary *binary = new MSBinary((uint8_t *)this, (this->protectionAbsent ? 7 : 9));
+MSAdtsForAAC::getBigEndianBinary() {
+    MSBinary *binary = new MSBinary(sizeof(MSAdtsForAAC));
+    
+    uint8_t *bytes = (uint8_t *)this + sizeof(MSAdtsForAAC);
+    
+    for (int i = 0; i < sizeof(MSAdtsForAAC) ; i++) {
+        memcpy(binary->bytes + i, --bytes, 1);
+    }
+    
     return binary;
 }
 
@@ -34,8 +41,15 @@ MSAdtsForMp4::initialize() {
 }
 
 MSBinary *
-MSAdtsForMp4::getBinary() {
-    MSBinary *binary = new MSBinary((uint8_t *)this, sizeof(MSAdtsForMp4));
+MSAdtsForMp4::getBigEndianBinary() {
+    MSBinary *binary = new MSBinary(sizeof(MSAdtsForMp4));
+
+    uint8_t *bytes = (uint8_t *)this + sizeof(MSAdtsForMp4);
+    
+    for (int i = 0; i < sizeof(MSAdtsForMp4) ; i++) {
+        memcpy(binary->bytes + i, --bytes, 1);
+    }
+    
     return binary;
 }
 
@@ -529,7 +543,7 @@ MS::decode_aac_adts(const uint8_t * const sourceAdtsRef,
 
 void
 MS::insertFramerateToSps(const int framerate,
-                         const uint8_t * const  inSps,
+                         const uint8_t *  const inSps,
                          const size_t           inSize,
                          const uint8_t ** const outSps,
                          size_t * const         outSize) {

@@ -173,6 +173,13 @@ APEncoder::beginEncode() {
     
     if (videoEncoderSession) {
         VTCompressionSessionPrepareToEncodeFrames(videoEncoderSession);
+    } else {
+        int ret = avformat_write_header(outputFormatContext, nullptr);
+        if (ret < 0) {
+            ErrorLocationLog(av_err2str(ret));
+            return;
+        }
+        isWriteHeader = true;
     }
     
     _isEncoding = true;
@@ -214,12 +221,77 @@ APEncoder::encodeVideo(const APEncoderInputMedia &pixelData) {
 
 void
 APEncoder::encodeAudio(const APEncoderInputMedia &sampleData) {
+    assert(_isEncoding);
     
+    if (audioEncoderConvert && isWriteHeader) {
+        
+        OSStatus status = noErr;
+        
+        APFrame &audioFrame = *sampleData.frame;
+        
+        UInt32 outPacktNumber = 1;
+        UInt32 mDataByteSize = 1024;
+        AudioBufferList outBufferList {
+            .mNumberBuffers = 1,
+            .mBuffers[0] = {
+                .mNumberChannels = (UInt32)audioFrame.audioParameters.channels,
+                .mDataByteSize = mDataByteSize,
+                .mData = malloc(mDataByteSize)
+            }
+        };
+        static AudioStreamPacketDescription outAspDesc[1];
+        
+        status = AudioConverterFillComplexBuffer(audioEncoderConvert,
+                                                 compressionConverterInputProc,
+                                                 audioFrame.audio,
+                                                 &outPacktNumber,
+                                                 &outBufferList,
+                                                 outAspDesc); //outAspDesc
+        if (status != noErr) {
+            OSStatusErrorLocationLog("call AudioConverterFillComplexBuffer fail",status);
+            return;
+        }
+        
+        AVPacket packet;
+        av_init_packet(&packet);
+        
+        audioPts += 1024;
+        const AudioBuffer &outAudioBuffer = outBufferList.mBuffers[0];
+        packet.data = (uint8_t *)outAudioBuffer.mData;
+        packet.size = outAudioBuffer.mDataByteSize;
+        packet.stream_index = audioStream->index;
+        packet.pts = audioPts;
+        packet.dts = audioPts;
+        
+        AVRational time_base{1, audioFrame.audioParameters.frequency.value};
+        av_packet_rescale_ts(&packet, time_base, audioStream->time_base);
+        
+        while (!fileWriteMutex.try_lock());
+        if (_isEncoding) {
+            int ret = av_interleaved_write_frame(outputFormatContext, &packet);
+            fileWriteMutex.unlock();
+            if (ret < 0) {
+                ErrorLocationLog(av_err2str(ret));
+            }
+        }
+    }
 }
 
 void
 APEncoder::endEncode() {
+    while (!fileWriteMutex.try_lock());
+    
     _isEncoding = false;
+    
+    avio_flush(outputFormatContext->pb);
+    
+    int ret = av_write_trailer(outputFormatContext);
+    
+    fileWriteMutex.unlock();
+    
+    if (ret < 0) {
+        ErrorLocationLog(av_err2str(ret));
+    }
     releaseEncoderConfiguration();
 }
 
@@ -235,7 +307,11 @@ APEncoder::APEncoder(const MSCodecID videoCodecID,
 }
 
 APEncoder::~APEncoder() {
-    
+    if (_isEncoding) {
+        endEncode();
+    } else {
+        releaseEncoderConfiguration();
+    }
 }
 
 bool
@@ -258,13 +334,13 @@ APEncoder::configureEncoder(const string &muxingfilePath,
         }
     }
     
-//    if (audioParameters) {
-//        audioEncoderConvert = configureAudioEncoderConvert(*audioParameters);
-//        if (!audioParameters) {
-//            releaseEncoderConfiguration();
-//            return false;
-//        }
-//    }
+    if (audioParameters) {
+        audioEncoderConvert = configureAudioEncoderConvert(*audioParameters);
+        if (!audioParameters) {
+            releaseEncoderConfiguration();
+            return false;
+        }
+    }
     
     return true;
 }
@@ -324,7 +400,7 @@ APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters
         .mFormatID          = kAudioFormatLinearPCM,
         .mFormatFlags       = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
         .mBytesPerPacket    = 1 * 2 * (UInt32)audioParameters.channels,
-        .mFramesPerPacket   = 1, // 只支持 1 pack 1 frame, 否则报错(code: -50)
+        .mFramesPerPacket   = 1, // PCM: 1 packet 1 frame, 否则报错(code: -50)
         .mBytesPerFrame     = 2 * (UInt32)audioParameters.channels,
         .mChannelsPerFrame  = (UInt32)audioParameters.channels,
         .mBitsPerChannel    = 16,
@@ -334,9 +410,9 @@ APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters
     AudioStreamBasicDescription destinationFormat = {
         .mSampleRate        = (Float64)audioParameters.frequency.value,
         .mFormatID          = kAudioFormatMPEG4AAC,
-        .mFormatFlags       = (UInt32)audioParameters.profile + 1,//kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger,
+        .mFormatFlags       = (UInt32)audioParameters.profile + 1,
         .mBytesPerPacket    = 0,
-        .mFramesPerPacket   = 1024,
+        .mFramesPerPacket   = 1024, // AAC: 1 packet 1024 frame
         .mBytesPerFrame     = 0,
         .mChannelsPerFrame  = (UInt32)audioParameters.channels,
         .mBitsPerChannel    = 0,
@@ -357,7 +433,9 @@ APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters
     adts.profile = audioParameters.profile;
     adts.frequencyIndex = audioParameters.frequency.index;
     adts.channelConfiguration = audioParameters.channels;
-    MSBinary *adtsBinary = adts.getBinary();
+    
+    MSBinary *adtsBinary = adts.getBigEndianBinary();
+//    memcpy(adtsBinary->bytes, "\x15", 1);
     
     codecpar.codec_type = AVMEDIA_TYPE_AUDIO;
     codecpar.codec_id = FFmpeg::FFCodecContext::getAVCodecId(audioCodecID);
@@ -365,11 +443,13 @@ APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters
     codecpar.extradata = (uint8_t *)av_malloc(adtsBinary->size);
     codecpar.extradata_size = (int)adtsBinary->size;
     codecpar.format = AV_SAMPLE_FMT_S16;
+    codecpar.profile = audioParameters.profile;
     codecpar.bit_rate = audioParameters.frequency.value * 2 * 8;
     codecpar.channel_layout = 4;
     codecpar.channels = audioParameters.channels;
     codecpar.sample_rate = audioParameters.frequency.value;
     codecpar.frame_size = 1024;
+    codecpar.initial_padding = 2048;
     
     memcpy(codecpar.extradata, adtsBinary->bytes, adtsBinary->size);
     delete adtsBinary;
@@ -389,8 +469,15 @@ APEncoder::releaseEncoderConfiguration() {
         audioEncoderConvert = nullptr;
     }
     if (outputFormatContext) {
+        avio_closep(&outputFormatContext->pb);
         avformat_free_context(outputFormatContext);
         outputFormatContext = nullptr;
+    }
+    if (videoStream) {
+        videoStream = nullptr;
+    }
+    if (audioStream) {
+        audioStream = nullptr;
     }
 }
 
@@ -413,14 +500,17 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
     
     if (CMSampleBufferDataIsReady(sampleBuffer)) {
         
+        CMTime duration = CMSampleBufferGetDuration(sampleBuffer);
+        
         APEncoder &encoder = *(APEncoder *)outputCallbackRefCon;
     
         bool isKeyFrame = CMSampleBufferIsKeyFrame(sampleBuffer);
-        if (encoder.videoStream == nullptr) {
+        // 视频异步编码, 获取 sps, pps会延迟, 所以优先处理 video header 信息, 再进行 audio 编码
+        if (encoder.isWriteHeader == false) {
             if (!isKeyFrame) { return; }
-            encoder.videoStream = avformat_new_stream(encoder.outputFormatContext, nullptr);
-            encoder.videoStream->time_base = {1, 20};
-            AVCodecParameters &codecpar = *encoder.videoStream->codecpar;
+            AVStream &videoStream = *avformat_new_stream(encoder.outputFormatContext, nullptr);
+            videoStream.time_base = {1, duration.timescale};
+            AVCodecParameters &codecpar = *videoStream.codecpar;
             
             const uint8_t *spsData;
             const uint8_t *ppsData;
@@ -461,14 +551,15 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                 memcpy(codecpar.extradata + offset, ppsData, ppsLen);
                 
                 delete [] newSpsData;
-                
-                av_dump_format(encoder.outputFormatContext, 0, encoder.filePath.c_str(), 1);
-                
+            
                 int ret = avformat_write_header(encoder.outputFormatContext, nullptr);
                 if (ret < 0) {
                     ErrorLocationLog(av_err2str(ret));
                     return;
                 }
+                
+                encoder.videoStream = &videoStream;
+                encoder.isWriteHeader = true;
             }
         }
 
@@ -493,24 +584,34 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
         packet.size = (int)dataLen;
         packet.pts = encoder.videoPts;
         packet.dts = encoder.videoPts;
-        AVRational time_base{1,20};
+        AVRational time_base{1, duration.timescale}; // @NOTE: 注意时间戳转换, 否则影响 MP4 元数据信息, 导致播放器不识别
         av_packet_rescale_ts(&packet, time_base, encoder.videoStream->time_base);
         if (isKeyFrame) {
             packet.flags = AV_PKT_FLAG_KEY;
         }
         
-        int ret = av_interleaved_write_frame(encoder.outputFormatContext, &packet);
-        if (ret < 0) {
-            ErrorLocationLog(av_err2str(ret));
-        }
-        printf("------------- %lld\n", encoder.videoPts);
-        
-        if (encoder.videoPts == 400) {
-            avio_flush(encoder.outputFormatContext->pb);
-            int ret = av_write_trailer(encoder.outputFormatContext);
-            avio_closep(&encoder.outputFormatContext->pb);
-            avformat_free_context(encoder.outputFormatContext);
-            exit(0);
+        while (!encoder.fileWriteMutex.try_lock());
+        if (encoder._isEncoding) {
+            int ret = av_interleaved_write_frame(encoder.outputFormatContext, &packet);
+            encoder.fileWriteMutex.unlock();
+            if (ret < 0) {
+                ErrorLocationLog(av_err2str(ret));
+            }
         }
     }
+}
+
+OSStatus
+APEncoder::compressionConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                         UInt32 * MSNonnull ioNumberDataPackets,
+                                         AudioBufferList * MSNonnull ioData,
+                                         AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                         void * MSNullable inUserData) {
+    *ioNumberDataPackets = 1;
+    
+    const AudioBuffer &inAudioBuffer = *(AudioBuffer *)inUserData;
+    ioData->mNumberBuffers = 1;
+    ioData->mBuffers[0] = inAudioBuffer;
+    
+    return noErr;
 }

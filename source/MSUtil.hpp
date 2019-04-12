@@ -46,23 +46,24 @@ namespace MS {
      @numberOfFrames  (RDBs) in ADTS frame minus 1, for maximum compatibility always use 1 AAC frame per ADTS frame
      @CRC  if protection absent is 0
      */
+#pragma pack(push, 1)
     struct MSAdtsForAAC {
-        unsigned int syncword            :12;
-        unsigned int version             :1;
-        unsigned int layer               :2;
-        unsigned int protectionAbsent    :1;
-        unsigned int profile             :2;
-        unsigned int frequencyIndex      :4;
-        unsigned int privateBit          :1;
-        unsigned int channelConfiguration:3;
-        unsigned int originality         :1;
-        unsigned int home                :1;
-        unsigned int copyrightIdBit      :1;
-        unsigned int copyrightIdStart    :1;
-        unsigned int frameLength         :13;
-        unsigned int bufferFullness      :11;
-        unsigned int numberOfFrames      :2;
         unsigned int CRC                 :16;
+        unsigned int numberOfFrames      :2;
+        unsigned int bufferFullness      :11;
+        unsigned int frameLength         :13;
+        unsigned int copyrightIdStart    :1;
+        unsigned int copyrightIdBit      :1;
+        unsigned int home                :1;
+        unsigned int originality         :1;
+        unsigned int channelConfiguration:3;
+        unsigned int privateBit          :1;
+        unsigned int frequencyIndex      :4;
+        unsigned int profile             :2;
+        unsigned int protectionAbsent    :1;
+        unsigned int layer               :2;
+        unsigned int version             :1;
+        unsigned int syncword            :12;
         
         MSAdtsForAAC & initialize();
         
@@ -71,14 +72,14 @@ namespace MS {
 
          @return 二进制流, free by caller
          */
-        MSBinary * getBinary();
+        MSBinary * getBigEndianBinary();
     };
     
     struct MSAdtsForMp4 {
-        unsigned int profile             :5;
-        unsigned int frequencyIndex      :4;
-        unsigned int channelConfiguration:4;
         unsigned int reserve             :3;
+        unsigned int channelConfiguration:4;
+        unsigned int frequencyIndex      :4;
+        unsigned int profile             :5;
         
         MSAdtsForMp4 & initialize();
         
@@ -87,8 +88,9 @@ namespace MS {
          
          @return 二进制流, free by caller
          */
-        MSBinary * getBinary();
+        MSBinary * getBigEndianBinary();
     };
+#pragma pack(pop)
     
     struct MSVideoParameters {
         int width       = 0;
@@ -202,7 +204,7 @@ namespace MS {
      @param outSize [out] 新 sps 大小
      */
     void insertFramerateToSps(const int framerate,
-                              const uint8_t * const  inSps,
+                              const uint8_t *  const inSps,
                               const size_t           inSize,
                               const uint8_t ** const outSps,
                               size_t * const         outSize);

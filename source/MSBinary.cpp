@@ -10,22 +10,27 @@
 
 using namespace MS;
 
-MSBinary::MSBinary(const uint8_t * MSNonnull const bytes,
-                   const size_t size,
-                   const bool allowAllocate)
-:bytes(new uint8_t[size]), size(size), allowAllocate(allowAllocate) {
-    if (allowAllocate) {
-        memcpy(this->bytes, bytes, size);
-    }
+MSBinary::MSBinary(const uint8_t * MSNonnull const bytes, const size_t size)
+:bytes(new uint8_t[size]), size(size) {
+    memcpy(this->bytes, bytes, size);
+}
+
+MSBinary::MSBinary(const size_t size)
+:bytes(new uint8_t[size]), size(size) {
+    
 }
 
 MSBinary::MSBinary(const MSBinary &data)
-:bytes(new uint8_t[data.size]), size(data.size), allowAllocate(true) {
+:bytes(new uint8_t[data.size]), size(data.size) {
     memcpy(bytes, data.bytes, size);
 }
 
 MSBinary::~MSBinary() {
-    if (allowAllocate) {
-        delete [] bytes;
-    }
+    delete [] bytes;
+}
+
+MSBinary &
+MSBinary::initialize(const uint8_t value) {
+    memset(bytes, value, size);
+    return *this;
 }

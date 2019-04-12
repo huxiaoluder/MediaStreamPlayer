@@ -158,7 +158,7 @@ FFEncoder::configureVideoEncoderContext(const FFCodecContext &videoDecoderContex
         av_dict_set(&dict, "preset", "medium", 0);
         av_dict_set(&dict, "tune", "zerolatency", 0);
         
-        encoderContext.profile  = FF_PROFILE_H264_HIGH;
+        encoderContext.profile  = decoderContext.profile;
     }
     
     encoderContext.pix_fmt      = decoderContext.pix_fmt;
@@ -206,10 +206,10 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     const AVCodecContext &decoderContext = *audioDecoderContext.codec_ctx;
     
     // 编码器参数配置
-//    if (encoderContext.codec_id == AV_CODEC_ID_AAC) {
-//        // not allowed set profile
-//        encoderContext.profile = FF_PROFILE_AAC_MAIN;
-//    }
+    if (encoderContext.codec_id == AV_CODEC_ID_AAC) {
+        // FFmpeg 只支持 FF_PROFILE_AAC_LOW(可以不设置, 内部默认采用也是 FF_PROFILE_AAC_LOW)
+        encoderContext.profile = FF_PROFILE_AAC_LOW;
+    }
     
     encoderContext.sample_fmt       = decoderContext.sample_fmt;
     encoderContext.frame_size       = decoderContext.frame_size;

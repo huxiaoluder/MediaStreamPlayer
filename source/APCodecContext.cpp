@@ -135,7 +135,7 @@ APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
         .mFormatID          = audioFormatID,
         .mFormatFlags       = (UInt32)audioParameters.profile + 1,//kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger,
         .mBytesPerPacket    = 0,
-        .mFramesPerPacket   = 1024,
+        .mFramesPerPacket   = 1024, // AAC: 1 packet 1024 frame
         .mBytesPerFrame     = 0,
         .mChannelsPerFrame  = (UInt32)audioParameters.channels,
         .mBitsPerChannel    = 0,
@@ -147,7 +147,7 @@ APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
         .mFormatID          = kAudioFormatLinearPCM,
         .mFormatFlags       = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
         .mBytesPerPacket    = 1 * 2 * (UInt32)audioParameters.channels,
-        .mFramesPerPacket   = 1, // 只支持 1 pack 1 frame, 否则报错(code: -50)
+        .mFramesPerPacket   = 1, // PCM: 1 packet 1 frame, 否则报错(code: -50)
         .mBytesPerFrame     = 2 * (UInt32)audioParameters.channels,
         .mChannelsPerFrame  = (UInt32)audioParameters.channels,
         .mBitsPerChannel    = 16,

@@ -93,7 +93,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
         // VTDecodeInfoFlags infoFlagsOut = NULL;
         status = VTDecompressionSessionDecodeFrame(decoderContext->videoDecoderSession,
                                                    sampleBuffer,
-                                                   decodeFlags, // 传入 NULL 则该函数会阻塞到回调函数返回后才返回.
+                                                   decodeFlags, // 传入 NULL 则该函数会阻塞到回调函数返回后才返回.(API 注释有误 0 为同步)
                                                    &videoAttachment, // 附带参数, 会透传到回调函数
                                                    nullptr);
         if (status != noErr) {
@@ -118,8 +118,6 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
     if (decoderContext) {
         OSStatus status;
         
-        const MSNaluParts &naluParts = data.getNaluParts();
-        
         const MSAudioParameters &audioParameters = *audioParametersMap[this];
         
         UInt32 outPacktNumber = 1024;
@@ -132,11 +130,14 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
                 .mData = malloc(mDataByteSize)
             }
         };
-//        static AudioStreamPacketDescription outAspDesc[1024];
         
+        audioAttachment.audioSource = audioData;
+        audioAttachment.audioParameters = &audioParameters;
+        
+//        static AudioStreamPacketDescription outAspDesc[1024];
         status = AudioConverterFillComplexBuffer(decoderContext->audioDecoderConvert,
                                                  decompressionConverterInputProc,
-                                                 (void *)&naluParts,
+                                                 &audioAttachment,
                                                  &outPacktNumber,
                                                  &outBufferList,
                                                  nullptr); //outAspDesc
@@ -285,11 +286,13 @@ APDecoder::decompressionConverterInputProc(AudioConverterRef MSNonnull inAudioCo
                                            AudioBufferList * MSNonnull ioData,
                                            AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
                                            void * MSNullable inUserData) {
-    const MSNaluParts &naluParts = *(MSNaluParts *)inUserData;
+    const APAudioAttachment &audioAttachment = *(APAudioAttachment *)inUserData;
+    const MSNaluParts &naluParts = audioAttachment.audioSource->getNaluParts();
+    
     ioData->mNumberBuffers = 1;
     ioData->mBuffers->mData = (void *)naluParts.dataRef();
     ioData->mBuffers->mDataByteSize = (UInt32)naluParts.dataSize();
-    ioData->mBuffers->mNumberChannels = (UInt32)naluParts.parseAacAdts()->channels;
+    ioData->mBuffers->mNumberChannels = (UInt32)audioAttachment.audioParameters->channels;
     
     static AudioStreamPacketDescription aspDesc;
     aspDesc.mStartOffset = 0;

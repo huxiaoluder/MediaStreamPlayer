@@ -9,6 +9,7 @@
 #ifndef APEncoder_hpp
 #define APEncoder_hpp
 
+#include <mutex>
 #include <string>
 #include "MSEncoderProtocol.h"
 #include "APCodecContext.hpp"
@@ -22,11 +23,14 @@ namespace MS {
 
         class APEncoder : public APEncoderProtocol {
             
-            typedef function<void(const uint8_t * MSNonnull const decodeData)> ThrowEncodeData;
+//            typedef function<void(const uint8_t * MSNonnull const decodeData)> ThrowEncodeData;
+            
+            mutex fileWriteMutex;
             
             string filePath;
             
             bool _isEncoding = false;
+            bool isWriteHeader = false;
             
             const MSCodecID videoCodecID;
             const MSCodecID audioCodecID;
@@ -48,14 +52,20 @@ namespace MS {
             
             void releaseEncoderConfiguration();
             
-            const ThrowEncodeData throwEncodeVideo;
-            const ThrowEncodeData throwEncodeAudio;
+//            const ThrowEncodeData throwEncodeVideo;
+//            const ThrowEncodeData throwEncodeAudio;
             
             static void compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                                                   void * MSNullable sourceFrameRefCon,
                                                   OSStatus status,
                                                   VTEncodeInfoFlags infoFlags,
                                                   CMSampleBufferRef MSNullable sampleBuffer);
+            
+            static OSStatus compressionConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                                          UInt32 * MSNonnull ioNumberDataPackets,
+                                                          AudioBufferList * MSNonnull ioData,
+                                                          AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                                          void * MSNullable inUserData);
             
         public:
             void beginEncode();

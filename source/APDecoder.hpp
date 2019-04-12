@@ -26,6 +26,12 @@ namespace MS {
             const MSVideoParameters * MSNullable videoParameters = nullptr;
         };
         
+        // 音频解码回调附加参数(回调透传)
+        struct APAudioAttachment {
+            const MSMedia<MSEncodeMedia> * MSNullable audioSource = nullptr;
+            const MSAudioParameters * MSNullable audioParameters = nullptr;
+        };
+        
         class APDecoder : public APDecoderProtocol {
             static map<APDecoder *, const MSVideoParameters *> videoParametersMap;
             
@@ -40,6 +46,8 @@ namespace MS {
             const CFAllocatorRef MSNonnull blockAllocator;
             
             APVideoAttachment videoAttachment;
+            
+            APAudioAttachment audioAttachment;
             
             /**
              be related by decodeFlags,

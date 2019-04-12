@@ -19,7 +19,7 @@ using namespace MS::FFmpeg;
 using namespace MS::APhard;
 
 
-#define condition 1
+#define condition 0
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
@@ -139,6 +139,7 @@ static int i;
     
     if (updateAudio) {
         if (headerMedia->stream_type == e_stream_type_AAC) {
+//            printf("--------------datalen: %d\n",dataLen);
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
             player->pushAudioStreamData(data);
         }
