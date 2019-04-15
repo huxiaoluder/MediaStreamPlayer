@@ -430,16 +430,17 @@ APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters
     
     MSAdtsForMp4 adts;
     adts.initialize();
-    adts.profile = audioParameters.profile;
+    // audioParameters.profile 是 ADTS 中的 profile 需要转换到 mp4 中(真实的 MPEG-4 Audio Object Type).
+    adts.profile = audioParameters.profile + 1;
     adts.frequencyIndex = audioParameters.frequency.index;
     adts.channelConfiguration = audioParameters.channels;
     
     MSBinary *adtsBinary = adts.getBigEndianBinary();
-//    memcpy(adtsBinary->bytes, "\x15", 1);
     
     codecpar.codec_type = AVMEDIA_TYPE_AUDIO;
     codecpar.codec_id = FFmpeg::FFCodecContext::getAVCodecId(audioCodecID);
     codecpar.codec_tag = 0;
+    // mp4 中不用参考位域限制, profile == ObjectType(小坑!!!)
     codecpar.extradata = (uint8_t *)av_malloc(adtsBinary->size);
     codecpar.extradata_size = (int)adtsBinary->size;
     codecpar.format = AV_SAMPLE_FMT_S16;
@@ -524,15 +525,14 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                                                    &ppsLen,
                                                    &encoder.nalUnitHeaderLen);
             if (ret) {
-                const uint8_t *newSpsData;
-                size_t newSpsLen;
-                // 硬编码出来的数据中, sps 里不含 framerate, 需要自己添加(大坑一个!!!)
-                insertFramerateToSps(20, spsData, spsLen, &newSpsData, &newSpsLen);
+                // MP4 封装不需要帧率, 时间信息只跟 MP4 元数据相关, 由 pack 写入时决定.
+                // 如需要进行 Nalu 网络数据发送, 且需要帧率信息, 需要自己添加(大坑一个!!!), 硬编码出来的数据中, sps 里不含 framerate.
+                // insertFramerateToSps(20, spsData, spsLen, &newSpsData, &newSpsLen);
 
                 codecpar.codec_type = AVMEDIA_TYPE_VIDEO;
                 codecpar.codec_id = FFmpeg::FFCodecContext::getAVCodecId(encoder.videoCodecID);
                 codecpar.codec_tag = 0;
-                codecpar.extradata_size = (int)newSpsLen + 4 * 2 + (int)ppsLen;
+                codecpar.extradata_size = (int)spsLen + 4 * 2 + (int)ppsLen;
                 codecpar.extradata = (uint8_t *)av_malloc(codecpar.extradata_size);
                 codecpar.format = AV_PIX_FMT_YUVJ420P;
                 codecpar.bit_rate = width * height * 3 * 2 * 8;
@@ -544,13 +544,11 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
                 int offset = 0;
                 memcpy(codecpar.extradata + offset, separator, 4);
                 offset += 4;
-                memcpy(codecpar.extradata + offset, newSpsData, newSpsLen);
-                offset += newSpsLen;
+                memcpy(codecpar.extradata + offset, spsData, spsLen);
+                offset += spsLen;
                 memcpy(codecpar.extradata + offset, separator, 4);
                 offset += 4;
                 memcpy(codecpar.extradata + offset, ppsData, ppsLen);
-                
-                delete [] newSpsData;
             
                 int ret = avformat_write_header(encoder.outputFormatContext, nullptr);
                 if (ret < 0) {
@@ -582,6 +580,7 @@ APEncoder::compressionOutputCallback(void * MSNullable outputCallbackRefCon,
         av_init_packet(&packet);
         packet.data = (uint8_t *)dataPtr;
         packet.size = (int)dataLen;
+        packet.stream_index = encoder.videoStream->index;
         packet.pts = encoder.videoPts;
         packet.dts = encoder.videoPts;
         AVRational time_base{1, duration.timescale}; // @NOTE: 注意时间戳转换, 否则影响 MP4 元数据信息, 导致播放器不识别

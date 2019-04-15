@@ -59,7 +59,7 @@ namespace MS {
         unsigned int channelConfiguration:3;
         unsigned int privateBit          :1;
         unsigned int frequencyIndex      :4;
-        unsigned int profile             :2;
+        unsigned int profile             :2; //@Note: adts 中因为位域原因, profile == ObjectType - 1
         unsigned int protectionAbsent    :1;
         unsigned int layer               :2;
         unsigned int version             :1;
@@ -79,7 +79,7 @@ namespace MS {
         unsigned int reserve             :3;
         unsigned int channelConfiguration:4;
         unsigned int frequencyIndex      :4;
-        unsigned int profile             :5;
+        unsigned int profile             :5; //@Note: mp4 中不用参考位域限制, profile == ObjectType
         
         MSAdtsForMp4 & initialize();
         
