@@ -12,6 +12,7 @@
 #import <time.h>
 
 #import "IotlibTool.h"
+#import "DDOpenALAudioPlayer.h"
 
 using namespace std;
 using namespace MS;
@@ -19,7 +20,7 @@ using namespace MS::FFmpeg;
 using namespace MS::APhard;
 
 
-#define condition 0
+#define condition 1
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
@@ -75,6 +76,11 @@ static int i;
                                            [[weakSelf audioRender] updateChannels:data.frame->channels
                                                                         frequency:data.frame->sample_rate];
                                            [[weakSelf audioRender] displayAVFrame:*data.frame];
+//                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:data.frame->data[0]
+//                                                                                        dataSize:data.frame->linesize[0]
+//                                                                                      samplerate:8000
+//                                                                                        channels:1
+//                                                                                             bit:16];
                                         }
                                    });
 #else
