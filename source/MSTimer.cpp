@@ -13,7 +13,7 @@ using namespace MS;
 
 using namespace this_thread;
 
-MSTimer::MSTimer(const microseconds delayTime,
+MSTimer<MSTimerForOther>::MSTimer(const microseconds delayTime,
                  const microseconds timeInterval,
                  const TaskType task)
 :delayTime(delayTime), timeInterval(timeInterval), task(task) {
@@ -22,12 +22,12 @@ MSTimer::MSTimer(const microseconds delayTime,
     }
 }
 
-MSTimer::~MSTimer() {
+MSTimer<MSTimerForOther>::~MSTimer() {
     stop();
 }
 
 void
-MSTimer::start() {
+MSTimer<MSTimerForOther>::start() {
     assert(isRunning == false && task != nullptr);
     isRunning = true;
     timerThread = thread([&]() {
@@ -40,28 +40,8 @@ MSTimer::start() {
             }
         });
         condition.notify_one();
-        int *var = new int[1024];
-        int i = 0;
-        timeval time0;
-        timeval time1;
         while (isRunning) {
-            gettimeofday(&time0, nullptr);
             sleep_for(timeInterval);
-            gettimeofday(&time1, nullptr);
-//            printf("-------- %d\n", time1.tv_usec - time0.tv_usec);
-            var[i++] = time1.tv_usec - time0.tv_usec;
-            if (i == 256) {
-                long long num = 0;
-                long long sum = 0;
-                for (int i = 0; i < 256; i++) {
-                    if (var[i] > 40000) {
-                        num++;
-                        sum += var[i];
-                    }
-                }
-                printf(".................. %lld\n", sum / num);
-                i = 0;
-            }
             if (!isPausing) {
                 condition.notify_one();
             }
@@ -70,19 +50,19 @@ MSTimer::start() {
 }
 
 void
-MSTimer::pause() {
+MSTimer<MSTimerForOther>::pause() {
     assert(isRunning);
     isPausing = true;
 }
 
 void
-MSTimer::rePlay() {
+MSTimer<MSTimerForOther>::rePlay() {
     assert(isRunning);
     isPausing = false;
 }
 
 void
-MSTimer::stop() {
+MSTimer<MSTimerForOther>::stop() {
     isRunning = false;
     isPausing = false;
     condition.notify_one();
@@ -95,31 +75,114 @@ MSTimer::stop() {
 }
 
 bool
-MSTimer::isActivity() {
+MSTimer<MSTimerForOther>::isActivity() {
     return isRunning;
 }
 
 microseconds
-MSTimer::getTimeInterval() {
+MSTimer<MSTimerForOther>::getTimeInterval() {
     return this->timeInterval;
 }
 
-MSTimer &
-MSTimer::updateTask(const TaskType task) {
+MSTimer<MSTimerForOther> &
+MSTimer<MSTimerForOther>::updateTask(const TaskType task) {
     this->task = task;
     return *this;
 }
 
-MSTimer &
-MSTimer::updateDelayTime(const microseconds delayTime) {
+MSTimer<MSTimerForOther> &
+MSTimer<MSTimerForOther>::updateDelayTime(const microseconds delayTime) {
     this->delayTime = delayTime;
     return *this;
 }
 
-MSTimer &
-MSTimer::updateTimeInterval(const microseconds timeInterval) {
+MSTimer<MSTimerForOther> &
+MSTimer<MSTimerForOther>::updateTimeInterval(const microseconds timeInterval) {
     this->timeInterval = (timeInterval.count() ?
                           timeInterval :
                           microseconds(1000000LL));
+    return *this;
+}
+
+
+MSTimer<MSTimerForApple>::MSTimer(const microseconds delayTime,
+                                  const microseconds timeInterval,
+                                  const TaskType task)
+:delayTime(delayTime), timeInterval(timeInterval), task(task) {
+    if (timeInterval.count() == 0) {
+        this->timeInterval = microseconds(1000000LL);
+    }
+}
+
+MSTimer<MSTimerForApple>::~MSTimer() {
+    stop();
+}
+
+void
+MSTimer<MSTimerForApple>::start() {
+    assert(isRunning == false && task != nullptr);
+    isRunning = true;
+    timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(0, 0));
+    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, timeInterval.count() * NSEC_PER_USEC, 0);
+    dispatch_source_set_event_handler(timer, ^{
+        task();
+    });
+    sleep_for(delayTime);
+    dispatch_resume(timer);
+}
+
+void
+MSTimer<MSTimerForApple>::pause() {
+    assert(isRunning);
+    isPausing = true;
+    dispatch_suspend(timer);
+}
+
+void
+MSTimer<MSTimerForApple>::rePlay() {
+    assert(isRunning);
+    isPausing = false;
+    dispatch_resume(timer);
+}
+
+void
+MSTimer<MSTimerForApple>::stop() {
+    isRunning = false;
+    isPausing = false;
+    if (timer) {
+        dispatch_source_cancel(timer);
+        dispatch_release(timer);
+        timer = NULL;
+    }
+}
+
+bool
+MSTimer<MSTimerForApple>::isActivity() {
+    return isRunning;
+}
+
+microseconds
+MSTimer<MSTimerForApple>::getTimeInterval() {
+    return this->timeInterval;
+}
+
+MSTimer<MSTimerForApple> &
+MSTimer<MSTimerForApple>::updateTask(const TaskType task) {
+    this->task = task;
+    return *this;
+}
+
+MSTimer<MSTimerForApple> &
+MSTimer<MSTimerForApple>::updateDelayTime(const microseconds delayTime) {
+    this->delayTime = delayTime;
+    return *this;
+}
+
+MSTimer<MSTimerForApple> &
+MSTimer<MSTimerForApple>::updateTimeInterval(const microseconds timeInterval) {
+    this->timeInterval = (timeInterval.count() ?
+                          timeInterval :
+                          microseconds(1000000LL));
+    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, timeInterval.count() * NSEC_PER_USEC, 0);
     return *this;
 }

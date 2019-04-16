@@ -229,6 +229,7 @@ APDecoder::getVideoDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
             decoderContexts[codecID] = decoderContext;
         }
         // 解析 sps 基本信息(实时更新宽高帧率)
+        delete videoParametersMap[this];
         if (codecID == MSCodecID_H264) {
             videoParametersMap[this] = naluParts.parseH264Sps();
         } else {

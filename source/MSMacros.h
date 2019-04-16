@@ -12,9 +12,9 @@
 #include <cstdio>
 #include <cassert>
 
-#define intervale(rate) microseconds(1000000LL / rate - 3200)
+#define intervale(rate) microseconds(1000000LL / rate)
 
-#define adv_intervale(rate) microseconds((1000000ll << 16) / rate - 2450)
+#define adv_intervale(rate) microseconds((1000000ll << 16) / rate)
 
 #define MaxPixelBufferSize 100
 

@@ -35,9 +35,13 @@ namespace MS {
         
         MSEncoderProtocol<T> * MSNullable const _reEncoder;
         
-        MSTimer * MSNonnull const videoTimer;
-        
-        MSTimer * MSNonnull const audioTimer;
+#ifdef __APPLE__
+        MSTimer<MSTimerForApple> * MSNonnull const videoTimer;
+        MSTimer<MSTimerForApple> * MSNonnull const audioTimer;
+#else
+        MSTimer<MSTimerForOther> * MSNonnull const videoTimer;
+        MSTimer<MSTimerForOther> * MSNonnull const audioTimer;
+#endif
         
         thread videoDecodeThread;
         
@@ -84,11 +88,19 @@ namespace MS {
         thread initAsynDataVideoDecodeThread();
         thread initAsynDataAudioDecodeThread();
         
-        MSTimer * MSNonnull initSyncDataVideoTimer();
-        MSTimer * MSNonnull initSyncDataAudioTimer();
+#ifdef __APPLE__
+        MSTimer<MSTimerForApple> * MSNonnull initSyncDataVideoTimer();
+        MSTimer<MSTimerForApple> * MSNonnull initSyncDataAudioTimer();
         
-        MSTimer * MSNonnull initAsynDataVideoTimer();
-        MSTimer * MSNonnull initAsynDataAudioTimer();
+        MSTimer<MSTimerForApple> * MSNonnull initAsynDataVideoTimer();
+        MSTimer<MSTimerForApple> * MSNonnull initAsynDataAudioTimer();
+#else
+        MSTimer<MSTimerForOther> * MSNonnull initSyncDataVideoTimer();
+        MSTimer<MSTimerForOther> * MSNonnull initSyncDataAudioTimer();
+        
+        MSTimer<MSTimerForOther> * MSNonnull initAsynDataVideoTimer();
+        MSTimer<MSTimerForOther> * MSNonnull initAsynDataAudioTimer();
+#endif
         
     public:
         MSPlayer(MSSyncDecoderProtocol<T> * MSNonnull const decoder,
@@ -444,10 +456,11 @@ namespace MS {
         });
     }
     
+#ifdef __APPLE__
     template <typename T>
-    MSTimer * MSNonnull
+    MSTimer<MSTimerForApple> * MSNonnull
     MSPlayer<T>::initSyncDataVideoTimer() {
-        return new MSTimer(microseconds(0),intervale(1),[this](){
+        return new MSTimer<MSTimerForApple>(microseconds(0),intervale(1),[this](){
             if (!pixelQueue.empty()) {
                 const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
                 frameData = pixelQueue.front();
@@ -471,9 +484,9 @@ namespace MS {
     }
     
     template <typename T>
-    MSTimer * MSNonnull
+    MSTimer<MSTimerForApple> * MSNonnull
     MSPlayer<T>::initSyncDataAudioTimer() {
-        return new MSTimer(microseconds(0),intervale(1),[this](){
+        return new MSTimer<MSTimerForApple>(microseconds(0),intervale(1),[this](){
             if (!sampleQueue.empty()) {
                 const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
                 frameData = sampleQueue.front();
@@ -497,9 +510,9 @@ namespace MS {
     }
     
     template <typename T>
-    MSTimer * MSNonnull
+    MSTimer<MSTimerForApple> * MSNonnull
     MSPlayer<T>::initAsynDataVideoTimer() {
-        return new MSTimer(microseconds(0),intervale(1),[this](){
+        return new MSTimer<MSTimerForApple>(microseconds(0),intervale(1),[this](){
             if (!pixelQueue.empty()) {
                 const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
                 frameData = pixelQueue.front();
@@ -523,9 +536,9 @@ namespace MS {
     }
     
     template <typename T>
-    MSTimer * MSNonnull
+    MSTimer<MSTimerForApple> * MSNonnull
     MSPlayer<T>::initAsynDataAudioTimer() {
-        return new MSTimer(microseconds(0),intervale(1),[this](){
+        return new MSTimer<MSTimerForApple>(microseconds(0),intervale(1),[this](){
             if (!sampleQueue.empty()) {
                 const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
                 frameData = sampleQueue.front();
@@ -547,6 +560,113 @@ namespace MS {
             }
         });
     }
+
+#else
+    template <typename T>
+    MSTimer<MSTimerForOther> * MSNonnull
+    MSPlayer<T>::initSyncDataVideoTimer() {
+        return new MSTimer<MSTimerForOther>(microseconds(0),intervale(1),[this](){
+            if (!pixelQueue.empty()) {
+                const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
+                frameData = pixelQueue.front();
+                while (!pixelQueueMutex.try_lock());
+                pixelQueue.pop();
+                pixelQueueMutex.unlock();
+                if (pixelQueue.size() < 5) {
+                    videoThreadCondition.notify_one();
+                }
+                videoTimer->updateTimeInterval(frameData->timeInterval);
+                this->throwDecodeVideo(*frameData);
+                if (isEncoding) {
+                    _reEncoder->encodeVideo(*frameData);
+                }
+                delete frameData;
+            } else {
+                videoThreadCondition.notify_one();
+                this->throwDecodeVideo(MSMedia<MSDecodeMedia,T>::defaultNullMedia);
+            }
+        });
+    }
+    
+    template <typename T>
+    MSTimer<MSTimerForOther> * MSNonnull
+    MSPlayer<T>::initSyncDataAudioTimer() {
+        return new MSTimer<MSTimerForOther>(microseconds(0),intervale(1),[this](){
+            if (!sampleQueue.empty()) {
+                const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
+                frameData = sampleQueue.front();
+                while (!sampleQueueMutex.try_lock());
+                sampleQueue.pop();
+                sampleQueueMutex.unlock();
+                if (sampleQueue.size() < 5) {
+                    audioThreadCondition.notify_one();
+                }
+                audioTimer->updateTimeInterval(frameData->timeInterval);
+                this->throwDecodeAudio(*frameData);
+                if (isEncoding) {
+                    _reEncoder->encodeAudio(*frameData);
+                }
+                delete frameData;
+            } else {
+                audioThreadCondition.notify_one();
+                this->throwDecodeAudio(MSMedia<MSDecodeMedia,T>::defaultNullMedia);
+            }
+        });
+    }
+    
+    template <typename T>
+    MSTimer<MSTimerForOther> * MSNonnull
+    MSPlayer<T>::initAsynDataVideoTimer() {
+        return new MSTimer<MSTimerForOther>(microseconds(0),intervale(1),[this](){
+            if (!pixelQueue.empty()) {
+                const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
+                frameData = pixelQueue.front();
+                while (!pixelQueueMutex.try_lock());
+                pixelQueue.pop();
+                pixelQueueMutex.unlock();
+                if (pixelQueue.size() < 5) {
+                    videoThreadCondition.notify_one();
+                }
+                videoTimer->updateTimeInterval(frameData->timeInterval);
+                this->throwDecodeVideo(*frameData);
+                if (isEncoding) {
+                    _reEncoder->encodeVideo(*frameData);
+                }
+                delete frameData;
+            } else {
+                videoThreadCondition.notify_one();
+                this->throwDecodeVideo(MSMedia<MSDecodeMedia,T>::defaultNullMedia);
+            }
+        });
+    }
+    
+    template <typename T>
+    MSTimer<MSTimerForOther> * MSNonnull
+    MSPlayer<T>::initAsynDataAudioTimer() {
+        return new MSTimer<MSTimerForOther>(microseconds(0),intervale(1),[this](){
+            if (!sampleQueue.empty()) {
+                const MSMedia<MSDecodeMedia,T> *frameData = nullptr;
+                frameData = sampleQueue.front();
+                while (!sampleQueueMutex.try_lock());
+                sampleQueue.pop();
+                sampleQueueMutex.unlock();
+                if (sampleQueue.size() < 5) {
+                    audioThreadCondition.notify_one();
+                }
+                audioTimer->updateTimeInterval(frameData->timeInterval);
+                this->throwDecodeAudio(*frameData);
+                if (isEncoding) {
+                    _reEncoder->encodeAudio(*frameData);
+                }
+                delete frameData;
+            } else {
+                audioThreadCondition.notify_one();
+                this->throwDecodeAudio(MSMedia<MSDecodeMedia,T>::defaultNullMedia);
+            }
+        });
+    }
+#endif
+    
     
     template <typename T>
     void MSPlayer<T>::asynPushVideoFrameData(const MSMedia<MSDecodeMedia, T> * MSNonnull const frameData) {

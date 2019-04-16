@@ -118,8 +118,12 @@
     
     // 主线程刷新 UI
     dispatch_async(dispatch_get_main_queue(), ^{
-        // @Note: GLKView 当 APP 进入后台后, 会自动停止渲染
-        [self.view display];
+        // @Note: GLKViewContrller 当 APP 进入后台后, 会自动停止渲染
+        if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
+            [self.lock lock];
+            [self.view display];
+            [self.lock unlock];
+        }
     });
 }
 
@@ -177,7 +181,11 @@
     CVPixelBufferUnlockBaseAddress(frame.video, kCVPixelBufferLock_ReadOnly);
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.view display];
+        if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
+            [self.lock lock];
+            [self.view display];
+            [self.lock unlock];
+        }
     });
 }
 
