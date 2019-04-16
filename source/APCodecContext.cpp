@@ -60,12 +60,13 @@ audioDecoderConvert(initAudioConvert(audioParameters)) {
 }
 
 APCodecContext::APCodecContext(const MSCodecID codecID,
+                               const bool isColorFullRange,
                                const MSNaluParts &naluParts,
                                const APAsynDataProvider &asynDataProvider)
 :codecID(codecID),
 asynDataProvider(asynDataProvider),
 videoFmtDescription(initVideoFmtDescription(naluParts)),
-videoDecoderSession(initVideoDecoderSession()) {
+videoDecoderSession(initVideoDecoderSession(isColorFullRange)) {
     
 }
 
@@ -194,7 +195,7 @@ APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
 }
 
 VTDecompressionSessionRef
-APCodecContext::initVideoDecoderSession() {
+APCodecContext::initVideoDecoderSession(const bool isColorFullRange) {
     
     VTDecompressionSessionRef videoDecoderSession = nullptr;
     
@@ -207,7 +208,9 @@ APCodecContext::initVideoDecoderSession() {
     outputCallback.decompressionOutputRefCon = (void *)&asynDataProvider;
     
     /* 指定输出数据格式为 yuv420p '420f', 方便 yuv 数据分离, 提供给着色器 */
-    SInt32 pixFmtNum = kCVPixelFormatType_420YpCbCr8PlanarFullRange;
+    SInt32 pixFmtNum = (isColorFullRange ?
+                        kCVPixelFormatType_420YpCbCr8PlanarFullRange :
+                        kCVPixelFormatType_420YpCbCr8Planar);
     CFNumberRef pixFmtType = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &pixFmtNum);
     
     const void * keys[] = { (void *)kCVPixelBufferPixelFormatTypeKey };

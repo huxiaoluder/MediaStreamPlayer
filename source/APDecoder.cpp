@@ -99,6 +99,7 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
         if (status != noErr) {
             OSStatusErrorLocationLog("call VTDecompressionSessionDecodeFrame fail",status);
             if (status == kVTInvalidSessionErr) { // APP进入后台时, 系统会重置解码器
+                delete decoderContexts[videoData->codecID];
                 decoderContexts.erase(videoData->codecID);
             }
             delete videoData;
@@ -220,20 +221,24 @@ APDecoder::getVideoDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
     
     if (sourceData.isKeyFrame) {
         const MSNaluParts &naluParts = sourceData.getNaluParts();
+        // 解析 sps 基本信息(实时更新宽高帧率色域)
+        const MSVideoParameters *videoParameter = videoParametersMap[this];
+        if (videoParameter) {
+            delete videoParameter;
+        }
+        if (codecID == MSCodecID_H264) {
+            videoParameter = naluParts.parseH264Sps();
+        } else {
+            videoParameter = naluParts.parseH265Sps();
+        }
+        videoParametersMap[this] = videoParameter;
         
         if (decoderContext) {
             // 实时更新解码器配置(用新的 sps, pps)
             decoderContext->setVideoFmtDescription(naluParts);
         } else {
-            decoderContext = new APCodecContext(codecID, naluParts, *this);
+            decoderContext = new APCodecContext(codecID, videoParameter->isColorFullRange, naluParts, *this);
             decoderContexts[codecID] = decoderContext;
-        }
-        // 解析 sps 基本信息(实时更新宽高帧率)
-        delete videoParametersMap[this];
-        if (codecID == MSCodecID_H264) {
-            videoParametersMap[this] = naluParts.parseH264Sps();
-        } else {
-            videoParametersMap[this] = naluParts.parseH265Sps();
         }
     }
     return decoderContext;

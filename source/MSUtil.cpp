@@ -208,7 +208,7 @@ skipH265ScalingList(const uint8_t * const spsRef, size_t &startLocation) {
 }
 
 static void
-decode_h264_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameRate) {
+decode_h264_vui(const uint8_t * const spsRef, size_t &startLocation, MSVideoParameters &videoParameter) {
     int aspect_ratio_info_present_flag = getBitsValue(spsRef, startLocation, 1);
     if(aspect_ratio_info_present_flag) {
         int aspect_ratio_idc = getBitsValue(spsRef, startLocation, 8);
@@ -224,7 +224,10 @@ decode_h264_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameR
     
     int video_signal_type_present_flag = getBitsValue(spsRef, startLocation, 1);
     if(video_signal_type_present_flag) {
-        skipBits(startLocation, 4);
+        skipBits(startLocation, 3);
+        
+        videoParameter.isColorFullRange = getBitsValue(spsRef, startLocation, 1);
+        
         int colour_description_present_flag = getBitsValue(spsRef, startLocation, 1);
         if(colour_description_present_flag) {
             skipBits(startLocation, 24);
@@ -240,12 +243,12 @@ decode_h264_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameR
     if(timing_info_present_flag) {
         int num_units_in_tick = getBitsValue(spsRef, startLocation, 32);
         int time_scale = getBitsValue(spsRef, startLocation, 32);
-        frameRate = time_scale / (num_units_in_tick << 1);
+        videoParameter.frameRate = time_scale / (num_units_in_tick << 1);
     }
 }
 
 static void
-decode_h265_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameRate) {
+decode_h265_vui(const uint8_t * const spsRef, size_t &startLocation, MSVideoParameters &videoParameter) {
     int aspect_ratio_info_present_flag = getBitsValue(spsRef, startLocation, 1);
     if (aspect_ratio_info_present_flag) {
         int aspect_ratio_idc = getBitsValue(spsRef, startLocation, 8);
@@ -261,7 +264,9 @@ decode_h265_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameR
     
     int video_signal_type_present_flag = getBitsValue(spsRef, startLocation, 1);
     if (video_signal_type_present_flag) {
-        skipBits(startLocation, 4);
+        skipBits(startLocation, 3);
+        
+        videoParameter.isColorFullRange = getBitsValue(spsRef, startLocation, 1);
         
         int colour_description_present_flag = getBitsValue(spsRef, startLocation, 1);
         if (colour_description_present_flag) {
@@ -285,7 +290,7 @@ decode_h265_vui(const uint8_t * const spsRef, size_t &startLocation, int &frameR
     if (vui_timing_info_present_flag) {
         int vui_num_units_in_tick = getBitsValue(spsRef, startLocation, 32);
         int vui_time_scale = getBitsValue(spsRef, startLocation, 32);
-        frameRate = vui_time_scale / vui_num_units_in_tick;
+        videoParameter.frameRate = vui_time_scale / vui_num_units_in_tick;
     }
 }
 
@@ -433,7 +438,7 @@ MS::decode_h264_sps(const uint8_t * const sourceSpsRef,
     
     int vui_parameters_present_flag = getBitsValue(realSps, startLocation, 1);
     if(vui_parameters_present_flag) {
-        decode_h264_vui(realSps, startLocation, videoParameter.frameRate);
+        decode_h264_vui(realSps, startLocation, videoParameter);
     }
     
     videoParameter.width  = ((pic_width_in_mbs_minus1 + 1) * 16 -
@@ -519,7 +524,7 @@ MS::decode_h265_sps(const uint8_t * const sourceSpsRef,
     
     int vui_parameters_present_flag = getBitsValue(realSps, startLocation, 1);
     if (vui_parameters_present_flag) {
-        decode_h265_vui(realSps, startLocation, videoParameter.frameRate);
+        decode_h265_vui(realSps, startLocation, videoParameter);
     }
     
     videoParameter.width    = pic_width_in_luma_samples;

@@ -292,9 +292,10 @@ static int i;
                                                object:nil];
     [IotlibTool shareIotlibTool].delegate = self;
     
-    // 38l(h265): IOTSHMK038L0000419790
-    // 私模(h264): IOTSHMK000S0008EDA1FCDD  IOTSHMK000S0008DEB486FC
-    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMK000S0008EDA1FCDD"
+    // 38l(h265, aac): IOTSHMK038L0000419790
+    // 私模(h264, aac): IOTSHMK000S0008EDA1FCDD
+    // 摇头机(h264, alaw): IOTSHMKP00300004F0716
+    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMKP00300004F0716"
                                                   callback:^(e_trans_conn_state status,
                                                              int connectId)
      {

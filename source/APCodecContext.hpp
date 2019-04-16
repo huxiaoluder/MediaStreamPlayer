@@ -83,6 +83,7 @@ namespace MS {
              视频解码环境构造器
              */
             APCodecContext(const MSCodecID codecID,
+                           const bool isColorFullRange,
                            const MSNaluParts &naluParts,
                            const APAsynDataProvider &asynDataProvider);
             
@@ -99,7 +100,7 @@ namespace MS {
             
             CMVideoFormatDescriptionRef MSNullable  initVideoFmtDescription(const MSNaluParts &naluParts);
             AudioConverterRef           MSNullable  initAudioConvert(const MSAudioParameters &audioParameters);
-            VTDecompressionSessionRef   MSNullable  initVideoDecoderSession();
+            VTDecompressionSessionRef   MSNullable  initVideoDecoderSession(const bool isColorFullRange);
         };
 
     }

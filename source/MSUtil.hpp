@@ -96,13 +96,14 @@ namespace MS {
         int width       = 0;
         int height      = 0;
         int frameRate   = 0;
+        int isColorFullRange = 0;
     };
     
     struct MSAudioParameters {
         int profile     = 0; // == MPEG-4 Audio Object Types (APPLE ENUM: MPEG4ObjectID) - 1
         int channels    = 0;
         struct {
-            int index   = 0;  // index of adtsFrequencyList
+            int index   = 0; // index of adtsFrequencyList
             int value   = 0; // value of index in adtsFrequencyList
         } frequency;
     };
