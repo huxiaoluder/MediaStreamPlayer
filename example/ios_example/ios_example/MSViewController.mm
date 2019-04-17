@@ -20,7 +20,7 @@ using namespace MS::FFmpeg;
 using namespace MS::APhard;
 
 
-#define condition 1
+#define condition 0
 
 @interface MSViewController ()<IotlibToolDelegate>
 {
@@ -50,7 +50,7 @@ static int i;
 
 - (void)enterBackground {
 //    player->stopPlayVideo();
-////    player->pausePlayVideo();
+//    player->pausePlayVideo();
 }
 
 - (void)viewDidLoad {
@@ -94,9 +94,14 @@ static int i;
                                    },
                                    [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
                                        if (data.frame) {
-                                           [[weakSelf audioRender] updateChannels:data.frame->audioParameters.channels
-                                                                        frequency:data.frame->audioParameters.frequency.value];
-                                           [[weakSelf audioRender] displayAPFrame:*data.frame];
+//                                           [[weakSelf audioRender] updateChannels:data.frame->audioParameters.channels
+//                                                                        frequency:data.frame->audioParameters.frequency.value];
+//                                           [[weakSelf audioRender] displayAPFrame:*data.frame];
+                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)data.frame->audio->mData
+                                                                                        dataSize:data.frame->audio->mDataByteSize
+                                                                                      samplerate:8000
+                                                                                        channels:1
+                                                                                             bit:16];
                                        }
                                    });
 #endif

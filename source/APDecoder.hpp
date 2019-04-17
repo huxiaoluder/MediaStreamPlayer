@@ -77,11 +77,23 @@ namespace MS {
                                                     CMTime presentationTimeStamp,
                                                     CMTime presentationDuration);
             
-            static OSStatus decompressionConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
-                                                            UInt32 * MSNonnull ioNumberDataPackets,
-                                                            AudioBufferList * MSNonnull ioData,
-                                                            AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
-                                                            void * MSNullable inUserData);
+            static OSStatus decompressionAacConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                                               UInt32 * MSNonnull ioNumberDataPackets,
+                                                               AudioBufferList * MSNonnull ioData,
+                                                               AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                                               void * MSNullable inUserData);
+            
+            static OSStatus decompressionAlawConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                                                UInt32 * MSNonnull ioNumberDataPackets,
+                                                                AudioBufferList * MSNonnull ioData,
+                                                                AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                                                void * MSNullable inUserData);
+            
+            static OSStatus decompressionOpusConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                                                UInt32 * MSNonnull ioNumberDataPackets,
+                                                                AudioBufferList * MSNonnull ioData,
+                                                                AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                                                void * MSNullable inUserData);
             
         public:
             void decodeVideo(const MSMedia<MSEncodeMedia> * MSNonnull const videoData);

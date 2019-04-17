@@ -134,14 +134,29 @@ APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
     AudioStreamBasicDescription sourceFormat = {
         .mSampleRate        = (Float64)audioParameters.frequency.value,
         .mFormatID          = audioFormatID,
-        .mFormatFlags       = (UInt32)audioParameters.profile + 1,//kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger,
+        .mFormatFlags       = 0,
         .mBytesPerPacket    = 0,
-        .mFramesPerPacket   = 1024, // AAC: 1 packet 1024 frame
+        .mFramesPerPacket   = 0,
         .mBytesPerFrame     = 0,
         .mChannelsPerFrame  = (UInt32)audioParameters.channels,
         .mBitsPerChannel    = 0,
         .mReserved          = 0
     };
+    
+    switch (codecID) {
+        case MSCodecID_AAC: {
+            //kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger
+            sourceFormat.mFormatFlags       = (UInt32)audioParameters.profile + 1;
+            sourceFormat.mFramesPerPacket   = 1024; // AAC: 1 packet 1024 frame
+        }   break;
+        case MSCodecID_ALAW: {
+            sourceFormat.mFramesPerPacket   = 160;  // AAC: 1 packet 160 frame
+        }   break;
+        case MSCodecID_OPUS: {
+            
+        }   break;
+        default: break;
+    }
     
     AudioStreamBasicDescription destinationFormat = {
         .mSampleRate        = (Float64)audioParameters.frequency.value,

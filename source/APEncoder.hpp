@@ -15,6 +15,9 @@
 #include "APCodecContext.hpp"
 #include "FFCodecContext.hpp"
 
+// aac 每 1024 帧数据(s16 大小: 2048 Byte), 开始编码 1 pack
+#define aacOutFrameNum 1024
+
 namespace MS {
     namespace APhard {
         
@@ -24,6 +27,11 @@ namespace MS {
         class APEncoder : public APEncoderProtocol {
             
 //            typedef function<void(const uint8_t * MSNonnull const decodeData)> ThrowEncodeData;
+            
+            // 已编码 AAC 数据输出缓冲区
+            AudioBufferList * MSNullable const aacOutBuffer;
+            // 线性的 PCM 数据输入缓冲(AAC 编码要求: 输入数据长度不够 2048 字节时, 需要后来的数据拼接, 直到长度够 2048 字节)
+            AudioBuffer     * MSNullable const pcmInBuffer;
             
             mutex fileWriteMutex;
             

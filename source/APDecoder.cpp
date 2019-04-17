@@ -121,7 +121,24 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         
         const MSAudioParameters &audioParameters = *audioParametersMap[this];
         
-        UInt32 outPacktNumber = 1024;
+        AudioConverterComplexInputDataProc decompressionInputProc = nullptr;
+        UInt32 outPacktNumber = 0;
+        switch (audioData->codecID) {
+            case MSCodecID_AAC: {
+                outPacktNumber = 1024;
+                decompressionInputProc = decompressionAacConverterInputProc;
+            }   break;
+            case MSCodecID_ALAW: {
+                outPacktNumber = 160;
+                decompressionInputProc = decompressionAlawConverterInputProc;
+            }   break;
+            case MSCodecID_OPUS: {
+                outPacktNumber = 0;
+                decompressionInputProc = decompressionOpusConverterInputProc;
+            }   break;
+            default: break;
+        }
+        
         UInt32 mDataByteSize = outPacktNumber * 2 * (UInt32)audioParameters.channels;
         AudioBufferList outBufferList {
             .mNumberBuffers = 1,
@@ -137,7 +154,7 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         
 //        static AudioStreamPacketDescription outAspDesc[1024];
         status = AudioConverterFillComplexBuffer(decoderContext->audioDecoderConvert,
-                                                 decompressionConverterInputProc,
+                                                 decompressionInputProc,
                                                  &audioAttachment,
                                                  &outPacktNumber,
                                                  &outBufferList,
@@ -252,11 +269,26 @@ APDecoder::getAudioDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
     if (!decoderContext) {
         const MSNaluParts &naluParts = sourceData.getNaluParts();
         // 音频一般不会动态更改编码配置, 暂时以首次的 adts 数据为准
-        auto audioParameters = audioParametersMap[this] = naluParts.parseAacAdts();
-    
+        const MSAudioParameters *audioParameters = nullptr;
+        switch (codecID) {
+            case MSCodecID_AAC: {
+                 audioParameters = naluParts.parseAacAdts();
+            }   break;
+            case MSCodecID_ALAW: {
+                auto audioParam = new MSAudioParameters;
+                audioParam->profile     = 1;
+                audioParam->channels    = 1;
+                audioParam->frequency   = {11, 8000};
+                audioParameters = audioParam;
+            }   break;
+            case MSCodecID_OPUS: {
+                
+            }   break;
+            default: break;
+        }
+        audioParametersMap[this] = audioParameters;
         decoderContext = new APCodecContext(codecID, *audioParameters, *this);
         decoderContexts[codecID] = decoderContext;
-        
     }
     return decoderContext;
 }
@@ -287,11 +319,11 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
 };
 
 OSStatus
-APDecoder::decompressionConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
-                                           UInt32 * MSNonnull ioNumberDataPackets,
-                                           AudioBufferList * MSNonnull ioData,
-                                           AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
-                                           void * MSNullable inUserData) {
+APDecoder::decompressionAacConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                              UInt32 * MSNonnull ioNumberDataPackets,
+                                              AudioBufferList * MSNonnull ioData,
+                                              AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                              void * MSNullable inUserData) {
     const APAudioAttachment &audioAttachment = *(APAudioAttachment *)inUserData;
     const MSNaluParts &naluParts = audioAttachment.audioSource->getNaluParts();
     
@@ -305,6 +337,41 @@ APDecoder::decompressionConverterInputProc(AudioConverterRef MSNonnull inAudioCo
     aspDesc.mVariableFramesInPacket = 0;
     aspDesc.mDataByteSize = (UInt32)naluParts.dataSize();
     *outDataPacketDescription = &aspDesc;
+    
+    return noErr;
+}
+
+OSStatus
+APDecoder::decompressionAlawConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                               UInt32 * MSNonnull ioNumberDataPackets,
+                                               AudioBufferList * MSNonnull ioData,
+                                               AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                               void * MSNullable inUserData) {
+    const APAudioAttachment &audioAttachment = *(APAudioAttachment *)inUserData;
+    auto audioSource = audioAttachment.audioSource;
+    
+    ioData->mNumberBuffers = 1;
+    ioData->mBuffers->mData = (void *)audioSource->naluData;
+    ioData->mBuffers->mDataByteSize = (UInt32)audioSource->naluSize;
+    ioData->mBuffers->mNumberChannels = (UInt32)audioAttachment.audioParameters->channels;
+    
+    return noErr;
+}
+
+
+OSStatus
+APDecoder::decompressionOpusConverterInputProc(AudioConverterRef MSNonnull inAudioConverter,
+                                               UInt32 * MSNonnull ioNumberDataPackets,
+                                               AudioBufferList * MSNonnull ioData,
+                                               AudioStreamPacketDescription * MSNullable * MSNullable outDataPacketDescription,
+                                               void * MSNullable inUserData) {
+    const APAudioAttachment &audioAttachment = *(APAudioAttachment *)inUserData;
+    const MSNaluParts &naluParts = audioAttachment.audioSource->getNaluParts();
+    
+    ioData->mNumberBuffers = 1;
+    ioData->mBuffers->mData = (void *)naluParts.dataRef();
+    ioData->mBuffers->mDataByteSize = (UInt32)naluParts.dataSize();
+    ioData->mBuffers->mNumberChannels = (UInt32)audioAttachment.audioParameters->channels;
     
     return noErr;
 }

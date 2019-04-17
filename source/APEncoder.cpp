@@ -229,34 +229,56 @@ APEncoder::encodeAudio(const APEncoderInputMedia &sampleData) {
         
         APFrame &audioFrame = *sampleData.frame;
         
-        UInt32 outPacktNumber = 1;
-        UInt32 mDataByteSize = 1024;
-        AudioBufferList outBufferList {
-            .mNumberBuffers = 1,
-            .mBuffers[0] = {
-                .mNumberChannels = (UInt32)audioFrame.audioParameters.channels,
-                .mDataByteSize = mDataByteSize,
-                .mData = malloc(mDataByteSize)
+        // 构造输入数据
+        AudioBuffer *inInputData = audioFrame.audio;
+        UInt32 remainSize = 0;
+        UInt32 usedSize = 0;
+        if (inInputData->mDataByteSize < aacOutFrameNum * 2) {
+            usedSize = std::min(aacOutFrameNum * 2 - pcmInBuffer->mDataByteSize, inInputData->mDataByteSize);
+            remainSize = inInputData->mDataByteSize - usedSize;
+            
+            pcmInBuffer->mDataByteSize += usedSize;
+            memcpy((uint8_t *)pcmInBuffer->mData + pcmInBuffer->mDataByteSize,
+                   inInputData->mData,
+                   usedSize);
+            
+            if (pcmInBuffer->mDataByteSize < aacOutFrameNum * 2) {
+                return;
             }
-        };
-        static AudioStreamPacketDescription outAspDesc[1];
+            pcmInBuffer->mNumberChannels = inInputData->mNumberChannels;
+            inInputData = pcmInBuffer;
+        }
         
+        UInt32 outPacktNumber = 1;
+        aacOutBuffer->mBuffers[0].mDataByteSize = aacOutFrameNum * 2;
+        
+//        static AudioStreamPacketDescription outAspDesc[1];
         status = AudioConverterFillComplexBuffer(audioEncoderConvert,
                                                  compressionConverterInputProc,
-                                                 audioFrame.audio,
+                                                 inInputData,
                                                  &outPacktNumber,
-                                                 &outBufferList,
-                                                 outAspDesc); //outAspDesc
+                                                 aacOutBuffer,
+                                                 nullptr); //outAspDesc
         if (status != noErr) {
             OSStatusErrorLocationLog("call AudioConverterFillComplexBuffer fail",status);
             return;
+        }
+        
+        // 处理剩余数据
+        if (inInputData == pcmInBuffer) {
+            inInputData->mDataByteSize = remainSize;
+            if (remainSize) {
+                memcpy(inInputData->mData,
+                       (uint8_t *)audioFrame.audio->mData + usedSize,
+                       remainSize);
+            }
         }
         
         AVPacket packet;
         av_init_packet(&packet);
         
         audioPts += 1024;
-        const AudioBuffer &outAudioBuffer = outBufferList.mBuffers[0];
+        const AudioBuffer &outAudioBuffer = aacOutBuffer->mBuffers[0];
         packet.data = (uint8_t *)outAudioBuffer.mData;
         packet.size = outAudioBuffer.mDataByteSize;
         packet.stream_index = audioStream->index;
@@ -302,8 +324,16 @@ APEncoder::isEncoding() {
 
 APEncoder::APEncoder(const MSCodecID videoCodecID,
                      const MSCodecID audioCodecID)
-:videoCodecID(videoCodecID), audioCodecID(audioCodecID) {
+:videoCodecID(videoCodecID),
+audioCodecID(audioCodecID),
+aacOutBuffer(new AudioBufferList),
+pcmInBuffer(new AudioBuffer){
+    memset(aacOutBuffer, 0, sizeof(AudioBufferList));
+    aacOutBuffer->mNumberBuffers = 1;
+    aacOutBuffer->mBuffers[0].mData = malloc(aacOutFrameNum * 2);
     
+    memset(pcmInBuffer, 0, sizeof(AudioBuffer));
+    pcmInBuffer->mData = malloc(aacOutFrameNum * 2);
 }
 
 APEncoder::~APEncoder() {
@@ -312,6 +342,12 @@ APEncoder::~APEncoder() {
     } else {
         releaseEncoderConfiguration();
     }
+
+    free(aacOutBuffer->mBuffers[0].mData);
+    delete aacOutBuffer;
+    
+    free(pcmInBuffer->mData);
+    delete pcmInBuffer;
 }
 
 bool
