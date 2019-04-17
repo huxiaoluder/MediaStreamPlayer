@@ -216,8 +216,8 @@ FFEncoder::configureAudioEncoderContext(const FFCodecContext &audioDecoderContex
     encoderContext.bit_rate         = decoderContext.bit_rate;
     encoderContext.sample_rate      = decoderContext.sample_rate;
     encoderContext.time_base        = (AVRational){1, encoderContext.sample_rate};
+    encoderContext.channels         = decoderContext.channels;
     encoderContext.channel_layout   = decoderContext.channel_layout;
-    encoderContext.channels         = av_get_channel_layout_nb_channels(encoderContext.channel_layout);
     encoderContext.strict_std_compliance = FF_COMPLIANCE_EXPERIMENTAL;
     if (outputFormatContext->oformat->flags & AVFMT_GLOBALHEADER) {
         encoderContext.flags       |= AV_CODEC_FLAG_GLOBAL_HEADER;
@@ -283,7 +283,9 @@ FFEncoder::encodeData(AVFrame * const frame,
     
     ret = avcodec_receive_packet(encoderContext, &packet);
     if (ret < 0) {
-        ErrorLocationLog(av_err2str(ret));
+        if (ret != AVERROR(EAGAIN)) { 
+            ErrorLocationLog(av_err2str(ret));
+        }
         return;
     }
     

@@ -73,14 +73,14 @@ static int i;
                                    },
                                    [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
                                        if (data.frame) {
-                                           [[weakSelf audioRender] updateChannels:data.frame->channels
-                                                                        frequency:data.frame->sample_rate];
-                                           [[weakSelf audioRender] displayAVFrame:*data.frame];
-//                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:data.frame->data[0]
-//                                                                                        dataSize:data.frame->linesize[0]
-//                                                                                      samplerate:8000
-//                                                                                        channels:1
-//                                                                                             bit:16];
+//                                           [[weakSelf audioRender] updateChannels:data.frame->channels
+//                                                                        frequency:data.frame->sample_rate];
+//                                           [[weakSelf audioRender] displayAVFrame:*data.frame];
+                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:data.frame->data[0]
+                                                                                        dataSize:data.frame->linesize[0]
+                                                                                      samplerate:8000
+                                                                                        channels:1
+                                                                                             bit:16];
                                         }
                                    });
 #else
@@ -148,6 +148,9 @@ static int i;
 //            printf("--------------datalen: %d\n",dataLen);
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
             player->pushAudioStreamData(data);
+        } else if (headerMedia->stream_type == e_stream_type_G711A) {
+            auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_ALAW);
+            player->pushAudioStreamData(data);
         }
     }
 }
@@ -208,8 +211,8 @@ static int i;
     } else {
         NSString *videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"test.mp4"]];
         bool ret = encoder.configureEncoder(videoPath.UTF8String,
-                                            decoder.findDecoderContext(MSCodecID_H264),
-                                            decoder.findDecoderContext(MSCodecID_AAC));
+                                            decoder.getCurrentVideoContext(),
+                                            decoder.getCurrentAudioContext());
         if (ret) {
             player->startReEncode();
         }
@@ -247,6 +250,7 @@ static int i;
     printf("----delloc\n");
     delete player;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[IotlibTool shareIotlibTool] stopConnect];
 }
 
 
@@ -301,7 +305,7 @@ static int i;
     // 38l(h265, aac): IOTSHMK038L0000419790
     // 私模(h264, aac): IOTSHMK000S0008EDA1FCDD
     // 摇头机(h264, alaw): IOTSHMKP00300004F0716
-    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:@"IOTSHMKP00300004F0716"
+    [[IotlibTool shareIotlibTool] startConnectWithDeviceId:self.deviceId
                                                   callback:^(e_trans_conn_state status,
                                                              int connectId)
      {

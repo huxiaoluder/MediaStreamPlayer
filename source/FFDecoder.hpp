@@ -20,6 +20,10 @@ namespace MS {
         typedef MSMedia<MSDecodeMedia,AVFrame>  FFDecoderOutputMedia;
         
         class FFDecoder : public FFDecoderProtocol {
+            MSCodecID currentVedioCodecID = MSCodecID_None;
+            
+            MSCodecID currentAudioCodecID = MSCodecID_None;
+            
             std::map<MSCodecID,FFCodecContext *> decoderContexts;
             
             const FFCodecContext & getDecoderContext(const MSCodecID codecID);
@@ -32,6 +36,10 @@ namespace MS {
             ~FFDecoder();
             
             const FFCodecContext * MSNullable findDecoderContext(MSCodecID codecID);
+            
+            const FFCodecContext * MSNullable getCurrentVideoContext();
+            
+            const FFCodecContext * MSNullable getCurrentAudioContext();
         };
         
     }   

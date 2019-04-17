@@ -261,6 +261,7 @@ APCodecID
 APCodecContext::getAPCodecId(const MSCodecID codecID) {
     APCodecID codec_id;
     switch (codecID) {
+        case MSCodecID_None:    codec_id = NULL;                    break;
         case MSCodecID_H264:    codec_id = kCMVideoCodecType_H264;  break;
         case MSCodecID_H265:    codec_id = kCMVideoCodecType_HEVC;  break;
         case MSCodecID_AAC:     codec_id = kAudioFormatMPEG4AAC;    break;

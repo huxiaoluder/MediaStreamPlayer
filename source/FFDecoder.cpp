@@ -13,11 +13,13 @@ using namespace MS::FFmpeg;
 
 const FFDecoderOutputMedia *
 FFDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * MSNonnull const videoData) {
+    currentVedioCodecID = videoData->codecID;
     return decodeData(videoData);
 }
 
 const FFDecoderOutputMedia *
 FFDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * MSNonnull const audioData) {
+    currentAudioCodecID = audioData->codecID;
     return decodeData(audioData);
 }
 
@@ -66,7 +68,9 @@ FFDecoder::decodeData(const MSMedia<MSEncodeMedia> * const mediaData) {
     }
     ret = avcodec_receive_frame(codec_ctx, frame);
     if (ret < 0) {
-        ErrorLocationLog(av_err2str(ret));
+        if (ret != AVERROR(EAGAIN)) {
+            ErrorLocationLog(av_err2str(ret));
+        }
         av_packet_unref(&packet);
         delete mediaData;
         return nullptr;
@@ -95,4 +99,14 @@ FFDecoder::decodeData(const MSMedia<MSEncodeMedia> * const mediaData) {
 const FFCodecContext * 
 FFDecoder::findDecoderContext(MSCodecID codecID) {
     return decoderContexts[codecID];
+}
+
+const FFCodecContext *
+FFDecoder::getCurrentVideoContext() {
+    return decoderContexts[currentVedioCodecID];
+}
+
+const FFCodecContext *
+FFDecoder::getCurrentAudioContext() {
+    return decoderContexts[currentAudioCodecID];
 }

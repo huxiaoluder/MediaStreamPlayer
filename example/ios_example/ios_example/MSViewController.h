@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSViewController : UIViewController
 
+@property (nonatomic, copy) NSString *deviceId;
+
 @end
 
 NS_ASSUME_NONNULL_END

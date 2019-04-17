@@ -10,7 +10,7 @@
 #import "IotlibTool.h"
 #include <math.h>
 #include <AVFoundation/AVFoundation.h>
-#include <MSUtil.hpp>
+#import "MSViewController.h"
 
 @interface ViewController ()
 
@@ -22,21 +22,33 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    AVAssetWriterInput *input = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:nullptr];
-//    [input appendSampleBuffer:nullptr];
+}
+- (IBAction)push:(UIButton *)sender {
     
-    uint8_t sps[] = {0x67, 0x42, 0x00, 0x29, 0xab, 0x40, 0x64, 0x09, 0xbf, 0x2c, 0xdc, 0x08, 0x08, 0x0a, 0x90 ,0x20};
-    MS::MSVideoParameters p;
-    MS::decode_h264_sps(sps, sizeof(sps), p);
-    printf("/");
 }
 
+// 私模(h264, aac): IOTSHMK000S0008EDA1FCDD
+// 摇头机(h264, alaw): IOTSHMKP00300004F0716
 - (IBAction)yellow:(UIButton *)sender {
 
 }
 
+
 - (IBAction)blue:(UIButton *)sender {
 
+}
+
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // 私模(h264, aac): IOTSHMK000S0008EDA1FCDD
+    // 摇头机(h264, alaw): IOTSHMKP00300004F0716
+    if ([segue.identifier isEqualToString:@"simo"]) {
+        ((MSViewController *)segue.destinationViewController).deviceId = @"IOTSHMK000S0008EDA1FCDD";
+    } else if ([segue.identifier isEqualToString:@"yaotou"]) {
+        ((MSViewController *)segue.destinationViewController).deviceId = @"IOTSHMKP00300004F0716";
+    } else {
+        
+    }
 }
 
 @end

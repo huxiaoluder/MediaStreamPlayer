@@ -15,6 +15,7 @@
 namespace MS {
     
     enum MSCodecID {
+        MSCodecID_None,
         /*---video---*/
         MSCodecID_H264,
         MSCodecID_H265,

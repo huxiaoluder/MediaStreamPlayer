@@ -180,9 +180,11 @@ MSTimer<MSTimerForApple>::updateDelayTime(const microseconds delayTime) {
 
 MSTimer<MSTimerForApple> &
 MSTimer<MSTimerForApple>::updateTimeInterval(const microseconds timeInterval) {
-    this->timeInterval = (timeInterval.count() ?
-                          timeInterval :
-                          microseconds(1000000LL));
-    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, timeInterval.count() * NSEC_PER_USEC, 0);
+    if (timeInterval != this->timeInterval) {    
+        this->timeInterval = (timeInterval.count() ?
+                              timeInterval :
+                              microseconds(1000000LL));
+        dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, timeInterval.count() * NSEC_PER_USEC, 0);
+    }
     return *this;
 }
