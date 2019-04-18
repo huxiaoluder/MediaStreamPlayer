@@ -190,7 +190,9 @@ APEncoder::encodeVideo(const APEncoderInputMedia &pixelData) {
     assert(_isEncoding);
     
     if (videoEncoderSession) {
-        
+        /**
+         @Note: 编码初始的非 I 帧, 再直接写入源编码数据, MP4 无法识别后续源编码帧(可能是参数有不同, 待解决)
+         */
         CMTime presentationTimeStamp { // 帧显示时间戳 pts
             .value = (int)videoPts,
             .timescale = 0,
@@ -229,58 +231,65 @@ APEncoder::encodeAudio(const APEncoderInputMedia &sampleData) {
         
         APFrame &audioFrame = *sampleData.frame;
         
-        // 构造输入数据
-        AudioBuffer *inInputData = audioFrame.audio;
-        UInt32 remainSize = 0;
-        UInt32 usedSize = 0;
-        if (inInputData->mDataByteSize < AacPacketFrameNum * 2) {
-            usedSize = std::min(AacPacketFrameNum * 2 - pcmInBuffer->mDataByteSize, inInputData->mDataByteSize);
-            remainSize = inInputData->mDataByteSize - usedSize;
-            
-            pcmInBuffer->mDataByteSize += usedSize;
-            memcpy((uint8_t *)pcmInBuffer->mData + pcmInBuffer->mDataByteSize,
-                   inInputData->mData,
-                   usedSize);
-            
-            if (pcmInBuffer->mDataByteSize < AacPacketFrameNum * 2) {
-                return;
-            }
-            pcmInBuffer->mNumberChannels = inInputData->mNumberChannels;
-            inInputData = pcmInBuffer;
-        }
-        
-        UInt32 outPacktNumber = 1;
-        aacOutBuffer->mBuffers[0].mDataByteSize = AacPacketFrameNum * 2;
-        
-//        static AudioStreamPacketDescription outAspDesc[1];
-        status = AudioConverterFillComplexBuffer(audioEncoderConvert,
-                                                 compressionConverterInputProc,
-                                                 inInputData,
-                                                 &outPacktNumber,
-                                                 aacOutBuffer,
-                                                 nullptr); //outAspDesc
-        if (status != noErr) {
-            OSStatusErrorLocationLog("call AudioConverterFillComplexBuffer fail",status);
-            return;
-        }
-        
-        // 处理剩余数据
-        if (inInputData == pcmInBuffer) {
-            inInputData->mDataByteSize = remainSize;
-            if (remainSize) {
-                memcpy(inInputData->mData,
-                       (uint8_t *)audioFrame.audio->mData + usedSize,
-                       remainSize);
-            }
-        }
-        
         AVPacket packet;
         av_init_packet(&packet);
         
+        // AAC 不要参考帧, 可以不走重编吗, 这里也可以支持 AAC 重编
+        if (sampleData.packt->codecID != MSCodecID_AAC) {
+            // 构造输入数据
+            AudioBuffer *inInputData = audioFrame.audio;
+            UInt32 remainSize = 0;
+            UInt32 usedSize = 0;
+            if (inInputData->mDataByteSize < AacPacketFrameNum * 2) {
+                usedSize = std::min(AacPacketFrameNum * 2 - pcmInBuffer->mDataByteSize, inInputData->mDataByteSize);
+                remainSize = inInputData->mDataByteSize - usedSize;
+                
+                pcmInBuffer->mDataByteSize += usedSize;
+                memcpy((uint8_t *)pcmInBuffer->mData + pcmInBuffer->mDataByteSize,
+                       inInputData->mData,
+                       usedSize);
+                
+                if (pcmInBuffer->mDataByteSize < AacPacketFrameNum * 2) {
+                    return;
+                }
+                pcmInBuffer->mNumberChannels = inInputData->mNumberChannels;
+                inInputData = pcmInBuffer;
+            }
+            
+            UInt32 outPacktNumber = 1;
+            aacOutBuffer->mBuffers[0].mDataByteSize = AacPacketFrameNum * 2;
+            
+            //        static AudioStreamPacketDescription outAspDesc[1];
+            status = AudioConverterFillComplexBuffer(audioEncoderConvert,
+                                                     compressionConverterInputProc,
+                                                     inInputData,
+                                                     &outPacktNumber,
+                                                     aacOutBuffer,
+                                                     nullptr); //outAspDesc
+            if (status != noErr) {
+                OSStatusErrorLocationLog("call AudioConverterFillComplexBuffer fail",status);
+                return;
+            }
+            
+            // G771 转 AAC 处理剩余数据
+            if (inInputData == pcmInBuffer) {
+                inInputData->mDataByteSize = remainSize;
+                if (remainSize) {
+                    memcpy(inInputData->mData,
+                           (uint8_t *)audioFrame.audio->mData + usedSize,
+                           remainSize);
+                }
+            }
+            
+            const AudioBuffer &outAudioBuffer = aacOutBuffer->mBuffers[0];
+            packet.data = (uint8_t *)outAudioBuffer.mData;
+            packet.size = outAudioBuffer.mDataByteSize;
+        } else {
+            packet.data = sampleData.packt->naluData + 7;
+            packet.size = (int)sampleData.packt->naluSize - 7;
+        }
+        
         audioPts += AacPacketFrameNum;
-        const AudioBuffer &outAudioBuffer = aacOutBuffer->mBuffers[0];
-        packet.data = (uint8_t *)outAudioBuffer.mData;
-        packet.size = outAudioBuffer.mDataByteSize;
         packet.stream_index = audioStream->index;
         packet.pts = audioPts;
         packet.dts = audioPts;
