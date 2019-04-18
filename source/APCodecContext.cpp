@@ -71,10 +71,10 @@ videoDecoderSession(initVideoDecoderSession(isColorFullRange)) {
 }
 
 APCodecContext::~APCodecContext() {
-    if (videoDecoderSession) {
+    if (codecID < MSCodecID_AAC && videoDecoderSession) {
         VTDecompressionSessionInvalidate(videoDecoderSession);
     }
-    if (audioDecoderConvert) {
+    if (codecID > MSCodecID_HEVC && audioDecoderConvert) {
         AudioConverterDispose(audioDecoderConvert);
     }
     if (videoFmtDescription) {

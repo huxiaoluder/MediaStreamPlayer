@@ -203,6 +203,10 @@ APDecoder::~APDecoder() {
         videoParametersMap.erase(this);
         delete mediaParameters;
     }
+    for (auto element : decoderContexts) {
+        delete element.second;
+    }
+    decoderContexts.clear();
 }
 
 const MSVideoParameters *

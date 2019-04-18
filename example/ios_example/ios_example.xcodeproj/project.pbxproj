@@ -46,21 +46,21 @@
 		4F8C2FAB224222C000531FB2 /* IDETemplateMacros.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4F8C2FAA224222C000531FB2 /* IDETemplateMacros.plist */; };
 		4F8C2FB02242263500531FB2 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C2FAF2242263400531FB2 /* GLKit.framework */; };
 		4F9ADF1621B7D12F00862770 /* IotlibTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9ADF1521B7D12F00862770 /* IotlibTool.m */; };
-		4FA4112B2251B59300C71AA2 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA4111C2251B59200C71AA2 /* libmxml.a */; };
-		4FA4112C2251B59300C71AA2 /* libconn3_transport_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA4111D2251B59200C71AA2 /* libconn3_transport_static.a */; };
-		4FA4112D2251B59300C71AA2 /* libpjnath_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA4111E2251B59200C71AA2 /* libpjnath_static.a */; };
-		4FA4112E2251B59300C71AA2 /* libjson_cpp_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA4111F2251B59200C71AA2 /* libjson_cpp_static.a */; };
-		4FA4112F2251B59300C71AA2 /* libminiupnpc_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411202251B59200C71AA2 /* libminiupnpc_static.a */; };
-		4FA411302251B59300C71AA2 /* libpjlib_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411212251B59200C71AA2 /* libpjlib_static.a */; };
-		4FA411312251B59300C71AA2 /* libapr-1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411222251B59300C71AA2 /* libapr-1.a */; };
-		4FA411322251B59300C71AA2 /* libpjlib-util_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411232251B59300C71AA2 /* libpjlib-util_static.a */; };
-		4FA411332251B59300C71AA2 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411242251B59300C71AA2 /* libssl.a */; };
-		4FA411342251B59300C71AA2 /* libaprutil-1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411252251B59300C71AA2 /* libaprutil-1.a */; };
-		4FA411352251B59300C71AA2 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411262251B59300C71AA2 /* libcrypto.a */; };
-		4FA411362251B59300C71AA2 /* liboss_c_sdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411272251B59300C71AA2 /* liboss_c_sdk.a */; };
-		4FA411372251B59300C71AA2 /* libcommon_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411282251B59300C71AA2 /* libcommon_static.a */; };
-		4FA411382251B59300C71AA2 /* libiotsdk_lib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA411292251B59300C71AA2 /* libiotsdk_lib.a */; };
-		4FA411392251B59300C71AA2 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA4112A2251B59300C71AA2 /* libcurl.a */; };
+		4FAD511B22687B1500C6BA84 /* libapr-1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD510C22687B1400C6BA84 /* libapr-1.a */; };
+		4FAD511C22687B1500C6BA84 /* libminiupnpc_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD510D22687B1400C6BA84 /* libminiupnpc_static.a */; };
+		4FAD511D22687B1500C6BA84 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD510E22687B1400C6BA84 /* libmxml.a */; };
+		4FAD511E22687B1500C6BA84 /* libjson_cpp_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD510F22687B1400C6BA84 /* libjson_cpp_static.a */; };
+		4FAD511F22687B1500C6BA84 /* libpjnath_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511022687B1400C6BA84 /* libpjnath_static.a */; };
+		4FAD512022687B1500C6BA84 /* libpjlib_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511122687B1400C6BA84 /* libpjlib_static.a */; };
+		4FAD512122687B1500C6BA84 /* liboss_c_sdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511222687B1400C6BA84 /* liboss_c_sdk.a */; };
+		4FAD512222687B1500C6BA84 /* libpjlib-util_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511322687B1400C6BA84 /* libpjlib-util_static.a */; };
+		4FAD512322687B1500C6BA84 /* libconn3_transport_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511422687B1400C6BA84 /* libconn3_transport_static.a */; };
+		4FAD512422687B1500C6BA84 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511522687B1500C6BA84 /* libssl.a */; };
+		4FAD512522687B1500C6BA84 /* libcommon_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511622687B1500C6BA84 /* libcommon_static.a */; };
+		4FAD512622687B1500C6BA84 /* libcurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511722687B1500C6BA84 /* libcurl.a */; };
+		4FAD512722687B1500C6BA84 /* libiotsdk_lib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511822687B1500C6BA84 /* libiotsdk_lib.a */; };
+		4FAD512822687B1500C6BA84 /* libaprutil-1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511922687B1500C6BA84 /* libaprutil-1.a */; };
+		4FAD512922687B1500C6BA84 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD511A22687B1500C6BA84 /* libcrypto.a */; };
 		4FB2AA8221D0E8C500FE6A07 /* libfdk-aac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB2AA7921D0E8C500FE6A07 /* libfdk-aac.a */; };
 		4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */; };
 		4FCF481221F05DFD0030E739 /* MSNaluParts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCF481021F05DFD0030E739 /* MSNaluParts.cpp */; };
@@ -245,26 +245,26 @@
 		4F8C2FAF2242263400531FB2 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		4F9ADF1421B7D12F00862770 /* IotlibTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IotlibTool.h; sourceTree = "<group>"; };
 		4F9ADF1521B7D12F00862770 /* IotlibTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IotlibTool.m; sourceTree = "<group>"; };
-		4FA4111C2251B59200C71AA2 /* libmxml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmxml.a; sourceTree = "<group>"; };
-		4FA4111D2251B59200C71AA2 /* libconn3_transport_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libconn3_transport_static.a; sourceTree = "<group>"; };
-		4FA4111E2251B59200C71AA2 /* libpjnath_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpjnath_static.a; sourceTree = "<group>"; };
-		4FA4111F2251B59200C71AA2 /* libjson_cpp_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjson_cpp_static.a; sourceTree = "<group>"; };
-		4FA411202251B59200C71AA2 /* libminiupnpc_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libminiupnpc_static.a; sourceTree = "<group>"; };
-		4FA411212251B59200C71AA2 /* libpjlib_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpjlib_static.a; sourceTree = "<group>"; };
-		4FA411222251B59300C71AA2 /* libapr-1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libapr-1.a"; sourceTree = "<group>"; };
-		4FA411232251B59300C71AA2 /* libpjlib-util_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libpjlib-util_static.a"; sourceTree = "<group>"; };
-		4FA411242251B59300C71AA2 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
-		4FA411252251B59300C71AA2 /* libaprutil-1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libaprutil-1.a"; sourceTree = "<group>"; };
-		4FA411262251B59300C71AA2 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
-		4FA411272251B59300C71AA2 /* liboss_c_sdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = liboss_c_sdk.a; sourceTree = "<group>"; };
-		4FA411282251B59300C71AA2 /* libcommon_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcommon_static.a; sourceTree = "<group>"; };
-		4FA411292251B59300C71AA2 /* libiotsdk_lib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libiotsdk_lib.a; sourceTree = "<group>"; };
-		4FA4112A2251B59300C71AA2 /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcurl.a; sourceTree = "<group>"; };
 		4FA4113A2251B5A900C71AA2 /* iot_comm.pb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iot_comm.pb.h; sourceTree = "<group>"; };
 		4FA4113B2251B5A900C71AA2 /* iotsdk_if.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iotsdk_if.h; sourceTree = "<group>"; };
 		4FA4113C2251B5A900C71AA2 /* header_def.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = header_def.h; sourceTree = "<group>"; };
 		4FA4113D2251B5A900C71AA2 /* iot_dev_sdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iot_dev_sdk.h; sourceTree = "<group>"; };
 		4FA4113E2251B5A900C71AA2 /* pb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pb.h; sourceTree = "<group>"; };
+		4FAD510C22687B1400C6BA84 /* libapr-1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libapr-1.a"; sourceTree = "<group>"; };
+		4FAD510D22687B1400C6BA84 /* libminiupnpc_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libminiupnpc_static.a; sourceTree = "<group>"; };
+		4FAD510E22687B1400C6BA84 /* libmxml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmxml.a; sourceTree = "<group>"; };
+		4FAD510F22687B1400C6BA84 /* libjson_cpp_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libjson_cpp_static.a; sourceTree = "<group>"; };
+		4FAD511022687B1400C6BA84 /* libpjnath_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpjnath_static.a; sourceTree = "<group>"; };
+		4FAD511122687B1400C6BA84 /* libpjlib_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpjlib_static.a; sourceTree = "<group>"; };
+		4FAD511222687B1400C6BA84 /* liboss_c_sdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = liboss_c_sdk.a; sourceTree = "<group>"; };
+		4FAD511322687B1400C6BA84 /* libpjlib-util_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libpjlib-util_static.a"; sourceTree = "<group>"; };
+		4FAD511422687B1400C6BA84 /* libconn3_transport_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libconn3_transport_static.a; sourceTree = "<group>"; };
+		4FAD511522687B1500C6BA84 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
+		4FAD511622687B1500C6BA84 /* libcommon_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcommon_static.a; sourceTree = "<group>"; };
+		4FAD511722687B1500C6BA84 /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcurl.a; sourceTree = "<group>"; };
+		4FAD511822687B1500C6BA84 /* libiotsdk_lib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libiotsdk_lib.a; sourceTree = "<group>"; };
+		4FAD511922687B1500C6BA84 /* libaprutil-1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libaprutil-1.a"; sourceTree = "<group>"; };
+		4FAD511A22687B1500C6BA84 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		4FB2AA7921D0E8C500FE6A07 /* libfdk-aac.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libfdk-aac.a"; sourceTree = "<group>"; };
 		4FB2AA7C21D0E8C500FE6A07 /* syslib_channelMapDescr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = syslib_channelMapDescr.h; sourceTree = "<group>"; };
 		4FB2AA7D21D0E8C500FE6A07 /* aacdecoder_lib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aacdecoder_lib.h; sourceTree = "<group>"; };
@@ -284,34 +284,34 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FA411382251B59300C71AA2 /* libiotsdk_lib.a in Frameworks */,
-				4FA411372251B59300C71AA2 /* libcommon_static.a in Frameworks */,
+				4FAD512122687B1500C6BA84 /* liboss_c_sdk.a in Frameworks */,
 				4F8C2FB02242263500531FB2 /* GLKit.framework in Frameworks */,
-				4FA4112E2251B59300C71AA2 /* libjson_cpp_static.a in Frameworks */,
+				4FAD511E22687B1500C6BA84 /* libjson_cpp_static.a in Frameworks */,
+				4FAD511B22687B1500C6BA84 /* libapr-1.a in Frameworks */,
 				4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */,
-				4FA411392251B59300C71AA2 /* libcurl.a in Frameworks */,
-				4FA411312251B59300C71AA2 /* libapr-1.a in Frameworks */,
-				4FA411362251B59300C71AA2 /* liboss_c_sdk.a in Frameworks */,
 				4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */,
 				4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */,
+				4FAD512222687B1500C6BA84 /* libpjlib-util_static.a in Frameworks */,
 				4F0A740821B7BC4C000E0E31 /* libz.tbd in Frameworks */,
-				4FA411322251B59300C71AA2 /* libpjlib-util_static.a in Frameworks */,
-				4FA411332251B59300C71AA2 /* libssl.a in Frameworks */,
-				4FA4112C2251B59300C71AA2 /* libconn3_transport_static.a in Frameworks */,
-				4FA411352251B59300C71AA2 /* libcrypto.a in Frameworks */,
 				4F1706A421D207BA00CE476E /* libopus.a in Frameworks */,
-				4FA411342251B59300C71AA2 /* libaprutil-1.a in Frameworks */,
+				4FAD512522687B1500C6BA84 /* libcommon_static.a in Frameworks */,
+				4FAD512622687B1500C6BA84 /* libcurl.a in Frameworks */,
+				4FAD512422687B1500C6BA84 /* libssl.a in Frameworks */,
 				4F17071C21D3206600CE476E /* libavformat.a in Frameworks */,
 				4F17071A21D3206600CE476E /* libavutil.a in Frameworks */,
 				4F17071B21D3206600CE476E /* libavcodec.a in Frameworks */,
+				4FAD511C22687B1500C6BA84 /* libminiupnpc_static.a in Frameworks */,
+				4FAD511D22687B1500C6BA84 /* libmxml.a in Frameworks */,
 				4F0A740621B7BC09000E0E31 /* libiconv.tbd in Frameworks */,
 				4F17071E21D3206600CE476E /* libswscale.a in Frameworks */,
-				4FA4112D2251B59300C71AA2 /* libpjnath_static.a in Frameworks */,
 				4F17071D21D3206600CE476E /* libswresample.a in Frameworks */,
+				4FAD511F22687B1500C6BA84 /* libpjnath_static.a in Frameworks */,
 				4F0A73F821B7B544000E0E31 /* libx265.a in Frameworks */,
-				4FA4112B2251B59300C71AA2 /* libmxml.a in Frameworks */,
-				4FA4112F2251B59300C71AA2 /* libminiupnpc_static.a in Frameworks */,
-				4FA411302251B59300C71AA2 /* libpjlib_static.a in Frameworks */,
+				4FAD512822687B1500C6BA84 /* libaprutil-1.a in Frameworks */,
+				4FAD512022687B1500C6BA84 /* libpjlib_static.a in Frameworks */,
+				4FAD512322687B1500C6BA84 /* libconn3_transport_static.a in Frameworks */,
+				4FAD512922687B1500C6BA84 /* libcrypto.a in Frameworks */,
+				4FAD512722687B1500C6BA84 /* libiotsdk_lib.a in Frameworks */,
 				4F0A73F121B7B539000E0E31 /* libx264.a in Frameworks */,
 				4FB2AA8221D0E8C500FE6A07 /* libfdk-aac.a in Frameworks */,
 			);
@@ -721,21 +721,21 @@
 		4F9ADF1321B7D05D00862770 /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				4FA411222251B59300C71AA2 /* libapr-1.a */,
-				4FA411252251B59300C71AA2 /* libaprutil-1.a */,
-				4FA411282251B59300C71AA2 /* libcommon_static.a */,
-				4FA4111D2251B59200C71AA2 /* libconn3_transport_static.a */,
-				4FA411262251B59300C71AA2 /* libcrypto.a */,
-				4FA4112A2251B59300C71AA2 /* libcurl.a */,
-				4FA411292251B59300C71AA2 /* libiotsdk_lib.a */,
-				4FA4111F2251B59200C71AA2 /* libjson_cpp_static.a */,
-				4FA411202251B59200C71AA2 /* libminiupnpc_static.a */,
-				4FA4111C2251B59200C71AA2 /* libmxml.a */,
-				4FA411272251B59300C71AA2 /* liboss_c_sdk.a */,
-				4FA411212251B59200C71AA2 /* libpjlib_static.a */,
-				4FA411232251B59300C71AA2 /* libpjlib-util_static.a */,
-				4FA4111E2251B59200C71AA2 /* libpjnath_static.a */,
-				4FA411242251B59300C71AA2 /* libssl.a */,
+				4FAD510C22687B1400C6BA84 /* libapr-1.a */,
+				4FAD511922687B1500C6BA84 /* libaprutil-1.a */,
+				4FAD511622687B1500C6BA84 /* libcommon_static.a */,
+				4FAD511422687B1400C6BA84 /* libconn3_transport_static.a */,
+				4FAD511A22687B1500C6BA84 /* libcrypto.a */,
+				4FAD511722687B1500C6BA84 /* libcurl.a */,
+				4FAD511822687B1500C6BA84 /* libiotsdk_lib.a */,
+				4FAD510F22687B1400C6BA84 /* libjson_cpp_static.a */,
+				4FAD510D22687B1400C6BA84 /* libminiupnpc_static.a */,
+				4FAD510E22687B1400C6BA84 /* libmxml.a */,
+				4FAD511222687B1400C6BA84 /* liboss_c_sdk.a */,
+				4FAD511122687B1400C6BA84 /* libpjlib_static.a */,
+				4FAD511322687B1400C6BA84 /* libpjlib-util_static.a */,
+				4FAD511022687B1400C6BA84 /* libpjnath_static.a */,
+				4FAD511522687B1500C6BA84 /* libssl.a */,
 			);
 			path = lib;
 			sourceTree = "<group>";
