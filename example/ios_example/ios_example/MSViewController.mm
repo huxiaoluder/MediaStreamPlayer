@@ -12,7 +12,6 @@
 #import <time.h>
 
 #import "IotlibTool.h"
-#import "DDOpenALAudioPlayer.h"
 
 using namespace std;
 using namespace MS;
@@ -73,14 +72,9 @@ static int i;
                                    },
                                    [weakSelf](const MSMedia<MSDecodeMedia,AVFrame> &data) {
                                        if (data.frame) {
-//                                           [[weakSelf audioRender] updateChannels:data.frame->channels
-//                                                                        frequency:data.frame->sample_rate];
-//                                           [[weakSelf audioRender] displayAVFrame:*data.frame];
-                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:data.frame->data[0]
-                                                                                        dataSize:data.frame->linesize[0]
-                                                                                      samplerate:8000
-                                                                                        channels:1
-                                                                                             bit:16];
+                                           [[weakSelf audioRender] updateChannels:data.frame->channels
+                                                                        frequency:data.frame->sample_rate];
+                                           [[weakSelf audioRender] displayAVFrame:*data.frame];
                                         }
                                    });
 #else
@@ -94,14 +88,9 @@ static int i;
                                    },
                                    [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
                                        if (data.frame) {
-//                                           [[weakSelf audioRender] updateChannels:data.frame->audioParameters.channels
-//                                                                        frequency:data.frame->audioParameters.frequency.value];
-//                                           [[weakSelf audioRender] displayAPFrame:*data.frame];
-                                           [[DDOpenALAudioPlayer sharePalyer] openAudioFromQueue:(uint8_t *)data.frame->audio->mData
-                                                                                        dataSize:data.frame->audio->mDataByteSize
-                                                                                      samplerate:8000
-                                                                                        channels:1
-                                                                                             bit:16];
+                                           [[weakSelf audioRender] updateChannels:data.frame->audioParameters.channels
+                                                                        frequency:data.frame->audioParameters.frequency.value];
+                                           [[weakSelf audioRender] displayAPFrame:*data.frame];
                                        }
                                    });
 #endif

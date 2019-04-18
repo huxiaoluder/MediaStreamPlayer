@@ -36,7 +36,6 @@ renderCallback(void * inRefCon,
             AudioBuffer &ioBuffer = ioData->mBuffers[i];
             // readDataOfLength 管道数据不够 length 时, 会阻塞当前前程, 导致暂停播放, 直到管道写入新数据足够 length 才恢复继续执行
             NSData *data = [pipe.fileHandleForReading readDataOfLength:ioBuffer.mDataByteSize];
-            printf("+++++++++++++\n");
             // 管道保证了数据来源确定性, 如果其他方式读取数据, 数据不够时, 应该 memset 为 0, 提供静音播放
             memcpy(ioBuffer.mData, data.bytes, data.length);
         }
