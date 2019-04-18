@@ -233,8 +233,8 @@ APEncoder::encodeAudio(const APEncoderInputMedia &sampleData) {
         AudioBuffer *inInputData = audioFrame.audio;
         UInt32 remainSize = 0;
         UInt32 usedSize = 0;
-        if (inInputData->mDataByteSize < aacOutFrameNum * 2) {
-            usedSize = std::min(aacOutFrameNum * 2 - pcmInBuffer->mDataByteSize, inInputData->mDataByteSize);
+        if (inInputData->mDataByteSize < AacPacketFrameNum * 2) {
+            usedSize = std::min(AacPacketFrameNum * 2 - pcmInBuffer->mDataByteSize, inInputData->mDataByteSize);
             remainSize = inInputData->mDataByteSize - usedSize;
             
             pcmInBuffer->mDataByteSize += usedSize;
@@ -242,7 +242,7 @@ APEncoder::encodeAudio(const APEncoderInputMedia &sampleData) {
                    inInputData->mData,
                    usedSize);
             
-            if (pcmInBuffer->mDataByteSize < aacOutFrameNum * 2) {
+            if (pcmInBuffer->mDataByteSize < AacPacketFrameNum * 2) {
                 return;
             }
             pcmInBuffer->mNumberChannels = inInputData->mNumberChannels;
@@ -250,7 +250,7 @@ APEncoder::encodeAudio(const APEncoderInputMedia &sampleData) {
         }
         
         UInt32 outPacktNumber = 1;
-        aacOutBuffer->mBuffers[0].mDataByteSize = aacOutFrameNum * 2;
+        aacOutBuffer->mBuffers[0].mDataByteSize = AacPacketFrameNum * 2;
         
 //        static AudioStreamPacketDescription outAspDesc[1];
         status = AudioConverterFillComplexBuffer(audioEncoderConvert,
@@ -277,7 +277,7 @@ APEncoder::encodeAudio(const APEncoderInputMedia &sampleData) {
         AVPacket packet;
         av_init_packet(&packet);
         
-        audioPts += 1024;
+        audioPts += AacPacketFrameNum;
         const AudioBuffer &outAudioBuffer = aacOutBuffer->mBuffers[0];
         packet.data = (uint8_t *)outAudioBuffer.mData;
         packet.size = outAudioBuffer.mDataByteSize;
@@ -330,10 +330,10 @@ aacOutBuffer(new AudioBufferList),
 pcmInBuffer(new AudioBuffer){
     memset(aacOutBuffer, 0, sizeof(AudioBufferList));
     aacOutBuffer->mNumberBuffers = 1;
-    aacOutBuffer->mBuffers[0].mData = malloc(aacOutFrameNum * 2);
+    aacOutBuffer->mBuffers[0].mData = malloc(AacPacketFrameNum * 2);
     
     memset(pcmInBuffer, 0, sizeof(AudioBuffer));
-    pcmInBuffer->mData = malloc(aacOutFrameNum * 2);
+    pcmInBuffer->mData = malloc(AacPacketFrameNum * 2);
 }
 
 APEncoder::~APEncoder() {
@@ -448,7 +448,7 @@ APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters
         .mFormatID          = kAudioFormatMPEG4AAC,
         .mFormatFlags       = (UInt32)audioParameters.profile + 1,
         .mBytesPerPacket    = 0,
-        .mFramesPerPacket   = 1024, // AAC: 1 packet 1024 frame
+        .mFramesPerPacket   = AacPacketFrameNum, // AAC: 1 packet 1024 frame
         .mBytesPerFrame     = 0,
         .mChannelsPerFrame  = (UInt32)audioParameters.channels,
         .mBitsPerChannel    = 0,
@@ -485,8 +485,8 @@ APEncoder::configureAudioEncoderConvert(const MSAudioParameters &audioParameters
     codecpar.channel_layout = 4;
     codecpar.channels = audioParameters.channels;
     codecpar.sample_rate = audioParameters.frequency.value;
-    codecpar.frame_size = 1024;
-    codecpar.initial_padding = 2048;
+    codecpar.frame_size = AacPacketFrameNum;
+    codecpar.initial_padding = AacPacketFrameNum * 2;
     
     memcpy(codecpar.extradata, adtsBinary->bytes, adtsBinary->size);
     delete adtsBinary;

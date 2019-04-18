@@ -147,10 +147,10 @@ APCodecContext::initAudioConvert(const MSAudioParameters &audioParameters) {
         case MSCodecID_AAC: {
             //kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger
             sourceFormat.mFormatFlags       = (UInt32)audioParameters.profile + 1;
-            sourceFormat.mFramesPerPacket   = 1024; // AAC: 1 packet 1024 frame
+            sourceFormat.mFramesPerPacket   = AacPacketFrameNum; // AAC: 1 packet 1024 frame
         }   break;
         case MSCodecID_ALAW: {
-            sourceFormat.mFramesPerPacket   = 160;  // AAC: 1 packet 160 frame
+            sourceFormat.mFramesPerPacket   = AlawPacketFrameNum;  // AAC: 1 packet 160 frame
         }   break;
         case MSCodecID_OPUS: {
             

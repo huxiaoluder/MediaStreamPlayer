@@ -16,6 +16,11 @@
 
 #define adv_intervale(rate) microseconds((1000000ll << 16) / rate)
 
+// aac 每 1024 帧数据(s16 大小: 2048 Byte), 开始编码 1 pack
+#define AacPacketFrameNum 1024
+
+#define AlawPacketFrameNum 160
+
 #define MaxPixelBufferSize 100
 
 #define MaxSampleBufferSize 40

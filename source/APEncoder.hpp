@@ -15,9 +15,6 @@
 #include "APCodecContext.hpp"
 #include "FFCodecContext.hpp"
 
-// aac 每 1024 帧数据(s16 大小: 2048 Byte), 开始编码 1 pack
-#define aacOutFrameNum 1024
-
 namespace MS {
     namespace APhard {
         

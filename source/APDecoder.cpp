@@ -125,11 +125,11 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         UInt32 outPacktNumber = 0;
         switch (audioData->codecID) {
             case MSCodecID_AAC: {
-                outPacktNumber = 1024;
+                outPacktNumber = AacPacketFrameNum;
                 decompressionInputProc = decompressionAacConverterInputProc;
             }   break;
             case MSCodecID_ALAW: {
-                outPacktNumber = 160;
+                outPacktNumber = AlawPacketFrameNum;
                 decompressionInputProc = decompressionAlawConverterInputProc;
             }   break;
             case MSCodecID_OPUS: {
