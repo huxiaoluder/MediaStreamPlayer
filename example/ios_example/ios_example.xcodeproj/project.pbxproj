@@ -28,8 +28,6 @@
 		4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085A21D5FC6400CE476E /* CoreMedia.framework */; };
 		4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085621D5FC3F00CE476E /* VideoToolbox.framework */; };
 		4F17085F21D6065D00CE476E /* MSBinary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F17085D21D6065D00CE476E /* MSBinary.cpp */; };
-		4F1F3267222E73480022CE66 /* yuv.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3266222E73480022CE66 /* yuv.vsh */; };
-		4F1F3269222E82000022CE66 /* yuv.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4F1F3268222E82000022CE66 /* yuv.fsh */; };
 		4F207D11223743350098190E /* MSOpenGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F207D0F223743350098190E /* MSOpenGLES.cpp */; };
 		4F270B462252F5F700DBB3BB /* MSUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F270B442252F5F700DBB3BB /* MSUtil.cpp */; };
 		4F65D95D222931A2008B4B3D /* APVideoRender.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F65D95C222931A2008B4B3D /* APVideoRender.mm */; };
@@ -62,6 +60,7 @@
 		4FAD52F1226886C200C6BA84 /* libopus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD52DE226886C200C6BA84 /* libopus.a */; };
 		4FAD52F2226886C200C6BA84 /* libx264.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD52E4226886C200C6BA84 /* libx264.a */; };
 		4FAD52F3226886C200C6BA84 /* libx265.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD52EA226886C200C6BA84 /* libx265.a */; };
+		4FAD542822699EB900C6BA84 /* MSShader.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4FAD542622699C8900C6BA84 /* MSShader.bundle */; };
 		4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */; };
 		4FCF481221F05DFD0030E739 /* MSNaluParts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCF481021F05DFD0030E739 /* MSNaluParts.cpp */; };
 /* End PBXBuildFile section */
@@ -105,8 +104,6 @@
 		4F17085D21D6065D00CE476E /* MSBinary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSBinary.cpp; sourceTree = "<group>"; };
 		4F17085E21D6065D00CE476E /* MSBinary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSBinary.hpp; sourceTree = "<group>"; };
 		4F1DA55E21CCE5D6000EFE53 /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transcoding.c; sourceTree = "<group>"; };
-		4F1F3266222E73480022CE66 /* yuv.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.vsh; sourceTree = "<group>"; };
-		4F1F3268222E82000022CE66 /* yuv.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.fsh; sourceTree = "<group>"; };
 		4F1F32742230FD9C0022CE66 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		4F207D0F223743350098190E /* MSOpenGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSOpenGLES.cpp; sourceTree = "<group>"; };
 		4F207D10223743350098190E /* MSOpenGLES.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSOpenGLES.hpp; sourceTree = "<group>"; };
@@ -272,6 +269,7 @@
 		4FAD52E7226886C200C6BA84 /* x265.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x265.h; sourceTree = "<group>"; };
 		4FAD52E8226886C200C6BA84 /* x265_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x265_config.h; sourceTree = "<group>"; };
 		4FAD52EA226886C200C6BA84 /* libx265.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libx265.a; sourceTree = "<group>"; };
+		4FAD542622699C8900C6BA84 /* MSShader.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MSShader.bundle; sourceTree = "<group>"; };
 		4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		4FCF481021F05DFD0030E739 /* MSNaluParts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSNaluParts.cpp; sourceTree = "<group>"; };
 		4FCF481121F05DFD0030E739 /* MSNaluParts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSNaluParts.hpp; sourceTree = "<group>"; };
@@ -400,8 +398,7 @@
 				4F65D95C222931A2008B4B3D /* APVideoRender.mm */,
 				4F888022223F46190001CA94 /* APAudioRender.h */,
 				4F888023223F46190001CA94 /* APAudioRender.mm */,
-				4F1F3266222E73480022CE66 /* yuv.vsh */,
-				4F1F3268222E82000022CE66 /* yuv.fsh */,
+				4FAD542622699C8900C6BA84 /* MSShader.bundle */,
 			);
 			name = source;
 			path = ../../../source;
@@ -841,10 +838,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F8C2FAB224222C000531FB2 /* IDETemplateMacros.plist in Resources */,
-				4F1F3269222E82000022CE66 /* yuv.fsh in Resources */,
 				4F0A735421B7B3C6000E0E31 /* LaunchScreen.storyboard in Resources */,
+				4FAD542822699EB900C6BA84 /* MSShader.bundle in Resources */,
 				4F0A736C21B7B462000E0E31 /* MSMedia.hpp in Resources */,
-				4F1F3267222E73480022CE66 /* yuv.vsh in Resources */,
 				4F0A736B21B7B462000E0E31 /* MSPlayer.hpp in Resources */,
 				4F0A735121B7B3C6000E0E31 /* Assets.xcassets in Resources */,
 				4F0A734F21B7B3C4000E0E31 /* Main.storyboard in Resources */,

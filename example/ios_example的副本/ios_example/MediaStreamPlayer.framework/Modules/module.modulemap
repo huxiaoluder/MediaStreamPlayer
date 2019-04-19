@@ -1,0 +1,6 @@
+framework module MediaStreamPlayer {
+  umbrella header "MediaStreamPlayer.h"
+
+  export *
+  module * { export * }
+}

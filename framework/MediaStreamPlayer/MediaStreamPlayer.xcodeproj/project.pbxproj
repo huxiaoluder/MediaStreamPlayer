@@ -29,7 +29,6 @@
 		4FAD523F2268861500C6BA84 /* MSDecoderProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FAD521A2268861500C6BA84 /* MSDecoderProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FAD52402268861500C6BA84 /* MSGLHanlder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FAD521B2268861500C6BA84 /* MSGLHanlder.cpp */; };
 		4FAD52412268861500C6BA84 /* MSOpenGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FAD521C2268861500C6BA84 /* MSOpenGLES.cpp */; };
-		4FAD52422268861500C6BA84 /* yuv.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FAD521D2268861500C6BA84 /* yuv.fsh */; };
 		4FAD52432268861500C6BA84 /* APCodecContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FAD521E2268861500C6BA84 /* APCodecContext.cpp */; };
 		4FAD52442268861500C6BA84 /* FFEncoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4FAD521F2268861500C6BA84 /* FFEncoder.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FAD52452268861500C6BA84 /* APEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FAD52202268861500C6BA84 /* APEncoder.cpp */; };
@@ -42,7 +41,6 @@
 		4FAD524C2268861500C6BA84 /* APDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FAD52272268861500C6BA84 /* APDecoder.cpp */; };
 		4FAD524D2268861500C6BA84 /* FFCodecContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FAD52282268861500C6BA84 /* FFCodecContext.cpp */; };
 		4FAD524F2268861500C6BA84 /* FFDecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4FAD522A2268861500C6BA84 /* FFDecoder.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
-		4FAD52502268861500C6BA84 /* yuv.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FAD522B2268861500C6BA84 /* yuv.vsh */; };
 		4FAD52512268861500C6BA84 /* MSBinary.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4FAD522C2268861500C6BA84 /* MSBinary.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FAD52522268861500C6BA84 /* MSNaluParts.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4FAD522D2268861500C6BA84 /* MSNaluParts.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FAD52542268861500C6BA84 /* MSTimer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4FAD522F2268861500C6BA84 /* MSTimer.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -63,6 +61,9 @@
 		4FAD5417226894C400C6BA84 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD5416226894C400C6BA84 /* GLKit.framework */; };
 		4FAD5418226894EC00C6BA84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD54142268949700C6BA84 /* UIKit.framework */; };
 		4FAD541A2268952E00C6BA84 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD54192268952D00C6BA84 /* CoreGraphics.framework */; };
+		4FAD5422226998E200C6BA84 /* MSShader.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4FAD5421226998E200C6BA84 /* MSShader.bundle */; };
+		4FE5B1762269BC6600922B84 /* yuv.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FE5B1742269BC6600922B84 /* yuv.fsh */; };
+		4FE5B1772269BC6700922B84 /* yuv.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FE5B1752269BC6600922B84 /* yuv.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -100,7 +101,6 @@
 		4FAD521A2268861500C6BA84 /* MSDecoderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSDecoderProtocol.h; sourceTree = "<group>"; };
 		4FAD521B2268861500C6BA84 /* MSGLHanlder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MSGLHanlder.cpp; sourceTree = "<group>"; };
 		4FAD521C2268861500C6BA84 /* MSOpenGLES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MSOpenGLES.cpp; sourceTree = "<group>"; };
-		4FAD521D2268861500C6BA84 /* yuv.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuv.fsh; sourceTree = "<group>"; };
 		4FAD521E2268861500C6BA84 /* APCodecContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = APCodecContext.cpp; sourceTree = "<group>"; };
 		4FAD521F2268861500C6BA84 /* FFEncoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FFEncoder.hpp; sourceTree = "<group>"; };
 		4FAD52202268861500C6BA84 /* APEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = APEncoder.cpp; sourceTree = "<group>"; };
@@ -114,7 +114,6 @@
 		4FAD52282268861500C6BA84 /* FFCodecContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFCodecContext.cpp; sourceTree = "<group>"; };
 		4FAD52292268861500C6BA84 /* APAudioRender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APAudioRender.h; sourceTree = "<group>"; };
 		4FAD522A2268861500C6BA84 /* FFDecoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FFDecoder.hpp; sourceTree = "<group>"; };
-		4FAD522B2268861500C6BA84 /* yuv.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuv.vsh; sourceTree = "<group>"; };
 		4FAD522C2268861500C6BA84 /* MSBinary.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MSBinary.hpp; sourceTree = "<group>"; };
 		4FAD522D2268861500C6BA84 /* MSNaluParts.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MSNaluParts.hpp; sourceTree = "<group>"; };
 		4FAD522E2268861500C6BA84 /* APAudioRender.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = APAudioRender.mm; sourceTree = "<group>"; };
@@ -252,6 +251,9 @@
 		4FAD54142268949700C6BA84 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		4FAD5416226894C400C6BA84 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		4FAD54192268952D00C6BA84 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		4FAD5421226998E200C6BA84 /* MSShader.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MSShader.bundle; sourceTree = "<group>"; };
+		4FE5B1742269BC6600922B84 /* yuv.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.fsh; sourceTree = "<group>"; };
+		4FE5B1752269BC6600922B84 /* yuv.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -375,8 +377,9 @@
 				4FAD52172268861500C6BA84 /* APVideoRender.mm */,
 				4FAD52292268861500C6BA84 /* APAudioRender.h */,
 				4FAD522E2268861500C6BA84 /* APAudioRender.mm */,
-				4FAD521D2268861500C6BA84 /* yuv.fsh */,
-				4FAD522B2268861500C6BA84 /* yuv.vsh */,
+				4FE5B1742269BC6600922B84 /* yuv.fsh */,
+				4FE5B1752269BC6600922B84 /* yuv.vsh */,
+				4FAD5421226998E200C6BA84 /* MSShader.bundle */,
 			);
 			name = source;
 			path = ../../../source;
@@ -758,6 +761,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 4F81B820221D556E00385B2B;
 			productRefGroup = 4F81B82B221D556E00385B2B /* Products */;
@@ -774,8 +778,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FAD52502268861500C6BA84 /* yuv.vsh in Resources */,
-				4FAD52422268861500C6BA84 /* yuv.fsh in Resources */,
+				4FE5B1772269BC6700922B84 /* yuv.vsh in Resources */,
+				4FE5B1762269BC6600922B84 /* yuv.fsh in Resources */,
+				4FAD5422226998E200C6BA84 /* MSShader.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
