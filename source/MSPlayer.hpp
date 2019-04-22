@@ -191,11 +191,7 @@ namespace MS {
     
     template <typename T>
     MSPlayer<T>::~MSPlayer() {
-        stopPlayVideo();
-        stopPlayAudio();
         isDecoding = false;
-        delete videoTimer;
-        delete audioTimer;
         videoThreadCondition.notify_one();
         if (videoDecodeThread.joinable()) {
             videoDecodeThread.join();
@@ -204,6 +200,10 @@ namespace MS {
         if (audioDecodeThread.joinable()) {
             audioDecodeThread.join();
         }
+        stopPlayVideo();
+        stopPlayAudio();
+        delete videoTimer;
+        delete audioTimer;
         if (_syncDecoder) {
             delete _syncDecoder;
         }

@@ -61,7 +61,6 @@
 		4FAD5417226894C400C6BA84 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD5416226894C400C6BA84 /* GLKit.framework */; };
 		4FAD5418226894EC00C6BA84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD54142268949700C6BA84 /* UIKit.framework */; };
 		4FAD541A2268952E00C6BA84 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD54192268952D00C6BA84 /* CoreGraphics.framework */; };
-		4FAD5422226998E200C6BA84 /* MSShader.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4FAD5421226998E200C6BA84 /* MSShader.bundle */; };
 		4FE5B1762269BC6600922B84 /* yuv.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FE5B1742269BC6600922B84 /* yuv.fsh */; };
 		4FE5B1772269BC6700922B84 /* yuv.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FE5B1752269BC6600922B84 /* yuv.vsh */; };
 /* End PBXBuildFile section */
@@ -251,7 +250,6 @@
 		4FAD54142268949700C6BA84 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		4FAD5416226894C400C6BA84 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		4FAD54192268952D00C6BA84 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		4FAD5421226998E200C6BA84 /* MSShader.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MSShader.bundle; sourceTree = "<group>"; };
 		4FE5B1742269BC6600922B84 /* yuv.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.fsh; sourceTree = "<group>"; };
 		4FE5B1752269BC6600922B84 /* yuv.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -377,9 +375,8 @@
 				4FAD52172268861500C6BA84 /* APVideoRender.mm */,
 				4FAD52292268861500C6BA84 /* APAudioRender.h */,
 				4FAD522E2268861500C6BA84 /* APAudioRender.mm */,
-				4FE5B1742269BC6600922B84 /* yuv.fsh */,
 				4FE5B1752269BC6600922B84 /* yuv.vsh */,
-				4FAD5421226998E200C6BA84 /* MSShader.bundle */,
+				4FE5B1742269BC6600922B84 /* yuv.fsh */,
 			);
 			name = source;
 			path = ../../../source;
@@ -780,7 +777,6 @@
 			files = (
 				4FE5B1772269BC6700922B84 /* yuv.vsh in Resources */,
 				4FE5B1762269BC6600922B84 /* yuv.fsh in Resources */,
-				4FAD5422226998E200C6BA84 /* MSShader.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -58,8 +58,10 @@ namespace MS {
             void endEncode();
             bool isEncoding();
             
-            FFEncoder(const MSCodecID videoCodecID,
-                      const MSCodecID audioCodecID);
+            // 暂不支持自定义编码方式(因为还没有将 MP4 muxer 拆解出来)
+//            FFEncoder(const MSCodecID videoCodecID,
+//                      const MSCodecID audioCodecID);
+            FFEncoder();
             ~FFEncoder();
             
             bool configureEncoder(const string &muxingfilePath,

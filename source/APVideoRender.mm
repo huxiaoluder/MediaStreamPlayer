@@ -53,10 +53,10 @@
         // 设置 viewport 清屏色
         glClearColor(0.7f, 0.7f, 0.7f, 0.0f);
         
-//        NSBundle *shaderBundle = [NSBundle bundleForClass:[APVideoRender class]];
-        
-        glHandler = new MSGLHanlder([NSBundle.mainBundle pathForResource:@"yuv" ofType:@"vsh"].UTF8String,
-                                    [NSBundle.mainBundle pathForResource:@"yuv" ofType:@"fsh"].UTF8String);
+        NSBundle *shaderBundle = [NSBundle bundleForClass:[APVideoRender class]];
+
+        glHandler = new MSGLHanlder([shaderBundle pathForResource:@"yuv" ofType:@"vsh"].UTF8String,
+                                    [shaderBundle pathForResource:@"yuv" ofType:@"fsh"].UTF8String);
     }
     return self;
 }

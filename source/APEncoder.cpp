@@ -331,10 +331,23 @@ APEncoder::isEncoding() {
     return _isEncoding;
 }
 
-APEncoder::APEncoder(const MSCodecID videoCodecID,
-                     const MSCodecID audioCodecID)
-:videoCodecID(videoCodecID),
-audioCodecID(audioCodecID),
+//APEncoder::APEncoder(const MSCodecID videoCodecID,
+//                     const MSCodecID audioCodecID)
+//:videoCodecID(videoCodecID),
+//audioCodecID(audioCodecID),
+//aacOutBuffer(new AudioBufferList),
+//pcmInBuffer(new AudioBuffer){
+//    memset(aacOutBuffer, 0, sizeof(AudioBufferList));
+//    aacOutBuffer->mNumberBuffers = 1;
+//    aacOutBuffer->mBuffers[0].mData = malloc(AacPacketFrameNum * 2);
+//
+//    memset(pcmInBuffer, 0, sizeof(AudioBuffer));
+//    pcmInBuffer->mData = malloc(AacPacketFrameNum * 2);
+//}
+
+APEncoder::APEncoder()
+:videoCodecID(MSCodecID_H264),
+audioCodecID(MSCodecID_AAC),
 aacOutBuffer(new AudioBufferList),
 pcmInBuffer(new AudioBuffer){
     memset(aacOutBuffer, 0, sizeof(AudioBufferList));

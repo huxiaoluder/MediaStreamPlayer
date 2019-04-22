@@ -25,39 +25,37 @@
 
 #define MaxSampleBufferSize 40
 
-#if DEBUG
+namespace MS {
+    static bool EnableDebugLog = false;
+}
 
 #define ErrorLocationLog(reason) \
-printf("\n"\
-"-----------------------------ERROR-----------------------------\n"\
-"| filepath:    %s\n"\
-"| linenumber:  %d\n"\
-"| funcname:    %s\n"\
-"| reson:       %s\n"\
-"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reason)
+if (MS::EnableDebugLog) {\
+    printf("\n"\
+    "-----------------------------ERROR-----------------------------\n"\
+    "| filepath:    %s\n"\
+    "| linenumber:  %d\n"\
+    "| funcname:    %s\n"\
+    "| reson:       %s\n"\
+    "---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reason);\
+}
 
 // parse OSStatus meaning
 #define OSStatus2Str(status) \
 char errStr[5] = {char(status >> 24), char(status >> 16), char(status >> 8), char(status) , 0x00}
 
 #define OSStatusErrorLocationLog(reason,status) \
-OSStatus2Str(status); \
-printf("\n"\
-"-----------------------------ERROR-----------------------------\n"\
-"| filepath:    %s\n"\
-"| linenumber:  %d\n"\
-"| funcname:    %s\n"\
-"| reson:       %s\n"\
-"| status:      %d --> %s\n"\
-"---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reason,(int)status,errStr)
-
-#else
-
-#define OSStatus2Str(status)
-#define ErrorLocationLog(reason)
-#define OSStatusErrorLocationLog(reason,status)
-
-#endif
+if (MS::EnableDebugLog) {\
+    OSStatus2Str(status);\
+    printf("\n"\
+    "-----------------------------ERROR-----------------------------\n"\
+    "| filepath:    %s\n"\
+    "| linenumber:  %d\n"\
+    "| funcname:    %s\n"\
+    "| reson:       %s\n"\
+    "| status:      %d --> %s\n"\
+    "---------------------------------------------------------------\n",__FILE__,__LINE__,__func__,reason,(int)status,errStr);\
+}
 
 #ifdef __APPLE__
 

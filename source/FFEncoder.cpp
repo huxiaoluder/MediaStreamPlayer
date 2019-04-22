@@ -86,9 +86,14 @@ FFEncoder::endEncode() {
     releaseEncoderConfiguration();
 }
 
-FFEncoder::FFEncoder(const MSCodecID videoCodecID,
-                     const MSCodecID audioCodecID)
-:videoCodecID(videoCodecID), audioCodecID(audioCodecID) {
+//FFEncoder::FFEncoder(const MSCodecID videoCodecID,
+//                     const MSCodecID audioCodecID)
+//:videoCodecID(videoCodecID), audioCodecID(audioCodecID) {
+//
+//}
+
+FFEncoder::FFEncoder()
+:videoCodecID(MSCodecID_H264), audioCodecID(MSCodecID_AAC) {
     
 }
 

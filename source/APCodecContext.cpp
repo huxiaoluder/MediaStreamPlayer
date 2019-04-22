@@ -55,6 +55,7 @@ APCodecContext::APCodecContext(const MSCodecID codecID,
                                const APAsynDataProvider &asynDataProvider)
 :codecID(codecID),
 asynDataProvider(asynDataProvider),
+videoFmtDescription(nullptr),
 audioDecoderConvert(initAudioConvert(audioParameters)) {
     
 }

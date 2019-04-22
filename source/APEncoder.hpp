@@ -79,8 +79,10 @@ namespace MS {
             void endEncode();
             bool isEncoding();
             
-            APEncoder(const MSCodecID videoCodecID,
-                      const MSCodecID audioCodecID);
+            // 暂不支持自定义编码方式(因为还没有将 MP4 muxer 拆解出来)
+//            APEncoder(const MSCodecID videoCodecID,
+//                      const MSCodecID audioCodecID);
+            APEncoder();
             ~APEncoder();
             
             bool configureEncoder(const string &muxingfilePath,
