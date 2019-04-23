@@ -23,7 +23,7 @@
 
 + (instancetype)renderTo:(UIView * MSNonnull)targetView
                 drawRect:(CGRect)rect
-                syncLock:(NSLock * MSNullable)lock {
+                syncLock:(NSLock * MSNonnull)lock {
     APVideoRender *render = [APVideoRender new];
     render.lock = lock;
     render.view.frame = rect;

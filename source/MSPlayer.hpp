@@ -27,8 +27,9 @@ namespace MS {
 #pragma mark - MSPlayer<T>(declaration)
     template <typename T>
     class MSPlayer : public MSAsynDataReceiver<T> {
+    public:
         typedef function<void(const MSMedia<MSDecodeMedia,T> &decodeData)> ThrowDecodeData;
-        
+    private:
         MSSyncDecoderProtocol<T> * MSNullable const _syncDecoder;
         
         MSAsynDecoderProtocol<T> * MSNullable const _asynDecoder;
