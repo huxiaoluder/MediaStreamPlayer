@@ -26,7 +26,7 @@
 #define MaxSampleBufferSize 40
 
 namespace MS {
-    static bool EnableDebugLog = false;
+    extern bool EnableDebugLog;
 }
 
 #define ErrorLocationLog(reason) \

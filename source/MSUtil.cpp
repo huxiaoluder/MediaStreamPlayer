@@ -12,6 +12,9 @@
 
 using namespace MS;
 
+bool
+MS::EnableDebugLog = false;
+
 MSAdtsForAAC &
 MSAdtsForAAC::initialize() {
     memset(this, 0, sizeof(MSAdtsForAAC));
