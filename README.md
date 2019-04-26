@@ -1,8 +1,8 @@
 # MSPlayer
 
 功能: 
-1. 支持音视频网络数据数据解码
-2. 支持重编码,录制MP4
+1. 支持音视频网络流数据解码, 播放
+2. 支持重编码, 录制MP4
 3. MS 系列核心组件
 4. FF 系列组件跨平台依赖 FFMpeg
 5. AP 系列组件Apple平台依赖 CoreMedia,VideoToolBox,AudioToolBox,GLKit,FFMpeg(仅封装 mp4 依赖)

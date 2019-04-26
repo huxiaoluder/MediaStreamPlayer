@@ -174,7 +174,7 @@ namespace MS {
                          MSVideoParameters     &videoParameter);
     
     /**
-     解析 h265 sps 数据, 获取: width, height, framerate
+     解析 h265 sps 数据, 获取: width, height, framerate, isColorFullRange
 
      @param sourceSpsRef [in] 数据源
      @param sourceSpsSize [in] 数据大小

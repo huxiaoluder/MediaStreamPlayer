@@ -538,6 +538,7 @@ APEncoder::releaseEncoderConfiguration() {
     if (audioStream) {
         audioStream = nullptr;
     }
+    isWriteHeader = false;
 }
 
 void
