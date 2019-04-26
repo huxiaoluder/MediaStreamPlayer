@@ -44,12 +44,12 @@ static int i;
 //static int j;
 
 - (void)enterForeground {
-//    player->startPlayVideo();
+    //    player->startPlayVideo();
 }
 
 - (void)enterBackground {
-//    player->stopPlayVideo();
-//    player->pausePlayVideo();
+    //    player->stopPlayVideo();
+    //    player->pausePlayVideo();
 }
 
 - (void)viewDidLoad {
@@ -75,21 +75,21 @@ static int i;
                                            [[weakSelf audioRender] updateChannels:data.frame->channels
                                                                         frequency:data.frame->sample_rate];
                                            [[weakSelf audioRender] displayAVFrame:*data.frame];
-                                        }
+                                       }
                                    });
 #else
     auto decoder = new APDecoder();
     auto encoder = new APEncoder();
     player = new MSPlayer<APFrame>(decoder,encoder,
-                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data, const bool speedMultiplier) {
                                        if (data.frame) {
                                            [[weakSelf videoRender] displayAPFrame:*data.frame];
                                        }
                                    },
-                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data, const bool speedMultiplier) {
                                        if (data.frame) {
                                            [[weakSelf audioRender] updateChannels:data.frame->audioParameters.channels
-                                                                        frequency:data.frame->audioParameters.frequency.value];
+                                                                        frequency:data.frame->audioParameters.frequency.value * speedMultiplier];
                                            [[weakSelf audioRender] displayAPFrame:*data.frame];
                                        }
                                    });
@@ -109,9 +109,9 @@ static int i;
                                                      chno:1
                                              videoQuality:500
                                                  callback:^(int status)
-    {
-        printf("video: -----------------status: %d\n", status);
-    }];
+     {
+         printf("video: -----------------status: %d\n", status);
+     }];
     
     [[IotlibTool shareIotlibTool] startAudioWithChannelID:connID Callback:^(int status,
                                                                             uint32_t audio_codec,
@@ -126,7 +126,7 @@ static int i;
                   headerMedia:(header_media_t *)headerMedia
                       dataPtr:(const char *)data_ptr
                       dataLen:(uint32_t)dataLen {
-//    printf("--------------datalen: %d\n",dataLen);
+    //    printf("--------------datalen: %d\n",dataLen);
     if (updateVideo) {
         if (headerMedia->stream_type == e_stream_type_H264) {
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_H264);
@@ -139,7 +139,7 @@ static int i;
     
     if (updateAudio) {
         if (headerMedia->stream_type == e_stream_type_AAC) {
-//            printf("--------------datalen: %d\n",dataLen);
+            //            printf("--------------datalen: %d\n",dataLen);
             auto data = new MSMedia<MSEncodeMedia>((uint8_t *)data_ptr,dataLen,headerMedia->is_key_frame,MSCodecID_AAC);
             player->pushAudioStreamData(data);
         } else if (headerMedia->stream_type == e_stream_type_G711A) {

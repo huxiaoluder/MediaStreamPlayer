@@ -14,7 +14,7 @@ using namespace MS::APhard;
 void
 APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
     const MSMedia<MSEncodeMedia> &data = *videoData;
-    APCodecContext * const decoderContext = getVideoDecoderContext(data);
+    ReGetContext: APCodecContext * const decoderContext = getVideoDecoderContext(data);
     
     if (decoderContext) {
         OSStatus status = noErr;
@@ -96,16 +96,17 @@ APDecoder::decodeVideo(const MSMedia<MSEncodeMedia> * const videoData) {
                                                    decodeFlags, // 传入 NULL 则该函数会阻塞到回调函数返回后才返回.(API 注释有误 0 为同步)
                                                    &videoAttachment, // 附带参数, 会透传到回调函数
                                                    nullptr);
+        CFRelease(sampleBuffer);
+        CFRelease(blockBuffer);
         if (status != noErr) {
             OSStatusErrorLocationLog("call VTDecompressionSessionDecodeFrame fail",status);
-            if (status == kVTInvalidSessionErr) { // APP进入后台时, 系统会重置解码器
+            if (status == kVTInvalidSessionErr || // APP进入后台时, 系统会重置解码器
+                status == kVTFormatDescriptionChangeNotSupportedErr) { // sps, pps 变化跨度太大
                 delete decoderContexts[videoData->codecID];
                 decoderContexts.erase(videoData->codecID);
             }
-            delete videoData;
+            goto ReGetContext;
         }
-        CFRelease(sampleBuffer);
-        CFRelease(blockBuffer);
     } else {
         delete videoData;
     }
@@ -170,11 +171,10 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
         
         APFrame *frame = new APFrame(audioBuffer, audioParameters);
         
-        // 不能整除, 需要提升精确度
-        long long rate = ((long long)audioParametersMap[this]->frequency.value << 16) / outPacktNumber;
+        MSTimeInterval timeInterval{(int)outPacktNumber, audioParametersMap[this]->frequency.value};
         
         launchAudioFrameData(new APDecoderOutputMeida(frame,
-                                                      adv_intervale(rate),
+                                                      timeInterval,
                                                       audioData,
                                                       APFrame::freeAudioFrame,
                                                       APFrame::copyAudioFrame));
@@ -311,8 +311,10 @@ APDecoder::decompressionOutputCallback(void * MSNullable decompressionOutputRefC
 
         APFrame *frame = new APFrame(CVPixelBufferRetain(imageBuffer), *attachment.videoParameters);
         
+        MSTimeInterval timeInterval{1, attachment.videoParameters->frameRate};
+        
         dataProvider.launchVideoFrameData(new APDecoderOutputMeida(frame,
-                                                                   intervale(attachment.videoParameters->frameRate),
+                                                                   timeInterval,
                                                                    attachment.videoSource,
                                                                    APFrame::freeVideoFrame,
                                                                    APFrame::copyVideoFrame));

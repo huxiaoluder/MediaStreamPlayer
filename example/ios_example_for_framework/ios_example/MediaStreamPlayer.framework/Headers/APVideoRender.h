@@ -28,12 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param targetView 目标视图
  @param rect 范围
- @param lock EAGLContext 访问锁, 防止多个 EAGLContext 之间数据错误, 单个可以忽略
+ @param lock EAGLContext 访问锁(注: 需要多渲染器共用一把锁), 防止多个 EAGLContext 之间数据错误
  @return APVideoRender
  */
 + (instancetype)renderTo:(UIView * MSNonnull)targetView
                 drawRect:(CGRect)rect
-                syncLock:(NSLock * MSNullable)lock;
+                syncLock:(NSLock * MSNonnull)lock;
 
 /**
  刷新渲染范围

@@ -81,15 +81,15 @@ static int i;
     auto decoder = new APDecoder();
     auto encoder = new APEncoder();
     player = new MSPlayer<APFrame>(decoder,encoder,
-                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data, const bool speedMultiplier) {
                                        if (data.frame) {
                                            [[weakSelf videoRender] displayAPFrame:*data.frame];
                                        }
                                    },
-                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data) {
+                                   [weakSelf](const MSMedia<MSDecodeMedia,APFrame> &data, const bool speedMultiplier) {
                                        if (data.frame) {
                                            [[weakSelf audioRender] updateChannels:data.frame->audioParameters.channels
-                                                                        frequency:data.frame->audioParameters.frequency.value];
+                                                                        frequency:data.frame->audioParameters.frequency.value * speedMultiplier];
                                            [[weakSelf audioRender] displayAPFrame:*data.frame];
                                        }
                                    });

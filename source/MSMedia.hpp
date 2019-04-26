@@ -9,7 +9,6 @@
 #ifndef MSMedia_hpp
 #define MSMedia_hpp
 
-#include <chrono>
 #include <cstring>
 #include <functional>
 #include <type_traits>
@@ -20,11 +19,14 @@ namespace MS {
     
     using namespace std;
     
-    using namespace chrono;
-    
     enum MSMediaType {
         MSDecodeMedia,
         MSEncodeMedia,
+    };
+    
+    struct MSTimeInterval {
+        int num = 0; // numerator
+        int den = 1; // denominator
     };
     
     template <MSMediaType DT, typename CT = uint8_t>
@@ -100,7 +102,7 @@ namespace MS {
         CT * MSNonnull const frame;
         
         // associated with frame rate, to refresh palyer timer's interval dynamically
-        const microseconds timeInterval;
+        const MSTimeInterval timeInterval;
         
         // source data referrence
         const MSMedia<MSEncodeMedia> * MSNullable const packt;
@@ -115,7 +117,7 @@ namespace MS {
         
     public:
         MSMedia(typename enable_if<!is_pointer<CT>::value,CT>::type * MSNullable const frame,
-                const microseconds timeInterval,
+                const MSTimeInterval timeInterval,
                 const MSMedia<MSEncodeMedia> * MSNullable const packt,
                 const function<void(CT * MSNullable const)> free,
                 const function<CT *(CT * MSNullable const)> copy)
@@ -151,7 +153,7 @@ namespace MS {
     
     template <typename CT>
     const MSMedia<MSDecodeMedia, CT>
-    MSMedia<MSDecodeMedia, CT>::defaultNullMedia(nullptr,microseconds(0),nullptr,nullptr,nullptr);
+    MSMedia<MSDecodeMedia, CT>::defaultNullMedia(nullptr,MSTimeInterval(),nullptr,nullptr,nullptr);
     
 }
 

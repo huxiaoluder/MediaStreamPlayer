@@ -14,8 +14,6 @@
 
 #define intervale(rate) microseconds(1000000LL / rate)
 
-#define adv_intervale(rate) microseconds((1000000ll << 16) / rate)
-
 // aac 每 1024 帧数据(s16 大小: 2048 Byte), 开始编码 1 pack
 #define AacPacketFrameNum 1024
 
@@ -26,7 +24,7 @@
 #define MaxSampleBufferSize 40
 
 namespace MS {
-    static bool EnableDebugLog = false;
+    extern bool EnableDebugLog;
 }
 
 #define ErrorLocationLog(reason) \
@@ -61,11 +59,13 @@ if (MS::EnableDebugLog) {\
 
 #define MSNullable  _Nullable
 #define MSNonnull   _Nonnull
+#define TimerPlatform MSTimerForApple
 
 #else
 
 #define MSNullable
 #define MSNonnull
+#define TimerPlatform MSTimerForOther
 
 #endif
 
