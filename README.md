@@ -29,7 +29,7 @@ using namespace MS::APhard;
     auto encoder = new APEncoder;
     
     // 视频解码数据回调
-    auto videoPlayFunc = [videoRender/*,animationView*/](const APDecoderOutputMeida &media) {
+    auto videoPlayFunc = [videoRender/*,animationView*/](const APDecoderOutputMeida &media, const bool speedMultiplier) {
         auto frame = media.frame;
         if (frame) {
             // 渲染视频
@@ -40,12 +40,12 @@ using namespace MS::APhard;
     };
     
     // 音频解码数据回调
-    auto audioPlayFunc = [audioRender](const APDecoderOutputMeida &media) {
+    auto audioPlayFunc = [audioRender](const APDecoderOutputMeida &media, const bool speedMultiplier) {
         auto frame = media.frame;
         if (frame) {
             // 渲染音频
             [audioRender updateChannels:frame->audioParameters.channels
-                              frequency:frame->audioParameters.frequency.value];
+                              frequency:frame->audioParameters.frequency.value * speedMultiplier];
             [audioRender displayAPFrame:*frame];
         }
     };
