@@ -255,8 +255,19 @@ APDecoder::getVideoDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
         videoParametersMap[this] = videoParameter;
         
         if (decoderContext) {
-            // 实时更新解码器配置(用新的 sps, pps)
-            decoderContext->setVideoFmtDescription(naluParts);
+            // 检测当前解码器配置是否能解码该数据帧(sps, pps 被改变)
+            bool ret = decoderContext->canAcceptNewFormatDescription(naluParts);
+            /** 重点(大坑, 系统 Bug):
+             某些机型在解码前, 检测到参数变化过大时, 不能够继续让解码器解码该数据, 若继续解码, 报错: -12916 后,
+             会导致当前解码器无法释放, 因为在销毁解码器时:
+             VTDecompressionSessionWaitForAsynchronousFrames() 和 VTDecompressionSessionInvalidate()
+             两个函数内部都会锁死, 所以应该直接销毁当前解码器并初始化i新的解码器
+             */                                                // ⏬
+            if (!ret) { // sps, pps 变化跨度太大𝗅                    ⏬
+                delete decoderContext;                         // ⏬
+                decoderContext = new APCodecContext(codecID, videoParameter->isColorFullRange, naluParts, *this);
+                decoderContexts[codecID] = decoderContext;
+            }
         } else {
             decoderContext = new APCodecContext(codecID, videoParameter->isColorFullRange, naluParts, *this);
             decoderContexts[codecID] = decoderContext;

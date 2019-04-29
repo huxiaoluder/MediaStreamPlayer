@@ -73,6 +73,7 @@ videoDecoderSession(initVideoDecoderSession(isColorFullRange)) {
 
 APCodecContext::~APCodecContext() {
     if (codecID < MSCodecID_AAC && videoDecoderSession) {
+        VTDecompressionSessionWaitForAsynchronousFrames(videoDecoderSession);
         VTDecompressionSessionInvalidate(videoDecoderSession);
     }
     if (codecID > MSCodecID_HEVC && audioDecoderConvert) {
@@ -255,8 +256,8 @@ APCodecContext::initVideoDecoderSession(const bool isColorFullRange) {
     return videoDecoderSession;
 }
 
-void
-APCodecContext::setVideoFmtDescription(const MSNaluParts &naluParts) {
+bool
+APCodecContext::canAcceptNewFormatDescription(const MSNaluParts &naluParts) {
     if (videoFmtDescription) {
         CFRelease(videoFmtDescription);
     }
@@ -266,6 +267,7 @@ APCodecContext::setVideoFmtDescription(const MSNaluParts &naluParts) {
     if (!ret) {
         ErrorLocationLog("call VTDecompressionSessionCanAcceptFormatDescription fail");
     }
+    return ret;
 }
 
 CMVideoFormatDescriptionRef

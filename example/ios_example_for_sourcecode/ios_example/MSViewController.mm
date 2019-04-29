@@ -31,7 +31,7 @@ using namespace MS::APhard;
     BOOL updateVideo;
     BOOL updateAudio;
 }
-@property (weak, nonatomic) IBOutlet UILabel *displayLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *imageView;
 
 @property (nonatomic, strong) APVideoRender *videoRender;
 @property (nonatomic, strong) APAudioRender *audioRender;
@@ -51,6 +51,9 @@ static int i;
 //    player->stopPlayVideo();
 //    player->pausePlayVideo();
 }
+- (IBAction)snapShot:(UIButton *)sender {
+    self.imageView.image = self.videoRender.snapshot;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -60,6 +63,8 @@ static int i;
     [self setupAudioRender];
     
     __weak typeof(MSViewController *) weakSelf = self;
+    
+    EnableDebugLog = true;
     
 #if condition
     auto decoder = new FFDecoder();
@@ -149,6 +154,25 @@ static int i;
     }
 }
 
+- (IBAction)changeQuality:(UIButton *)sender {
+    int connID = [[IotlibTool shareIotlibTool] getConnectIdWithDeviceId:self.deviceId];
+    
+    [[IotlibTool shareIotlibTool] stopVideoWithConnectId:connID chno:1 complete:^(id sender) {
+        printf("video: -----------------stop\n");
+    }];
+    
+    static int quality = 500;
+    quality += 1;
+    quality = quality > 502 ? 500 : quality;
+    
+    [[IotlibTool shareIotlibTool] startVideoWithConnectId:connID
+                                                     chno:1
+                                             videoQuality:quality
+                                                 callback:^(int status)
+     {
+         printf("video change quality: -----------------status: %d\n", status);
+     }];
+}
 
 
 - (IBAction)playVideo:(UIButton *)sender {

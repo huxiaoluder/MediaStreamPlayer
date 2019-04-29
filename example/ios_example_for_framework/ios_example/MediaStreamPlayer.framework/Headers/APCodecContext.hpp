@@ -89,7 +89,10 @@ namespace MS {
             
             ~APCodecContext();
             
-            void setVideoFmtDescription(const MSNaluParts &naluParts);
+            /**
+             当前解码器是否支持解码新的视频数据(参数变动太大, 将解码失败, 需要重新初始化新的解码器)
+             */
+            bool canAcceptNewFormatDescription(const MSNaluParts &naluParts);
             
             CMVideoFormatDescriptionRef MSNullable getVideoFmtDescription() const;
             

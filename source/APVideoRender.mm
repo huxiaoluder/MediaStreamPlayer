@@ -66,7 +66,10 @@
 }
 
 - (UIImage *)snapshot {
-    return self.view.snapshot;
+    [self.lock lock];
+    UIImage *image = self.view.snapshot;
+    [self.lock unlock];
+    return image;
 }
 
 - (void)displayAVFrame:(AVFrame &)frame {

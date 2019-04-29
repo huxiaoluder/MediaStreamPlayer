@@ -109,7 +109,7 @@ namespace MS {
         
         MSEncoderProtocol<T> & reEncoder();
         
-        void updateSpeedMultiplier(float multiplier);
+        void updateSpeedMultiplier(const float multiplier);
         
         void startPlayVideo();
         
@@ -256,7 +256,7 @@ namespace MS {
     }
     
     template <typename T>
-    void MSPlayer<T>::updateSpeedMultiplier(float multiplier) {
+    void MSPlayer<T>::updateSpeedMultiplier(const float multiplier) {
         speedMultiplier = multiplier;
     }
     
