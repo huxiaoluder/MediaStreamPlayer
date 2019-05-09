@@ -61,6 +61,7 @@
 		4FAD5417226894C400C6BA84 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD5416226894C400C6BA84 /* GLKit.framework */; };
 		4FAD5418226894EC00C6BA84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD54142268949700C6BA84 /* UIKit.framework */; };
 		4FAD541A2268952E00C6BA84 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD54192268952D00C6BA84 /* CoreGraphics.framework */; };
+		4FD250472283F5EC00978BBA /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD250462283F5EC00978BBA /* Accelerate.framework */; };
 		4FE5B1762269BC6600922B84 /* yuv.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FE5B1742269BC6600922B84 /* yuv.fsh */; };
 		4FE5B1772269BC6700922B84 /* yuv.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FE5B1752269BC6600922B84 /* yuv.vsh */; };
 /* End PBXBuildFile section */
@@ -250,6 +251,7 @@
 		4FAD54142268949700C6BA84 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		4FAD5416226894C400C6BA84 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		4FAD54192268952D00C6BA84 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		4FD250462283F5EC00978BBA /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		4FE5B1742269BC6600922B84 /* yuv.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.fsh; sourceTree = "<group>"; };
 		4FE5B1752269BC6600922B84 /* yuv.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = yuv.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -265,6 +267,7 @@
 				4FAD541A2268952E00C6BA84 /* CoreGraphics.framework in Frameworks */,
 				4F226DAE221E370F006A1046 /* libz.tbd in Frameworks */,
 				4F226DA3221E3559006A1046 /* libiconv.tbd in Frameworks */,
+				4FD250472283F5EC00978BBA /* Accelerate.framework in Frameworks */,
 				4F226DAF221E372C006A1046 /* CoreVideo.framework in Frameworks */,
 				4F226DA7221E3596006A1046 /* CoreMedia.framework in Frameworks */,
 				4F226DA1221E353D006A1046 /* AudioToolbox.framework in Frameworks */,
@@ -314,6 +317,7 @@
 		4F81BBA7221D5CD900385B2B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4FD250462283F5EC00978BBA /* Accelerate.framework */,
 				4FAD54192268952D00C6BA84 /* CoreGraphics.framework */,
 				4FAD5416226894C400C6BA84 /* GLKit.framework */,
 				4FAD54142268949700C6BA84 /* UIKit.framework */,

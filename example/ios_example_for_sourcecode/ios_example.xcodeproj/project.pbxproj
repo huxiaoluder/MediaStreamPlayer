@@ -9,9 +9,7 @@
 /* Begin PBXBuildFile section */
 		4F0A734921B7B3C4000E0E31 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A734821B7B3C4000E0E31 /* AppDelegate.m */; };
 		4F0A734C21B7B3C4000E0E31 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A734B21B7B3C4000E0E31 /* ViewController.mm */; };
-		4F0A734F21B7B3C4000E0E31 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A734D21B7B3C4000E0E31 /* Main.storyboard */; };
 		4F0A735121B7B3C6000E0E31 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A735021B7B3C6000E0E31 /* Assets.xcassets */; };
-		4F0A735421B7B3C6000E0E31 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A735221B7B3C6000E0E31 /* LaunchScreen.storyboard */; };
 		4F0A735721B7B3C6000E0E31 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A735621B7B3C6000E0E31 /* main.m */; };
 		4F0A736A21B7B462000E0E31 /* FFDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A736121B7B462000E0E31 /* FFDecoder.cpp */; };
 		4F0A736B21B7B462000E0E31 /* MSPlayer.hpp in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A736221B7B462000E0E31 /* MSPlayer.hpp */; };
@@ -62,6 +60,9 @@
 		4FAD52F3226886C200C6BA84 /* libx265.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD52EA226886C200C6BA84 /* libx265.a */; };
 		4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */; };
 		4FCF481221F05DFD0030E739 /* MSNaluParts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCF481021F05DFD0030E739 /* MSNaluParts.cpp */; };
+		4FD250352280466800978BBA /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD250342280466800978BBA /* Accelerate.framework */; };
+		4FD2505A2283F80800978BBA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD250562283F80800978BBA /* Main.storyboard */; };
+		4FD2505B2283F80800978BBA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD250582283F80800978BBA /* LaunchScreen.storyboard */; };
 		4FF80C79226DA63600B7C2C0 /* yuv.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FF80C77226DA63600B7C2C0 /* yuv.vsh */; };
 		4FF80C7A226DA63600B7C2C0 /* yuv.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 4FF80C78226DA63600B7C2C0 /* yuv.fsh */; };
 /* End PBXBuildFile section */
@@ -72,9 +73,7 @@
 		4F0A734821B7B3C4000E0E31 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		4F0A734A21B7B3C4000E0E31 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		4F0A734B21B7B3C4000E0E31 /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
-		4F0A734E21B7B3C4000E0E31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4F0A735021B7B3C6000E0E31 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		4F0A735321B7B3C6000E0E31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4F0A735521B7B3C6000E0E31 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4F0A735621B7B3C6000E0E31 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4F0A735E21B7B462000E0E31 /* MSDecoderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSDecoderProtocol.h; sourceTree = "<group>"; };
@@ -273,6 +272,9 @@
 		4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		4FCF481021F05DFD0030E739 /* MSNaluParts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MSNaluParts.cpp; sourceTree = "<group>"; };
 		4FCF481121F05DFD0030E739 /* MSNaluParts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MSNaluParts.hpp; sourceTree = "<group>"; };
+		4FD250342280466800978BBA /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		4FD250572283F80800978BBA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		4FD250592283F80800978BBA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4FF055DD21DC53AD00339CDF /* MSAsynDataReceiver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSAsynDataReceiver.h; sourceTree = "<group>"; };
 		4FF055DF21DC936700339CDF /* MSEncoderProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSEncoderProtocol.h; sourceTree = "<group>"; };
 		4FF80C77226DA63600B7C2C0 /* yuv.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuv.vsh; sourceTree = "<group>"; };
@@ -284,6 +286,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FD250352280466800978BBA /* Accelerate.framework in Frameworks */,
 				4FAD52F2226886C200C6BA84 /* libx264.a in Frameworks */,
 				4FAD52F0226886C200C6BA84 /* libfdk-aac.a in Frameworks */,
 				4FAD512122687B1500C6BA84 /* liboss_c_sdk.a in Frameworks */,
@@ -353,9 +356,9 @@
 				4F0A734B21B7B3C4000E0E31 /* ViewController.mm */,
 				4F0A740921B7C4A0000E0E31 /* MSViewController.h */,
 				4F0A740A21B7C4A0000E0E31 /* MSViewController.mm */,
-				4F0A734D21B7B3C4000E0E31 /* Main.storyboard */,
+				4FD250562283F80800978BBA /* Main.storyboard */,
 				4F0A735021B7B3C6000E0E31 /* Assets.xcassets */,
-				4F0A735221B7B3C6000E0E31 /* LaunchScreen.storyboard */,
+				4FD250582283F80800978BBA /* LaunchScreen.storyboard */,
 				4F0A735521B7B3C6000E0E31 /* Info.plist */,
 				4F0A735621B7B3C6000E0E31 /* main.m */,
 			);
@@ -418,6 +421,7 @@
 		4F0A740421B7BC09000E0E31 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4FD250342280466800978BBA /* Accelerate.framework */,
 				4F8C2FAF2242263400531FB2 /* GLKit.framework */,
 				4F1F32742230FD9C0022CE66 /* OpenGLES.framework */,
 				4F226DA8221E35F9006A1046 /* CoreAudio.framework */,
@@ -840,14 +844,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FD2505A2283F80800978BBA /* Main.storyboard in Resources */,
+				4FD2505B2283F80800978BBA /* LaunchScreen.storyboard in Resources */,
 				4FF80C79226DA63600B7C2C0 /* yuv.vsh in Resources */,
 				4F8C2FAB224222C000531FB2 /* IDETemplateMacros.plist in Resources */,
 				4FF80C7A226DA63600B7C2C0 /* yuv.fsh in Resources */,
-				4F0A735421B7B3C6000E0E31 /* LaunchScreen.storyboard in Resources */,
 				4F0A736C21B7B462000E0E31 /* MSMedia.hpp in Resources */,
 				4F0A736B21B7B462000E0E31 /* MSPlayer.hpp in Resources */,
 				4F0A735121B7B3C6000E0E31 /* Assets.xcassets in Resources */,
-				4F0A734F21B7B3C4000E0E31 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -883,18 +887,18 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		4F0A734D21B7B3C4000E0E31 /* Main.storyboard */ = {
+		4FD250562283F80800978BBA /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				4F0A734E21B7B3C4000E0E31 /* Base */,
+				4FD250572283F80800978BBA /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		4F0A735221B7B3C6000E0E31 /* LaunchScreen.storyboard */ = {
+		4FD250582283F80800978BBA /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				4F0A735321B7B3C6000E0E31 /* Base */,
+				4FD250592283F80800978BBA /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";

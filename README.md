@@ -5,18 +5,22 @@
 2. 支持重编码, 录制MP4
 3. MS 系列核心组件
 4. FF 系列组件跨平台依赖 FFMpeg
-5. AP 系列组件Apple平台依赖 CoreMedia,VideoToolBox,AudioToolBox,GLKit,FFMpeg(仅封装 mp4 依赖)
+5. AP 系列组件Apple平台依赖 CoreMedia, VideoToolBox, AudioToolBox, Accelerate, GLKit, FFMpeg(仅封装 mp4 依赖)
 ```c
-// 使用说明:
-using namespace std;
-using namespace MS;
-using namespace MS::APhard;
+    // 使用说明:
+    using namespace std;
+    using namespace MS;
+    using namespace MS::APhard;
 
     /* 软硬编解方式, 根据机器性能自行选择, 这里以 iOS 硬编解为例进行说明 */
     
+    // 渲染器默认背景图
+    auto bgTexture = new APYUV420PTexture([[UIImage imageNamed:@"name"] CGImage]);
+
     // 视频渲染器
     auto videoRender = [APVideoRender renderTo:/*targetView*/
                                       drawRect:/*drawRect*/
+                                     bgTexture:bgTexture
                                       syncLock:/*commonLock 多个渲染器需要共用一把公共锁*/];
     
     // 音频渲染器

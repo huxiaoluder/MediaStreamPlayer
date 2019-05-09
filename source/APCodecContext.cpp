@@ -11,6 +11,108 @@
 using namespace MS;
 using namespace MS::APhard;
 
+CGImageRef
+APhard::permuteARGBBitmap(CGImageRef const image, CGBitmapInfo const bitmapInfo) {
+    // 这里提供两种方式作为助记******
+    // 注: 使用函数 vImagePermuteChannels_ARGB8888(...), 是性能更好的方式(Accelerate.framework 的指令优化)
+    size_t width = CGImageGetWidth(image);
+    size_t height = CGImageGetHeight(image);
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    void *bitmapData = malloc(width * height);
+    
+    CGContextRef context = CGBitmapContextCreate (bitmapData,
+                                                  width,
+                                                  height,
+                                                  8,
+                                                  width,
+                                                  colorSpace,
+                                                  bitmapInfo);
+
+    CGRect rect = {{0,0},{(CGFloat)width, (CGFloat)height}};
+    CGContextDrawImage(context, rect, image);
+    
+    CGColorSpaceRelease(colorSpace);
+    CGContextRelease(context);
+    
+    return CGBitmapContextCreateImage(context);
+}
+
+APYUV420PTexture::APYUV420PTexture(CGImageRef image) {
+    vImage_Error err = kvImageNoError;
+
+    vImage_CGImageFormat format {
+        .bitsPerComponent = 8,
+        .bitsPerPixel = 32,
+        .colorSpace = CGColorSpaceCreateDeviceRGB(), // don't forget to release this!
+        .bitmapInfo = kCGImageAlphaFirst, // 想要的 ARGB 排列方式
+        .version = 0, // must be 0
+        .decode = nullptr,
+        .renderingIntent = kCGRenderingIntentDefault
+    };
+    
+    vImage_Buffer srcImg;
+    err = vImageBuffer_InitWithCGImage(&srcImg, &format, nullptr, image, kvImageNoFlags);
+    if (err) {
+        ErrorLocationLog("call vImageBuffer_InitWithCGImage fail");
+    }
+    
+    // 该函数初始化 vImage_Buffer, 会产生对齐 rowByte 会比 width 大, 是数据不连续, 需求不符合u要求, 所以手动初始化
+    // vImageBuffer_Init(&Yp, srcImg.height, srcImg.width, 8, kvImageNoFlags);
+    size_t width = srcImg.width;
+    size_t height = srcImg.height;
+    size_t length = width * height;
+    
+    size_t halfWidth = width >> 1;
+    size_t halfHeight = height >> 1;
+    size_t quarterLength = length >> 2;
+    
+    Yp = {0, height, width, width};
+    Cb = {0, halfHeight, halfWidth, halfWidth};
+    Cr = {0, halfHeight, halfWidth, halfWidth};
+    Yp.data = malloc(length);
+    Cb.data = malloc(quarterLength);
+    Cr.data = malloc(quarterLength);
+
+    // 转换参数
+    vImage_ARGBToYpCbCr info{0};
+    vImage_YpCbCrPixelRange pixelRange{0, 128, 255, 255, 255, 1, 255, 0};
+    err = vImageConvert_ARGBToYpCbCr_GenerateConversion(kvImage_ARGBToYpCbCrMatrix_ITU_R_709_2,
+                                                        &pixelRange,
+                                                        &info,
+                                                        kvImageARGB8888,
+                                                        kvImage420Yp8_Cb8_Cr8,
+                                                        kvImagePrintDiagnosticsToConsole);
+    if (err) {
+        ErrorLocationLog("call vImageConvert_ARGBToYpCbCr_GenerateConversion fail");
+    }
+    
+    // permuteMap 定义了源数据中 ARGB 的排列顺序:
+    // permuteMap 的 index --> {0:A, 1:R, 2:G, 3:B}
+    // permuteMap 的 value --> ARGB 在源数据单位像素中的 index
+    uint8_t permuteMap[4] = {0, 1, 2, 3};
+    // ARGB 转 Yp8_Cb8_Cr8
+    err = vImageConvert_ARGB8888To420Yp8_Cb8_Cr8(&srcImg, &Yp, &Cb, &Cr, &info, permuteMap, kvImageNoFlags);
+    if (err) {
+        ErrorLocationLog("call vImageConvert_ARGB8888To420Yp8_Cb8_Cr8 fail");
+    }
+    
+    CGColorSpaceRelease(format.colorSpace);
+    free(srcImg.data);
+}
+
+APYUV420PTexture::~APYUV420PTexture() {
+    if (Yp.data) {
+        free(Yp.data);
+    }
+    if (Cb.data) {
+        free(Cb.data);
+    }
+    if (Cr.data) {
+        free(Cr.data);
+    }
+}
+
 APFrame::APFrame(__CVBuffer  * MSNonnull const video, const MSVideoParameters &videoParameters)
 :video(video), videoParameters(videoParameters) {
     
@@ -224,7 +326,7 @@ APCodecContext::initVideoDecoderSession(const bool isColorFullRange) {
     outputCallback.decompressionOutputCallback = (VTDecompressionOutputCallback)asynDataProvider.asynCallBack();
     outputCallback.decompressionOutputRefCon = (void *)&asynDataProvider;
     
-    /* 指定输出数据格式为 yuv420p '420f', 方便 yuv 数据分离, 提供给着色器 */
+    /* 指定输出数据格式为 yuv420p '420f' 或 'y420', 方便 yuv 数据分离, 提供给着色器, isColorFullRange 要区分清楚, 否则解码数据将出现色差 */
     SInt32 pixFmtNum = (isColorFullRange ?
                         kCVPixelFormatType_420YpCbCr8PlanarFullRange :
                         kCVPixelFormatType_420YpCbCr8Planar);

@@ -338,7 +338,8 @@ static int i;
     CGFloat yVtx    = UIScreen.mainScreen.bounds.size.height - 73 - height;
     CGRect rect = CGRectMake(0, yVtx, width, height);
     NSLock *lock = [NSLock new];
-    self.videoRender = [APVideoRender renderTo:self.view drawRect:rect syncLock:lock];
+    APYUV420PTexture *bgTexture = new APYUV420PTexture([[UIImage imageNamed:@"hello"] CGImage]);
+    self.videoRender = [APVideoRender renderTo:self.view drawRect:rect bgTexture:bgTexture syncLock:lock];
 }
 
 - (void)setupAudioRender {

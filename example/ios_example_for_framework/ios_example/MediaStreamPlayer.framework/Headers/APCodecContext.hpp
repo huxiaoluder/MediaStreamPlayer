@@ -16,6 +16,7 @@ extern "C" {
 #include <VideoToolbox/VideoToolbox.h>
 #include <AudioToolbox/AudioToolbox.h>
 }
+#include <Accelerate/Accelerate.h>
 #pragma clang diagnostic pop
 
 #include "MSMedia.hpp"
@@ -24,6 +25,28 @@ extern "C" {
 
 namespace MS {
     namespace APhard {
+        
+        /**
+         重新排列 CGImage 中的 ARGB 顺序
+
+         @param image 源图片
+         @param bitmapInfo 排列方式
+         @return 新图片
+         */
+        CGImageRef MSNonnull permuteARGBBitmap(CGImageRef MSNonnull const image, CGBitmapInfo const bitmapInfo);
+        
+        struct APYUV420PTexture {
+            vImage_Buffer Yp;
+            vImage_Buffer Cb;
+            vImage_Buffer Cr;
+            
+            /**
+             以 ITU_R_709_2 标准, 转换 ARGB 像素为 full range 420Yp_Cb_Cr
+             */
+            APYUV420PTexture(CGImageRef MSNonnull image);
+            
+            ~APYUV420PTexture();
+        };
         
         struct APFrame {
             union {

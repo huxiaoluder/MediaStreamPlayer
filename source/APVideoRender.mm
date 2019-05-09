@@ -9,9 +9,9 @@
 #import "APVideoRender.h"
 
 @interface APVideoRender ()
-{
-    MSGLHanlder *glHandler;
-}
+
+@property (nonatomic, assign) MSGLHanlder *glHandler;
+@property (nonatomic, assign) APYUV420PTexture *bgTexture;
 
 @property (nonatomic, strong) NSLock      *lock;
 @property (nonatomic, strong) GLKView     *view;
@@ -23,11 +23,14 @@
 
 + (instancetype)renderTo:(UIView * MSNonnull)targetView
                 drawRect:(CGRect)rect
+               bgTexture:(APYUV420PTexture * MSNullable)bgTexture
                 syncLock:(NSLock * MSNonnull)lock {
     APVideoRender *render = [APVideoRender new];
+    render.bgTexture = bgTexture;
     render.lock = lock;
     render.view.frame = rect;
     [targetView addSubview:render.view];
+    [render clearPicture];
     return render;
 }
 
@@ -55,10 +58,18 @@
         
         NSBundle *shaderBundle = [NSBundle bundleForClass:[APVideoRender class]];
 
-        glHandler = new MSGLHanlder([shaderBundle pathForResource:@"yuv" ofType:@"vsh"].UTF8String,
-                                    [shaderBundle pathForResource:@"yuv" ofType:@"fsh"].UTF8String);
+        _glHandler = new MSGLHanlder([shaderBundle pathForResource:@"yuv" ofType:@"vsh"].UTF8String,
+                                     [shaderBundle pathForResource:@"yuv" ofType:@"fsh"].UTF8String);
     }
     return self;
+}
+
+- (void)moveTo:(UIView *)targetView {
+    [self.lock lock];
+    [self.view removeFromSuperview];
+    self.view.frame = targetView.bounds;
+    [targetView addSubview:self.view];
+    [self.lock unlock];
 }
 
 - (void)updateDrawRect:(CGRect)rect {
@@ -81,44 +92,44 @@
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
     // 提交纹理数据
-    OpenGLES::commitTexture2DPixels(glHandler->getYtexture(),
-                                      GL_LUMINANCE,
-                                      GL_LUMINANCE,
-                                      frame.width,
-                                      frame.height,
-                                      GL_UNSIGNED_BYTE,
-                                      frame.data[0]);
-    OpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
-                                      GL_LUMINANCE,
-                                      GL_LUMINANCE,
-                                      uvWidth,
-                                      uvHeight,
-                                      GL_UNSIGNED_BYTE,
-                                      frame.data[1]);
-    OpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
-                                      GL_LUMINANCE,
-                                      GL_LUMINANCE,
-                                      uvWidth,
-                                      uvHeight,
-                                      GL_UNSIGNED_BYTE,
-                                      frame.data[2]);
+    OpenGLES::commitTexture2DPixels(_glHandler->getYtexture(),
+                                    GL_LUMINANCE,
+                                    GL_LUMINANCE,
+                                    frame.width,
+                                    frame.height,
+                                    GL_UNSIGNED_BYTE,
+                                    frame.data[0]);
+    OpenGLES::commitTexture2DPixels(_glHandler->getUtexture(),
+                                    GL_LUMINANCE,
+                                    GL_LUMINANCE,
+                                    uvWidth,
+                                    uvHeight,
+                                    GL_UNSIGNED_BYTE,
+                                    frame.data[1]);
+    OpenGLES::commitTexture2DPixels(_glHandler->getVtexture(),
+                                    GL_LUMINANCE,
+                                    GL_LUMINANCE,
+                                    uvWidth,
+                                    uvHeight,
+                                    GL_UNSIGNED_BYTE,
+                                    frame.data[2]);
     /*
      @Note (查找了一整天的 BUG), 所有纹理数据上传后才能激活, 否则之前的纹理会失效,
             同问题: 激活纹理完成后, 不能解绑 glBindTexture(GL_TEXTURE_2D, 0), 否则无法出图
      */
     // 激活纹理单元, 并分配采样器位置
-    OpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
-                                         glHandler->getProgram(),
-                                         GL_TEXTURE0,
-                                         "ySampler2D");
-    OpenGLES::activeTexture2DToProgram(glHandler->getUtexture(),
-                                         glHandler->getProgram(),
-                                         GL_TEXTURE1,
-                                         "uSampler2D");
-    OpenGLES::activeTexture2DToProgram(glHandler->getVtexture(),
-                                         glHandler->getProgram(),
-                                         GL_TEXTURE2,
-                                         "vSampler2D");
+    OpenGLES::activeTexture2DToProgram(_glHandler->getYtexture(),
+                                       _glHandler->getProgram(),
+                                       GL_TEXTURE0,
+                                       "ySampler2D");
+    OpenGLES::activeTexture2DToProgram(_glHandler->getUtexture(),
+                                       _glHandler->getProgram(),
+                                       GL_TEXTURE1,
+                                       "uSampler2D");
+    OpenGLES::activeTexture2DToProgram(_glHandler->getVtexture(),
+                                       _glHandler->getProgram(),
+                                       GL_TEXTURE2,
+                                       "vSampler2D");
     [self.lock unlock];
     
     // 主线程刷新 UI
@@ -147,40 +158,40 @@
     [self.lock lock];
     [EAGLContext setCurrentContext:self.context];
     
-    OpenGLES::commitTexture2DPixels(glHandler->getYtexture(),
-                                      GL_LUMINANCE,
-                                      GL_LUMINANCE,
-                                      yWidth,
-                                      yHeight,
-                                      GL_UNSIGNED_BYTE,
-                                      yData);
-    OpenGLES::commitTexture2DPixels(glHandler->getUtexture(),
-                                      GL_LUMINANCE,
-                                      GL_LUMINANCE,
-                                      uvWidth,
-                                      uvHeight,
-                                      GL_UNSIGNED_BYTE,
-                                      uData);
-    OpenGLES::commitTexture2DPixels(glHandler->getVtexture(),
-                                      GL_LUMINANCE,
-                                      GL_LUMINANCE,
-                                      uvWidth,
-                                      uvHeight,
-                                      GL_UNSIGNED_BYTE,
-                                      vData);
+    OpenGLES::commitTexture2DPixels(_glHandler->getYtexture(),
+                                    GL_LUMINANCE,
+                                    GL_LUMINANCE,
+                                    yWidth,
+                                    yHeight,
+                                    GL_UNSIGNED_BYTE,
+                                    yData);
+    OpenGLES::commitTexture2DPixels(_glHandler->getUtexture(),
+                                    GL_LUMINANCE,
+                                    GL_LUMINANCE,
+                                    uvWidth,
+                                    uvHeight,
+                                    GL_UNSIGNED_BYTE,
+                                    uData);
+    OpenGLES::commitTexture2DPixels(_glHandler->getVtexture(),
+                                    GL_LUMINANCE,
+                                    GL_LUMINANCE,
+                                    uvWidth,
+                                    uvHeight,
+                                    GL_UNSIGNED_BYTE,
+                                    vData);
     
-    OpenGLES::activeTexture2DToProgram(glHandler->getYtexture(),
-                                         glHandler->getProgram(),
-                                         GL_TEXTURE0,
-                                         "ySampler2D");
-    OpenGLES::activeTexture2DToProgram(glHandler->getUtexture(),
-                                         glHandler->getProgram(),
-                                         GL_TEXTURE1,
-                                         "uSampler2D");
-    OpenGLES::activeTexture2DToProgram(glHandler->getVtexture(),
-                                         glHandler->getProgram(),
-                                         GL_TEXTURE2,
-                                         "vSampler2D");
+    OpenGLES::activeTexture2DToProgram(_glHandler->getYtexture(),
+                                       _glHandler->getProgram(),
+                                       GL_TEXTURE0,
+                                       "ySampler2D");
+    OpenGLES::activeTexture2DToProgram(_glHandler->getUtexture(),
+                                       _glHandler->getProgram(),
+                                       GL_TEXTURE1,
+                                       "uSampler2D");
+    OpenGLES::activeTexture2DToProgram(_glHandler->getVtexture(),
+                                       _glHandler->getProgram(),
+                                       GL_TEXTURE2,
+                                       "vSampler2D");
     [self.lock unlock];
     
     CVPixelBufferUnlockBaseAddress(frame.video, kCVPixelBufferLock_ReadOnly);
@@ -194,12 +205,64 @@
     });
 }
 
-- (void)dealloc {
-    if (glHandler) {
-        delete glHandler;
+- (void)clearPicture {
+    if (_bgTexture) {
+        [self.lock lock];
+        [EAGLContext setCurrentContext:self.context];
+        
+        OpenGLES::commitTexture2DPixels(_glHandler->getYtexture(),
+                                        GL_LUMINANCE,
+                                        GL_LUMINANCE,
+                                        (GLsizei)_bgTexture->Yp.width,
+                                        (GLsizei)_bgTexture->Yp.height,
+                                        GL_UNSIGNED_BYTE,
+                                        _bgTexture->Yp.data);
+        OpenGLES::commitTexture2DPixels(_glHandler->getUtexture(),
+                                        GL_LUMINANCE,
+                                        GL_LUMINANCE,
+                                        (GLsizei)_bgTexture->Cb.width,
+                                        (GLsizei)_bgTexture->Cb.height,
+                                        GL_UNSIGNED_BYTE,
+                                        _bgTexture->Cb.data);
+        OpenGLES::commitTexture2DPixels(_glHandler->getVtexture(),
+                                        GL_LUMINANCE,
+                                        GL_LUMINANCE,
+                                        (GLsizei)_bgTexture->Cr.width,
+                                        (GLsizei)_bgTexture->Cr.height,
+                                        GL_UNSIGNED_BYTE,
+                                        _bgTexture->Cr.data);
+        
+        OpenGLES::activeTexture2DToProgram(_glHandler->getYtexture(),
+                                           _glHandler->getProgram(),
+                                           GL_TEXTURE0,
+                                           "ySampler2D");
+        OpenGLES::activeTexture2DToProgram(_glHandler->getUtexture(),
+                                           _glHandler->getProgram(),
+                                           GL_TEXTURE1,
+                                           "uSampler2D");
+        OpenGLES::activeTexture2DToProgram(_glHandler->getVtexture(),
+                                           _glHandler->getProgram(),
+                                           GL_TEXTURE2,
+                                           "vSampler2D");
+        [self.lock unlock];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
+                [self.lock lock];
+                [self.view display];
+                [self.lock unlock];
+            }
+        });
     }
+}
+
+- (void)dealloc {
     [EAGLContext setCurrentContext:nil];
     [self.view removeFromSuperview];
+    if (_bgTexture) {
+        delete _bgTexture;
+    }
+    delete _glHandler;
 }
 
 #pragma mark - GLKViewDelegate

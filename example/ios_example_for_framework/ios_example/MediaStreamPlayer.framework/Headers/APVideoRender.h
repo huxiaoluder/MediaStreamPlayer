@@ -28,12 +28,21 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param targetView 目标视图
  @param rect 范围
+ @param bgTexture 背景图(YUV420P)纹理
  @param lock EAGLContext 访问锁(注: 需要多渲染器共用一把锁), 防止多个 EAGLContext 之间数据错误
  @return APVideoRender
  */
 + (instancetype)renderTo:(UIView * MSNonnull)targetView
                 drawRect:(CGRect)rect
+               bgTexture:(APYUV420PTexture * MSNullable)bgTexture
                 syncLock:(NSLock * MSNonnull)lock;
+
+/**
+ 移动渲染器到目标视图
+
+ @param targetView 目标视图
+ */
+- (void)moveTo:(UIView * MSNonnull)targetView;
 
 /**
  刷新渲染范围
@@ -66,6 +75,11 @@ NS_ASSUME_NONNULL_BEGIN
  @param frame APFrame
  */
 - (void)displayAPFrame:(APFrame &)frame;
+
+/**
+ 清除渲染画面, 渲染背景纹理
+ */
+- (void)clearPicture;
 
 @end
 

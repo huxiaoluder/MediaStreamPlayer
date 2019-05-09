@@ -7,20 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F0A734921B7B3C4000E0E31 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A734821B7B3C4000E0E31 /* AppDelegate.m */; };
-		4F0A734C21B7B3C4000E0E31 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A734B21B7B3C4000E0E31 /* ViewController.mm */; };
-		4F0A734F21B7B3C4000E0E31 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A734D21B7B3C4000E0E31 /* Main.storyboard */; };
-		4F0A735121B7B3C6000E0E31 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A735021B7B3C6000E0E31 /* Assets.xcassets */; };
-		4F0A735421B7B3C6000E0E31 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F0A735221B7B3C6000E0E31 /* LaunchScreen.storyboard */; };
-		4F0A735721B7B3C6000E0E31 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A735621B7B3C6000E0E31 /* main.m */; };
 		4F0A740621B7BC09000E0E31 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0A740521B7BC09000E0E31 /* libiconv.tbd */; };
 		4F0A740821B7BC4C000E0E31 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0A740721B7BC4C000E0E31 /* libz.tbd */; };
-		4F0A740B21B7C4A0000E0E31 /* MSViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A740A21B7C4A0000E0E31 /* MSViewController.mm */; };
 		4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085A21D5FC6400CE476E /* CoreMedia.framework */; };
 		4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F17085621D5FC3F00CE476E /* VideoToolbox.framework */; };
-		4F8C2FAB224222C000531FB2 /* IDETemplateMacros.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4F8C2FAA224222C000531FB2 /* IDETemplateMacros.plist */; };
 		4F8C2FB02242263500531FB2 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F8C2FAF2242263400531FB2 /* GLKit.framework */; };
-		4F9ADF1621B7D12F00862770 /* IotlibTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9ADF1521B7D12F00862770 /* IotlibTool.m */; };
 		4FAD511B22687B1500C6BA84 /* libapr-1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD510C22687B1400C6BA84 /* libapr-1.a */; };
 		4FAD511C22687B1500C6BA84 /* libminiupnpc_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD510D22687B1400C6BA84 /* libminiupnpc_static.a */; };
 		4FAD511D22687B1500C6BA84 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD510E22687B1400C6BA84 /* libmxml.a */; };
@@ -46,6 +37,16 @@
 		4FAD52F2226886C200C6BA84 /* libx264.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD52E4226886C200C6BA84 /* libx264.a */; };
 		4FAD52F3226886C200C6BA84 /* libx265.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FAD52EA226886C200C6BA84 /* libx265.a */; };
 		4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */; };
+		4FD2503F2283F4F100978BBA /* IotlibTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD250362283F4F000978BBA /* IotlibTool.m */; };
+		4FD250402283F4F100978BBA /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD250372283F4F000978BBA /* AppDelegate.m */; };
+		4FD250412283F4F100978BBA /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD250392283F4F000978BBA /* ViewController.mm */; };
+		4FD250432283F4F100978BBA /* MSViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD2503E2283F4F000978BBA /* MSViewController.mm */; };
+		4FD250452283F50D00978BBA /* IDETemplateMacros.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4FD250442283F50D00978BBA /* IDETemplateMacros.plist */; };
+		4FD2504F2283F78500978BBA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD2504C2283F78400978BBA /* main.m */; };
+		4FD250542283F7E800978BBA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD250502283F7E700978BBA /* LaunchScreen.storyboard */; };
+		4FD250552283F7E800978BBA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD250522283F7E800978BBA /* Main.storyboard */; };
+		4FD2505C2283F9DE00978BBA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4FD2504D2283F78400978BBA /* Assets.xcassets */; };
+		4FD2505E2283FA5500978BBA /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD2505D2283FA5500978BBA /* Accelerate.framework */; };
 		4FE5B1712269B73A00922B84 /* MediaStreamPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FE5B1702269B73A00922B84 /* MediaStreamPlayer.framework */; };
 		4FE5B1732269B7B200922B84 /* MediaStreamPlayer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 4FE5B1702269B73A00922B84 /* MediaStreamPlayer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -66,29 +67,14 @@
 
 /* Begin PBXFileReference section */
 		4F0A734421B7B3C4000E0E31 /* ios_example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ios_example.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F0A734721B7B3C4000E0E31 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		4F0A734821B7B3C4000E0E31 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		4F0A734A21B7B3C4000E0E31 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		4F0A734B21B7B3C4000E0E31 /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
-		4F0A734E21B7B3C4000E0E31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		4F0A735021B7B3C6000E0E31 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		4F0A735321B7B3C6000E0E31 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		4F0A735521B7B3C6000E0E31 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4F0A735621B7B3C6000E0E31 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4F0A740521B7BC09000E0E31 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		4F0A740721B7BC4C000E0E31 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		4F0A740921B7C4A0000E0E31 /* MSViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSViewController.h; sourceTree = "<group>"; };
-		4F0A740A21B7C4A0000E0E31 /* MSViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MSViewController.mm; sourceTree = "<group>"; };
 		4F17085621D5FC3F00CE476E /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		4F17085821D5FC5300CE476E /* MediaToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaToolbox.framework; path = System/Library/Frameworks/MediaToolbox.framework; sourceTree = SDKROOT; };
 		4F17085A21D5FC6400CE476E /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		4F1DA55E21CCE5D6000EFE53 /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transcoding.c; sourceTree = "<group>"; };
 		4F1F32742230FD9C0022CE66 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		4F226DA8221E35F9006A1046 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
-		4F8C2FAA224222C000531FB2 /* IDETemplateMacros.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = ios_example.xcodeproj/project.xcworkspace/xcshareddata/IDETemplateMacros.plist; sourceTree = SOURCE_ROOT; };
 		4F8C2FAF2242263400531FB2 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
-		4F9ADF1421B7D12F00862770 /* IotlibTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IotlibTool.h; sourceTree = "<group>"; };
-		4F9ADF1521B7D12F00862770 /* IotlibTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IotlibTool.m; sourceTree = "<group>"; };
 		4FA4113A2251B5A900C71AA2 /* iot_comm.pb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iot_comm.pb.h; sourceTree = "<group>"; };
 		4FA4113B2251B5A900C71AA2 /* iotsdk_if.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iotsdk_if.h; sourceTree = "<group>"; };
 		4FA4113C2251B5A900C71AA2 /* header_def.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = header_def.h; sourceTree = "<group>"; };
@@ -238,6 +224,22 @@
 		4FAD52E8226886C200C6BA84 /* x265_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x265_config.h; sourceTree = "<group>"; };
 		4FAD52EA226886C200C6BA84 /* libx265.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libx265.a; sourceTree = "<group>"; };
 		4FB3890721F5A2E4008BE0C2 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		4FD250362283F4F000978BBA /* IotlibTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IotlibTool.m; path = ../../ios_example_for_sourcecode/ios_example/IotlibTool.m; sourceTree = "<group>"; };
+		4FD250372283F4F000978BBA /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = ../../ios_example_for_sourcecode/ios_example/AppDelegate.m; sourceTree = "<group>"; };
+		4FD250382283F4F000978BBA /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../../ios_example_for_sourcecode/ios_example/AppDelegate.h; sourceTree = "<group>"; };
+		4FD250392283F4F000978BBA /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ViewController.mm; path = ../../ios_example_for_sourcecode/ios_example/ViewController.mm; sourceTree = "<group>"; };
+		4FD2503A2283F4F000978BBA /* transcoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = transcoding.c; path = ../../ios_example_for_sourcecode/ios_example/transcoding.c; sourceTree = "<group>"; };
+		4FD2503B2283F4F000978BBA /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewController.h; path = ../../ios_example_for_sourcecode/ios_example/ViewController.h; sourceTree = "<group>"; };
+		4FD2503C2283F4F000978BBA /* MSViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSViewController.h; path = ../../ios_example_for_sourcecode/ios_example/MSViewController.h; sourceTree = "<group>"; };
+		4FD2503D2283F4F000978BBA /* IotlibTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IotlibTool.h; path = ../../ios_example_for_sourcecode/ios_example/IotlibTool.h; sourceTree = "<group>"; };
+		4FD2503E2283F4F000978BBA /* MSViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MSViewController.mm; path = ../../ios_example_for_sourcecode/ios_example/MSViewController.mm; sourceTree = "<group>"; };
+		4FD250442283F50D00978BBA /* IDETemplateMacros.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = IDETemplateMacros.plist; path = ../../ios_example_for_sourcecode/ios_example.xcodeproj/project.xcworkspace/xcshareddata/IDETemplateMacros.plist; sourceTree = "<group>"; };
+		4FD2504C2283F78400978BBA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ../../ios_example_for_sourcecode/ios_example/main.m; sourceTree = "<group>"; };
+		4FD2504D2283F78400978BBA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../ios_example_for_sourcecode/ios_example/Assets.xcassets; sourceTree = "<group>"; };
+		4FD2504E2283F78500978BBA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../ios_example_for_sourcecode/ios_example/Info.plist; sourceTree = "<group>"; };
+		4FD250512283F7E700978BBA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../../ios_example_for_sourcecode/ios_example/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		4FD250532283F7E800978BBA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../../ios_example_for_sourcecode/ios_example/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		4FD2505D2283FA5500978BBA /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		4FE5B1702269B73A00922B84 /* MediaStreamPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MediaStreamPlayer.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -255,6 +257,7 @@
 				4FAD52EB226886C200C6BA84 /* libavutil.a in Frameworks */,
 				4FAD52EC226886C200C6BA84 /* libavcodec.a in Frameworks */,
 				4F8C2FB02242263500531FB2 /* GLKit.framework in Frameworks */,
+				4FD2505E2283FA5500978BBA /* Accelerate.framework in Frameworks */,
 				4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */,
 				4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */,
 				4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */,
@@ -303,24 +306,24 @@
 		4F0A734621B7B3C4000E0E31 /* ios_example */ = {
 			isa = PBXGroup;
 			children = (
-				4F8C2FAA224222C000531FB2 /* IDETemplateMacros.plist */,
+				4FD250442283F50D00978BBA /* IDETemplateMacros.plist */,
 				4F0A737021B7B50C000E0E31 /* networklayer */,
 				4FAD5255226886C200C6BA84 /* dependenceies */,
 				4FE5B1702269B73A00922B84 /* MediaStreamPlayer.framework */,
-				4F1DA55E21CCE5D6000EFE53 /* transcoding.c */,
-				4F9ADF1421B7D12F00862770 /* IotlibTool.h */,
-				4F9ADF1521B7D12F00862770 /* IotlibTool.m */,
-				4F0A734721B7B3C4000E0E31 /* AppDelegate.h */,
-				4F0A734821B7B3C4000E0E31 /* AppDelegate.m */,
-				4F0A734A21B7B3C4000E0E31 /* ViewController.h */,
-				4F0A734B21B7B3C4000E0E31 /* ViewController.mm */,
-				4F0A740921B7C4A0000E0E31 /* MSViewController.h */,
-				4F0A740A21B7C4A0000E0E31 /* MSViewController.mm */,
-				4F0A734D21B7B3C4000E0E31 /* Main.storyboard */,
-				4F0A735021B7B3C6000E0E31 /* Assets.xcassets */,
-				4F0A735221B7B3C6000E0E31 /* LaunchScreen.storyboard */,
-				4F0A735521B7B3C6000E0E31 /* Info.plist */,
-				4F0A735621B7B3C6000E0E31 /* main.m */,
+				4FD2503A2283F4F000978BBA /* transcoding.c */,
+				4FD2503D2283F4F000978BBA /* IotlibTool.h */,
+				4FD250362283F4F000978BBA /* IotlibTool.m */,
+				4FD250382283F4F000978BBA /* AppDelegate.h */,
+				4FD250372283F4F000978BBA /* AppDelegate.m */,
+				4FD2503B2283F4F000978BBA /* ViewController.h */,
+				4FD250392283F4F000978BBA /* ViewController.mm */,
+				4FD2503C2283F4F000978BBA /* MSViewController.h */,
+				4FD2503E2283F4F000978BBA /* MSViewController.mm */,
+				4FD250522283F7E800978BBA /* Main.storyboard */,
+				4FD2504D2283F78400978BBA /* Assets.xcassets */,
+				4FD250502283F7E700978BBA /* LaunchScreen.storyboard */,
+				4FD2504E2283F78500978BBA /* Info.plist */,
+				4FD2504C2283F78400978BBA /* main.m */,
 			);
 			path = ios_example;
 			sourceTree = "<group>";
@@ -336,6 +339,7 @@
 		4F0A740421B7BC09000E0E31 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4FD2505D2283FA5500978BBA /* Accelerate.framework */,
 				4F8C2FAF2242263400531FB2 /* GLKit.framework */,
 				4F1F32742230FD9C0022CE66 /* OpenGLES.framework */,
 				4F226DA8221E35F9006A1046 /* CoreAudio.framework */,
@@ -743,6 +747,7 @@
 			knownRegions = (
 				en,
 				Base,
+				global,
 			);
 			mainGroup = 4F0A733B21B7B3C4000E0E31;
 			productRefGroup = 4F0A734521B7B3C4000E0E31 /* Products */;
@@ -759,10 +764,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F8C2FAB224222C000531FB2 /* IDETemplateMacros.plist in Resources */,
-				4F0A735421B7B3C6000E0E31 /* LaunchScreen.storyboard in Resources */,
-				4F0A735121B7B3C6000E0E31 /* Assets.xcassets in Resources */,
-				4F0A734F21B7B3C4000E0E31 /* Main.storyboard in Resources */,
+				4FD250552283F7E800978BBA /* Main.storyboard in Resources */,
+				4FD250452283F50D00978BBA /* IDETemplateMacros.plist in Resources */,
+				4FD2505C2283F9DE00978BBA /* Assets.xcassets in Resources */,
+				4FD250542283F7E800978BBA /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -773,31 +778,31 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F0A734C21B7B3C4000E0E31 /* ViewController.mm in Sources */,
-				4F0A740B21B7C4A0000E0E31 /* MSViewController.mm in Sources */,
-				4F0A735721B7B3C6000E0E31 /* main.m in Sources */,
-				4F9ADF1621B7D12F00862770 /* IotlibTool.m in Sources */,
-				4F0A734921B7B3C4000E0E31 /* AppDelegate.m in Sources */,
+				4FD2504F2283F78500978BBA /* main.m in Sources */,
+				4FD250412283F4F100978BBA /* ViewController.mm in Sources */,
+				4FD2503F2283F4F100978BBA /* IotlibTool.m in Sources */,
+				4FD250432283F4F100978BBA /* MSViewController.mm in Sources */,
+				4FD250402283F4F100978BBA /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		4F0A734D21B7B3C4000E0E31 /* Main.storyboard */ = {
+		4FD250502283F7E700978BBA /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				4F0A734E21B7B3C4000E0E31 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		4F0A735221B7B3C6000E0E31 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4F0A735321B7B3C6000E0E31 /* Base */,
+				4FD250512283F7E700978BBA /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		4FD250522283F7E800978BBA /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4FD250532283F7E800978BBA /* Base */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
