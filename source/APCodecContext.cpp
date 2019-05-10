@@ -12,7 +12,8 @@ using namespace MS;
 using namespace MS::APhard;
 
 CGImageRef
-APhard::permuteARGBBitmap(CGImageRef const image, CGBitmapInfo const bitmapInfo) {
+APhard::CGImageCreateByPermuteARGBBitmap(CGImageRef const image,
+                                         CGBitmapInfo const bitmapInfo) {
     // 这里提供两种方式作为助记******
     // 注: 使用函数 vImagePermuteChannels_ARGB8888(...), 是性能更好的方式(Accelerate.framework 的指令优化)
     size_t width = CGImageGetWidth(image);
@@ -31,11 +32,11 @@ APhard::permuteARGBBitmap(CGImageRef const image, CGBitmapInfo const bitmapInfo)
 
     CGRect rect = {{0,0},{(CGFloat)width, (CGFloat)height}};
     CGContextDrawImage(context, rect, image);
+    CGImageRef destImage = CGBitmapContextCreateImage(context);
     
     CGColorSpaceRelease(colorSpace);
     CGContextRelease(context);
-    
-    return CGBitmapContextCreateImage(context);
+    return destImage;
 }
 
 APYUV420PTexture::APYUV420PTexture(CGImageRef image) {

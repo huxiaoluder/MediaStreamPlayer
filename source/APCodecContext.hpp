@@ -31,9 +31,10 @@ namespace MS {
 
          @param image 源图片
          @param bitmapInfo 排列方式
-         @return 新图片
+         @return 新图片(free by caller)
          */
-        CGImageRef MSNonnull permuteARGBBitmap(CGImageRef MSNonnull const image, CGBitmapInfo const bitmapInfo);
+        CGImageRef MSNonnull CGImageCreateByPermuteARGBBitmap(CGImageRef MSNonnull const image,
+                                                              CGBitmapInfo const bitmapInfo);
         
         struct APYUV420PTexture {
             vImage_Buffer Yp;
@@ -82,7 +83,7 @@ namespace MS {
          */
         struct APCodecContext {
             
-            const MSCodecID     codecID;
+            const MSCodecID codecID;
             
             const APAsynDataProvider &asynDataProvider;
             

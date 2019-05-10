@@ -121,13 +121,11 @@ MSNaluParts::initAACNaluParts(const uint8_t * MSNonnull const nalUnit,  const si
     size_t startLocation = 15;
     int protectionAbsent = getBitsValue(nalUnit, startLocation, 1);
     
-    _adtsRef    = nalUnit;
-    _adtsSize   = protectionAbsent == 1 ? 7 : 9;
-    _dataRef    = _adtsRef + _adtsSize;
-    _dataSize   = naluSize - _adtsSize;
+    _adtsRef  = nalUnit;
+    _adtsSize = protectionAbsent == 1 ? 7 : 9;
+    _dataRef  = _adtsRef + _adtsSize;
+    _dataSize = naluSize - _adtsSize;
 }
-
-
 
 MSNaluParts::MSNaluParts(const uint8_t * MSNonnull const nalUnit, const size_t naluSize, const MSCodecID codecID) {
     if (codecID == MSCodecID_H264) {

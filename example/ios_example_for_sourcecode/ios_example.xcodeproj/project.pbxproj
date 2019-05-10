@@ -286,19 +286,19 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F8C2FB02242263500531FB2 /* GLKit.framework in Frameworks */,
 				4FD250352280466800978BBA /* Accelerate.framework in Frameworks */,
+				4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */,
+				4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */,
+				4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */,
 				4FAD52F2226886C200C6BA84 /* libx264.a in Frameworks */,
 				4FAD52F0226886C200C6BA84 /* libfdk-aac.a in Frameworks */,
 				4FAD512122687B1500C6BA84 /* liboss_c_sdk.a in Frameworks */,
-				4F8C2FB02242263500531FB2 /* GLKit.framework in Frameworks */,
 				4FAD511E22687B1500C6BA84 /* libjson_cpp_static.a in Frameworks */,
 				4FAD52ED226886C200C6BA84 /* libavformat.a in Frameworks */,
 				4FAD511B22687B1500C6BA84 /* libapr-1.a in Frameworks */,
 				4FAD52EB226886C200C6BA84 /* libavutil.a in Frameworks */,
 				4FAD52EC226886C200C6BA84 /* libavcodec.a in Frameworks */,
-				4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */,
-				4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */,
-				4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */,
 				4FAD52EF226886C200C6BA84 /* libswscale.a in Frameworks */,
 				4FAD512222687B1500C6BA84 /* libpjlib-util_static.a in Frameworks */,
 				4FAD52F3226886C200C6BA84 /* libx265.a in Frameworks */,

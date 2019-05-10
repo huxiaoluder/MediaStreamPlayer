@@ -118,7 +118,7 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
     APCodecContext * const decoderContext = getAudioDecoderContext(data);
     
     if (decoderContext) {
-        OSStatus status;
+        OSStatus status = noErr;
         
         const MSAudioParameters &audioParameters = *audioParametersMap[this];
         
@@ -137,7 +137,9 @@ APDecoder::decodeAudio(const MSMedia<MSEncodeMedia> * const audioData) {
                 outPacktNumber = 0;
                 decompressionInputProc = decompressionOpusConverterInputProc;
             }   break;
-            default: break;
+            default: {
+                delete audioData;
+            }   return;
         }
         
         UInt32 mDataByteSize = outPacktNumber * 2 * (UInt32)audioParameters.channels;
@@ -297,9 +299,9 @@ APDecoder::getAudioDecoderContext(const MSMedia<MSEncodeMedia> &sourceData) {
                 audioParameters = audioParam;
             }   break;
             case MSCodecID_OPUS: {
-                
-            }   break;
-            default: break;
+                //TODO: MSCodecID_OPUS
+            }   return nullptr;
+            default: return nullptr;
         }
         audioParametersMap[this] = audioParameters;
         decoderContext = new APCodecContext(codecID, *audioParameters, *this);

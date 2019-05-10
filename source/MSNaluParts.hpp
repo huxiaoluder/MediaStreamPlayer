@@ -22,8 +22,8 @@ namespace MS {
         MSCodecID_HEVC = MSCodecID_H265,
         /*---audio---*/
         MSCodecID_AAC,
-        MSCodecID_OPUS,
-        MSCodecID_ALAW,//G711A
+        MSCodecID_OPUS,// Not supported temporarily
+        MSCodecID_ALAW,// G711A
     };
     
     /**
