@@ -47,8 +47,6 @@
 		4FD250552283F7E800978BBA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD250522283F7E800978BBA /* Main.storyboard */; };
 		4FD2505C2283F9DE00978BBA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4FD2504D2283F78400978BBA /* Assets.xcassets */; };
 		4FD2505E2283FA5500978BBA /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD2505D2283FA5500978BBA /* Accelerate.framework */; };
-		4FE5B1712269B73A00922B84 /* MediaStreamPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FE5B1702269B73A00922B84 /* MediaStreamPlayer.framework */; };
-		4FE5B1732269B7B200922B84 /* MediaStreamPlayer.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 4FE5B1702269B73A00922B84 /* MediaStreamPlayer.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -58,7 +56,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				4FE5B1732269B7B200922B84 /* MediaStreamPlayer.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -261,7 +258,6 @@
 				4F17085B21D5FC6400CE476E /* CoreMedia.framework in Frameworks */,
 				4FB3890821F5A2E4008BE0C2 /* AudioToolbox.framework in Frameworks */,
 				4F17085C21D5FC8600CE476E /* VideoToolbox.framework in Frameworks */,
-				4FE5B1712269B73A00922B84 /* MediaStreamPlayer.framework in Frameworks */,
 				4FAD52EF226886C200C6BA84 /* libswscale.a in Frameworks */,
 				4FAD512222687B1500C6BA84 /* libpjlib-util_static.a in Frameworks */,
 				4FAD52F3226886C200C6BA84 /* libx265.a in Frameworks */,

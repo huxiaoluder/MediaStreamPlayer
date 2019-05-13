@@ -75,11 +75,7 @@ namespace MS {
         float speedMultiplier = 1.0f;
         
         const ThrowDecodeData throwDecodeVideo;
-        
         const ThrowDecodeData throwDecodeAudio;
-        
-        void clearAllVideo();
-        void clearAllAudio();
         
         thread initSyncDataVideoDecodeThread();
         thread initSyncDataAudioDecodeThread();
@@ -110,6 +106,10 @@ namespace MS {
         MSEncoderProtocol<T> & reEncoder();
         
         void updateSpeedMultiplier(const float multiplier);
+
+        void clearAllVideo();
+        
+        void clearAllAudio();
         
         void startPlayVideo();
         
@@ -224,6 +224,11 @@ namespace MS {
     }
     
     template <typename T>
+    void MSPlayer<T>::updateSpeedMultiplier(const float multiplier) {
+        speedMultiplier = multiplier;
+    }
+    
+    template <typename T>
     void MSPlayer<T>::clearAllVideo() {
         const MSMedia<MSEncodeMedia> *encodeData = nullptr;
         const MSMedia<MSDecodeMedia,T> *decodeData = nullptr;
@@ -253,11 +258,6 @@ namespace MS {
             sampleQueue.pop();
             delete decodeData;
         }
-    }
-    
-    template <typename T>
-    void MSPlayer<T>::updateSpeedMultiplier(const float multiplier) {
-        speedMultiplier = multiplier;
     }
     
     template <typename T>
