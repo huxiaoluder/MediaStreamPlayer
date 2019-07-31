@@ -156,9 +156,18 @@ namespace MS {
     throwDecodeVideo(throwDecodeVideo),
     throwDecodeAudio(throwDecodeAudio),
     videoTimer(initVideoTimer()),
-    audioTimer(initAudioTimer()),
-    videoDecodeThread(initSyncDataVideoDecodeThread()),
-    audioDecodeThread(initSyncDataAudioDecodeThread()) {
+    audioTimer(initAudioTimer()) {
+        /*
+         只能在构造函数中开辟子线程, 不能在参数列表中实例化,
+         因为线程闭包(lamda)参数需要抓取 this 变量, 获取线程需要的变量环境,
+         若在参数列表初始化, 则函数 initSyncDataVideoDecodeThread() 中
+         unique_lock<mutex> lock(videoConditionMutex) 时;
+         videoConditionMutex 可能还未初始化(会随机崩溃, 受 CPU 调度影响)
+         注: c++ 对象成员变量初始化顺序(先->后): 1.参数列表 -> 2.成员变量默认值 -> 3.构造函数内部
+         注: 参数列表中初始化的成员变量, 不会再进行默认值初始化(同一个变量有 1, 则忽略 2, 但不会忽略 3)
+         */
+        videoDecodeThread = initSyncDataVideoDecodeThread();
+        audioDecodeThread = initSyncDataAudioDecodeThread();
         assert(_syncDecoder && throwDecodeVideo && throwDecodeAudio);
     }
     
@@ -172,9 +181,18 @@ namespace MS {
     throwDecodeVideo(throwDecodeVideo),
     throwDecodeAudio(throwDecodeAudio),
     videoTimer(initVideoTimer()),
-    audioTimer(initAudioTimer()),
-    videoDecodeThread(initAsynDataVideoDecodeThread()),
-    audioDecodeThread(initAsynDataAudioDecodeThread()) {
+    audioTimer(initAudioTimer()) {
+        /*
+         只能在构造函数中开辟子线程, 不能在参数列表中实例化,
+         因为线程闭包(lamda)参数需要抓取 this 变量, 获取线程需要的变量环境,
+         若在参数列表初始化, 则函数 initSyncDataVideoDecodeThread() 中
+         unique_lock<mutex> lock(videoConditionMutex) 时;
+         videoConditionMutex 可能还未初始化(会随机崩溃, 受 CPU 调度影响)
+         注: c++ 对象成员变量初始化顺序(先->后): 1.参数列表 -> 2.成员变量默认值 -> 3.构造函数内部
+         注: 参数列表中初始化的成员变量, 不会再进行默认值初始化(同一个变量有 1, 则忽略 2, 但不会忽略 3)
+         */
+        videoDecodeThread = initAsynDataVideoDecodeThread();
+        audioDecodeThread = initAsynDataAudioDecodeThread();
         assert(_asynDecoder && throwDecodeVideo && throwDecodeAudio);
         _asynDecoder->setDataReceiver(this);
     }
